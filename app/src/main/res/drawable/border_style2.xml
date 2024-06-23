@@ -1,0 +1,8 @@
+<!-- res/drawable/border_style.xml -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android">
+    <solid android:color="#FFFFFF" /> <!-- 內部填充顏色，這裡是白色 -->
+    <stroke
+        android:width="2dp"
+    android:color="#000000" />
+    <corners android:radius="8dp" />
+</shape>

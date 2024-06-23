@@ -1,0 +1,15 @@
+<resources>
+    <string name="app_name">Foodtime_compose0518</string>
+    <string name="title_activity_main2">MainActivity2</string>
+    <string name="title_activity_ingredient">Ingredient</string>
+    <string name="title_activity_add_fragment">AddFragment</string>
+    <string name="title_activity_food_detail_screen">FoodDetailScreen</string>
+    <string name="title_activity_holiday_screen">HolidayScreen</string>
+    <string name="title_activity_holiday_detail_screen">HolidayDetailScreen</string>
+    <string name="title_activity_add_holiday_screen">AddHolidayScreen</string>
+    <string name="title_activity_normal_list">NormalList</string>
+    <string name="title_activity_normal_list_screen">NormalListScreen</string>
+    <string name="title_activity_normal_add_screen">NormalAddScreen</string>
+    <string name="title_activity_myself_screen">myselfScreen</string>
+    <string name="title_activity_logout_screen">LogoutScreen</string>
+</resources>
