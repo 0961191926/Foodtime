@@ -13,6 +13,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.foundation.Image
+
+import androidx.compose.foundation.background
+
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -47,21 +50,31 @@ import androidx.compose.material.icons.filled.AccountBox
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Call
 import androidx.compose.material.icons.filled.DateRange
+
+import androidx.lifecycle.ViewModelProvider
+
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Email
+import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.List
+import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.lifecycle.ViewModelProvider
+
+
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.*
-import com.example.foodtime_compose0518.ui.theme.Foodtime_compose0518Theme
-import com.example.foodtime_compose0518.ui.theme.bodyFontFamily
-import com.example.foodtime_compose0518.ui.theme.displayFontFamily
 
-import androidx.compose.ui.platform.LocalContext
+import com.example.foodtime_compose0518.ui.theme.Foodtime0518_Theme
+import com.example.foodtime_compose0518.ui.theme.secondaryContainerLight
+import com.example.foodtime_compose0518.ui.theme.surfaceContainerLowLight
+
+
 import androidx.activity.viewModels
 import com.example.foodtime_compose0518.FoodDatabase
 import com.example.foodtime_compose0518.HolidayViewModel
@@ -76,7 +89,7 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            Foodtime_compose0518Theme {
+            Foodtime0518_Theme {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
@@ -84,6 +97,7 @@ class MainActivity : ComponentActivity() {
                     MyApp(holidayViewModel)
                 }
             }
+
         }
     }
 }
@@ -92,6 +106,19 @@ data class DrawerMenuItem(
     val route: String,
     val icon: ImageVector,
     val title: String
+)
+val routeTitleMap = mapOf(
+    "ingredients" to "食材庫",
+    "holidays" to "節日清單",
+    "NormalList" to "常備清單",
+    "Expired_food" to "過期食材",
+    "logout" to "登出",
+    "home_page" to "首頁",
+    "addFragment" to "新增食材",
+    "Addholiday" to "新增節日",
+    "FoodDetail" to "食材資訊",
+    "HolidayDetail" to "所需食材",
+    "AddFood" to "新增食材"
 )
 
 val drawerMenuItems = listOf(
@@ -102,16 +129,22 @@ val drawerMenuItems = listOf(
     DrawerMenuItem("logout", Icons.Default.Search, "登出")
 )
 
+
+@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MyApp(holidayViewModel: HolidayViewModel) {
+
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
     val navController = rememberNavController()
     val items = drawerMenuItems
     val selectedItem = remember { mutableStateOf(items[0]) }
     val navBackStackEntry by navController.currentBackStackEntryAsState()
-    val currentRoute = navBackStackEntry?.destination?.route ?: "食材庫"
+
+    val currentRoute = navBackStackEntry?.destination?.route ?: "ingredients"
+    val currentTitle = routeTitleMap[currentRoute] ?: "食材庫"
+
 
     ModalNavigationDrawer(
         drawerState = drawerState,
@@ -139,32 +172,60 @@ fun MyApp(holidayViewModel: HolidayViewModel) {
             Scaffold(
                 topBar = {
                     TopAppBar(
-                        title = { Text(currentRoute) },
+
+                        title = { Text(currentTitle) },
+
                         navigationIcon = {
                             IconButton(onClick = { scope.launch { drawerState.open() } }) {
                                 Icon(imageVector = Icons.Default.Menu, contentDescription = null)
                             }
-                        }
+
+                        },
+                        actions = {
+                            IconButton(onClick = { navController.navigate("home_page") }) {
+                                Icon(imageVector = Icons.Default.Home, contentDescription = "Home")
+                            }
+                        },
+                        colors = TopAppBarDefaults.topAppBarColors(
+                            containerColor = secondaryContainerLight,
+                        )
                     )
                 },
-                content = { paddingValues ->
-                    NavHost(navController = navController, startDestination = "new_page", Modifier.padding(paddingValues)) {
-                        composable("ingredients") { IngredientsScreen(navController) }
-                        composable("holidays") { HolidayScreen(navController) }
-                        composable("Addholiday") { HolidayAdd(navController, holidayViewModel) }
-                        composable("HolidayDetail") { HolidayDetailScreen(navController) }
-                        composable("NormalList") { Normallist(navController) }
-                        composable("AddFood") { AddScreen(navController) }
-                        composable("Myself") { LoginScreen(navController) }
-                        composable("new_page") { NewPageScreen() }
-                        composable("logout") { LogoutScreen(navController) }
-                        composable("addFragment") { AddFragmentScreen(navController) }
-                        composable("FoodDetail") { DetailFragment(navController) }
-                    }
+            ) { paddingValues ->
+                NavHost(navController = navController, startDestination = "home_page", Modifier.padding(paddingValues)) {
+                    composable("ingredients") { IngredientsScreen(navController) }
+                    composable("holidays") { HolidayScreen(navController) }
+                    composable("Addholiday") { HolidayAdd(navController, holidayViewModel) }
+                    composable("HolidayDetail") { HolidayDetailScreen(navController) }
+                    composable("NormalList") { Normallist(navController) }
+                    composable("AddFood") { AddScreen(navController) }
+                    composable("Expired_food") { ExpireScreen(navController) }
+                    composable("home_page") { Home_pageScreen() }
+                    composable("logout") { LoginScreen(navController) }
+                    composable("addFragment") { AddFragmentScreen(navController) }
+                    composable("FoodDetail") { DetailFragment(navController) }
                 }
-            )
+            }
+
         }
     )
+}
+
+
+@Preview
+@Composable
+private fun TRY() {
+    Foodtime0518_Theme {
+        Column() {
+            Button(onClick = { /*TODO*/ }) {
+                Text(text = "Button")
+            }
+            Text(
+                text = "Hello M3 theming",
+                color = MaterialTheme.colorScheme.tertiary
+            )
+        }
+    }
 }
 
 
@@ -213,30 +274,12 @@ fun AboutScreen() {
     }
 }
 
-//@Composable
-//fun LogoutScreen() {
-//    TemplateScreen(
-//        title = "登出"
-//    ) {
-//        Column(
-//            modifier = Modifier
-//                .fillMaxSize()
-//                .padding(16.dp),
-//            horizontalAlignment = Alignment.CenterHorizontally,
-//            verticalArrangement = Arrangement.Center
-//        ) {
-//            Text(text = "這是登出頁面")
-//            Button(onClick = { /* TODO: 实现登出操作 */ }) {
-//                Text("登出")
-//            }
-//        }
-//    }
-//}
 
 @Composable
-fun NewPageScreen() {
+fun Home_pageScreen() {
     TemplateScreen(
-        title = "新頁面"
+        title = "首頁"
+
     ) {
         Column(
             modifier = Modifier
@@ -265,6 +308,9 @@ fun NewPageScreen() {
 @Composable
 fun TemplateScreen(
     title: String,
+
+    backgroundColor: Color = surfaceContainerLowLight,
+
     content: @Composable () -> Unit
 ) {
     Scaffold(
@@ -274,25 +320,16 @@ fun TemplateScreen(
 //            )
 //        },
         content = {
-            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+
+            Box(modifier = Modifier
+                .fillMaxSize()
+                .background(backgroundColor),
+                contentAlignment = Alignment.Center) {
+
                 content()
             }
         }
     )
 }
 
-@Preview(showBackground = true)
-@Composable
-private fun PreviewMyApp() {
-    val context = LocalContext.current
-    val database = FoodDatabase.getInstance(context)
-    val holidayViewModelFactory = HolidayViewModelFactory(database.foodDao)
-    val holidayViewModel = ViewModelProvider(
-        LocalContext.current as ComponentActivity,
-        holidayViewModelFactory
-    ).get(HolidayViewModel::class.java)
 
-    Foodtime_compose0518Theme {
-        MyApp(holidayViewModel)
-    }
-}

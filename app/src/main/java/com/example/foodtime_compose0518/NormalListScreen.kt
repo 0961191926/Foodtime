@@ -39,8 +39,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
-import com.example.foodtime_compose0518.ui.theme.Foodtime_compose0518Theme
-import com.example.foodtime_compose0518.ui.theme.myprimary1
+import com.example.foodtime_compose0518.ui.theme.Foodtime0518_Theme
 
 //class NormalListScreen : ComponentActivity() {
 //    override fun onCreate(savedInstanceState: Bundle?) {
@@ -70,7 +69,7 @@ fun Greeting4(name: String, modifier: Modifier = Modifier) {
 @Preview(showBackground = true)
 @Composable
 fun GreetingPreview4() {
-    Foodtime_compose0518Theme {
+    Foodtime0518_Theme {
         Greeting4("Android")
     }
 }
@@ -89,7 +88,7 @@ fun Normallist(navController: NavController) {
         ) {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.padding(vertical = 20.dp)
+                modifier = Modifier.padding(vertical = 10.dp)
             ) {
                 // Image and Text
                 Column(
@@ -100,7 +99,7 @@ fun Normallist(navController: NavController) {
                         painter = painterResource(id = R.drawable.broccoli),
                         contentDescription = "Navigation Menu",
                         modifier = Modifier
-                            .size(80.dp)
+                            .size(60.dp)
                             .padding(12.dp)
                     )
                     Text(
@@ -114,10 +113,7 @@ fun Normallist(navController: NavController) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Spacer(modifier = Modifier.width(20.dp))
                     IconButton(onClick = { /* doSomething() */ }) {
-                        Icon(
-                            Icons.Outlined.KeyboardArrowUp,
-                            contentDescription = "Localized description"
-                        )
+                        Icon(Icons.Outlined.KeyboardArrowUp, contentDescription = "Localized description")
                     }
                     OutlinedTextField(
                         value = "1",
@@ -129,10 +125,7 @@ fun Normallist(navController: NavController) {
                         keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number)
                     )
                     IconButton(onClick = { /* doSomething() */ }) {
-                        Icon(
-                            Icons.Outlined.KeyboardArrowDown,
-                            contentDescription = "Localized description"
-                        )
+                        Icon(Icons.Outlined.KeyboardArrowDown, contentDescription = "Localized description")
                     }
                     IconButton(onClick = { /* doSomething() */ }) {
                         Icon(Icons.Outlined.Clear, contentDescription = "Localized description")
@@ -153,7 +146,7 @@ fun Normallist(navController: NavController) {
                         painter = painterResource(id = R.drawable.meat),
                         contentDescription = "Navigation Menu",
                         modifier = Modifier
-                            .size(80.dp)
+                            .size(65.dp)
                             .padding(12.dp)
                     )
                     Text(

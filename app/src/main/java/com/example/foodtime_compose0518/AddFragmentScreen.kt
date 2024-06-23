@@ -22,19 +22,30 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.outlined.KeyboardArrowDown
 import androidx.compose.material.icons.outlined.KeyboardArrowUp
 import androidx.compose.material3.*
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.platform.LocalContext
 
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.sp
-import com.example.foodtime_compose0518.ui.theme.Foodtime_compose0518Theme
+import com.example.foodtime_compose0518.ui.theme.Foodtime0518_Theme
+import com.example.foodtime_compose0518.ui.theme.onPrimaryLight
+import com.example.foodtime_compose0518.ui.theme.primaryLight
 import com.example.foodtime_compose0518.ui.theme.bodyFontFamily
 import com.example.foodtime_compose0518.ui.theme.displayFontFamily
-import com.example.foodtime_compose0518.ui.theme.myprimary1
-import com.example.foodtime_compose0518.ui.theme.onPrimaryLight
+import java.text.SimpleDateFormat
+import java.time.format.DateTimeFormatter
+import java.time.format.FormatStyle
+import java.util.Date
+import java.util.Locale
 
 
 @Composable
@@ -56,7 +67,13 @@ private fun AddFragmentPreview() {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddFragmentContent(navController: NavController) { // 接收 navController
-    Foodtime_compose0518Theme {
+    var ingredientName by remember { mutableStateOf("") }
+    var quantity by remember { mutableStateOf(1) } // 修改为 Int 类型
+    var loginDate by remember { mutableStateOf("2024/05/12") }
+    var expirationDate by remember { mutableStateOf("2024/05/12") }
+    val context = LocalContext.current
+
+    Foodtime0518_Theme {
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -73,8 +90,8 @@ fun AddFragmentContent(navController: NavController) { // 接收 navController
                     fontFamily = displayFontFamily
                 )
                 OutlinedTextField(
-                    value = "",
-                    onValueChange = {},
+                    value = ingredientName,
+                    onValueChange = { ingredientName = it },
                     label = { Text(text = "輸入食材名稱") },
                     modifier = Modifier.weight(1f)
                 )
@@ -90,26 +107,32 @@ fun AddFragmentContent(navController: NavController) { // 接收 navController
                     fontFamily = displayFontFamily
                 )
                 Spacer(modifier = Modifier.width(50.dp))
-                IconButton(onClick = { /* doSomething() */ }) {
+                IconButton(onClick = {
+                    if (quantity > 0) quantity-- // 确保数量不会变成负数
+                }) {
                     Icon(
-                        Icons.Outlined.KeyboardArrowUp,
-                        contentDescription = "Localized description"
+                        Icons.Outlined.KeyboardArrowDown,
+                        contentDescription = "增加數量"
                     )
                 }
 
                 OutlinedTextField(
-                    value = "1",
-                    onValueChange = {},
+                    value = quantity.toString(), // 显示当前数量
+                    onValueChange = {
+                        quantity = it.toIntOrNull() ?: quantity // 确保输入的是数字
+                    },
                     label = { },
                     modifier = Modifier
                         .width(120.dp)
                         .padding(horizontal = 8.dp),
                     keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number)
                 )
-                IconButton(onClick = { /* doSomething() */ }) {
+                IconButton(onClick = {
+                     quantity++ // 确保数量不会变成负数
+                }) {
                     Icon(
-                        Icons.Outlined.KeyboardArrowDown,
-                        contentDescription = "Localized description"
+                        Icons.Outlined.KeyboardArrowUp,
+                        contentDescription = "減少數量"
                     )
                 }
             }
@@ -123,13 +146,12 @@ fun AddFragmentContent(navController: NavController) { // 接收 navController
                     modifier = Modifier.padding(end = 10.dp),
                     fontFamily = displayFontFamily
                 )
-
                 DateTextField(
-                    text = "2024/05/12", // 初始化日期
-                    onChange = { /* 处理日期变化的回调 */ },
+                    text = loginDate,
+                    onChange = { loginDate = it },
                     label = "選擇日期",
                     isIllegalInput = false,
-                    modifier = Modifier.weight(1f) // 填充剩余空间
+                    modifier = Modifier.weight(1f)
                 )
             }
 
@@ -144,11 +166,11 @@ fun AddFragmentContent(navController: NavController) { // 接收 navController
                 )
 
                 DateTextField(
-                    text = "2024/05/12", // 初始化日期
-                    onChange = { /* 处理日期变化的回调 */ },
+                    text = expirationDate,
+                    onChange = { expirationDate = it },
                     label = "選擇日期",
                     isIllegalInput = false,
-                    modifier = Modifier.weight(1f) // 填充剩余空间
+                    modifier = Modifier.weight(1f)
                 )
             }
 
@@ -157,7 +179,7 @@ fun AddFragmentContent(navController: NavController) { // 接收 navController
             Row {
                 Button(
                     colors = ButtonDefaults.buttonColors(
-                        myprimary1 // 使用您定义的颜色
+                        primaryLight // 使用您定义的颜色
                     ),
                     onClick = {
                         navController.navigate("ingredients")
@@ -189,13 +211,14 @@ fun AddFragmentContent(navController: NavController) { // 接收 navController
                     Text(text = "取消",
                         fontSize = 16.sp,
                         fontFamily = bodyFontFamily,
-                        style = TextStyle(color = myprimary1)
+                        style = TextStyle(color = primaryLight)
                     )
                 }
             }
         }
     }
 }
+
 
 
 @Preview
@@ -211,7 +234,7 @@ fun DateTextField (
     trailingIcon: @Composable (() -> Unit)? = null, //要讓datepicker的IconButton放在這
     onChange: (String) -> Unit,
     imeAction: ImeAction = ImeAction.Next,
-    keyboardType: KeyboardType = KeyboardType.Number,
+    keyboardType: KeyboardType = KeyboardType.Text, // 修改為 Text
     keyBoardActions: KeyboardActions = KeyboardActions(), //設定軟鍵盤
     isEnabled: Boolean = true,
     label: String,
@@ -231,7 +254,7 @@ fun DateTextField (
         enabled = isEnabled,
         trailingIcon = trailingIcon,
         label = {
-            Text(text = label, style = TextStyle(fontSize = 18.sp))
+            Text(text = "Date/Time", style = TextStyle(fontSize = 18.sp))
         },
         singleLine = true,
 //        supportingText = {
@@ -284,3 +307,9 @@ fun CustomDatePickerDialog (
         }
     )
 }
+
+
+
+
+
+

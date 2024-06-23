@@ -12,4 +12,6 @@
     <string name="title_activity_normal_add_screen">NormalAddScreen</string>
     <string name="title_activity_myself_screen">myselfScreen</string>
     <string name="title_activity_logout_screen">LogoutScreen</string>
+    <string name="title_activity_trytrysee">trytrysee</string>
+
 </resources>

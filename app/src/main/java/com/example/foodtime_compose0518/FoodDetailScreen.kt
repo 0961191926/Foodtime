@@ -19,9 +19,14 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -34,17 +39,17 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
-import com.example.foodtime_compose0518.ui.theme.Foodtime_compose0518Theme
+import com.example.foodtime_compose0518.ui.theme.Foodtime0518_Theme
 import com.example.foodtime_compose0518.ui.theme.onPrimaryLight
 import com.example.foodtime_compose0518.ui.theme.bodyFontFamily
 import com.example.foodtime_compose0518.ui.theme.displayFontFamily
-import com.example.foodtime_compose0518.ui.theme.myprimary1
+import com.example.foodtime_compose0518.ui.theme.primaryLight
 
 class FoodDetailScreen : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            Foodtime_compose0518Theme {
+            Foodtime0518_Theme {
                 // A surface container using the 'background' color from the theme
                 Surface(
                     modifier = Modifier.fillMaxSize(),
@@ -68,20 +73,22 @@ fun Greeting(name: String, modifier: Modifier = Modifier) {
 @Preview(showBackground = true)
 @Composable
 fun GreetingPreview() {
-    Foodtime_compose0518Theme {
+    Foodtime0518_Theme {
         Greeting("Android")
     }
 }
 
 @Composable
 fun DetailFragment(navController: NavController) {
+    var loginDate by remember { mutableStateOf("2024/05/12") }
+    var expirationDate by remember { mutableStateOf("2024/05/12") }
     Column(
         modifier = Modifier
             .fillMaxSize()
 //            .background(Color(0xFFECF5FF))
             .padding(horizontal = 16.dp)
     ) {
-        Spacer(modifier = Modifier.height(60.dp))
+        Spacer(modifier = Modifier.height(40.dp))
 
         // 食材名稱输入框
         Row(verticalAlignment = Alignment.CenterVertically) {
@@ -136,19 +143,17 @@ fun DetailFragment(navController: NavController) {
                 modifier = Modifier.padding(end = 10.dp),
                 fontFamily = displayFontFamily
             )
-
-            // 在这里调用 DateTextField 组件
-            DateTextField(
-                text = "2024/05/12", // 初始化日期
-                onChange = { /* 处理日期变化的回调 */ },
-                label = "選擇日期",
-                isIllegalInput = false,
-                modifier = Modifier.weight(1f) // 填充剩余空间
+            OutlinedTextField(
+                value = loginDate,
+                onValueChange = { loginDate = it },
+                label = { Text("選擇日期") },
+                modifier = Modifier.weight(1f)
             )
         }
 
         Spacer(modifier = Modifier.height(60.dp))
 
+        // 保存期限
         Row(verticalAlignment = Alignment.CenterVertically) {
             Text(
                 text = "保存期限",
@@ -156,18 +161,15 @@ fun DetailFragment(navController: NavController) {
                 modifier = Modifier.padding(end = 10.dp),
                 fontFamily = displayFontFamily
             )
-
-            // 在这里调用 DateTextField 组件
-            DateTextField(
-                text = "2024/05/12", // 初始化日期
-                onChange = { /* 处理日期变化的回调 */ },
-                label = "選擇日期",
-                isIllegalInput = false,
-                modifier = Modifier.weight(1f) // 填充剩余空间
+            OutlinedTextField(
+                value = expirationDate,
+                onValueChange = { expirationDate = it },
+                label = { Text("選擇日期") },
+                modifier = Modifier.weight(1f)
             )
         }
 
-        Spacer(modifier = Modifier.height(120.dp))
+        Spacer(modifier = Modifier.height(80.dp))
 
         Column(
             modifier = Modifier.fillMaxWidth(),
@@ -181,7 +183,7 @@ fun DetailFragment(navController: NavController) {
                 Button(
                     onClick = { navController.popBackStack() },
                     colors = ButtonDefaults.buttonColors(
-                        myprimary1 // 使用您定义的颜色
+                        primaryLight // 使用您定义的颜色
                     ),
                     modifier = Modifier
                         .weight(1f)
@@ -219,7 +221,7 @@ fun DetailFragment(navController: NavController) {
                         text = "取消",
                         fontSize = 22.sp,
                         fontFamily = bodyFontFamily,
-                        style = TextStyle(color = myprimary1)
+                        style = TextStyle(color = primaryLight)
                     )
                 }
             }

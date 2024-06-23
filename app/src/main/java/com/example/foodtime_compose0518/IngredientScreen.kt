@@ -14,16 +14,23 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.Divider
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Create
 import androidx.compose.material3.ExtendedFloatingActionButton
+import androidx.compose.material3.Icon
+import androidx.compose.material3.ListItemColors
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import com.example.foodtime_compose0518.ui.theme.Foodtime_compose0518Theme
+import androidx.navigation.compose.rememberNavController
+import com.example.foodtime_compose0518.ui.theme.Foodtime0518_Theme
 import com.example.foodtime_compose0518.ui.theme.bodyFontFamily
 import com.example.foodtime_compose0518.ui.theme.displayFontFamily
 
@@ -69,7 +76,7 @@ fun NoteItem(
             painter = painterResource(cover2),
             contentDescription = "Note cover 2",
             modifier = Modifier
-                .size(40.dp)
+                .size(25.dp)
                 .clickable { onClick(note) } // 修改点击事件的调用方式
 
         )
@@ -116,13 +123,17 @@ fun NoteList(navController: NavController) {
         Spacer(modifier = Modifier.weight(1f))
 
         Padding16dp {
-            MyFloatingActionButton(
-                navController = navController, // 传递 NavController
+            ExtendedFloatingActionButton(
                 onClick = {
-                    navController.navigate("addFragment")
-
-                }
-
+                    navController.navigate("AddFragment")
+                },
+                icon = {
+                    Icon(
+                        Icons.Filled.Add,
+                        "Extended floating action button."
+                    )
+                },
+                text = { Text(text = "新增食材")},
             )
         }
     }
@@ -141,35 +152,7 @@ fun Padding16dp(content: @Composable () -> Unit) {
 }
 
 @Composable
-fun MyFloatingActionButton(
-    navController: NavController, // 添加 NavController 参数
-    onClick: () -> Unit
-) {
-//    FloatingActionButton(
-//        onClick = onClick,
-//        backgroundColor = MaterialTheme.colors.onPrimary,
-//        contentColor = MaterialTheme.colors.onPrimary,
-//        elevation = FloatingActionButtonDefaults.elevation(),
-//        shape = CircleShape,
-//        modifier = Modifier.padding(16.dp)
-//    ) {
-//        Icon(
-//            imageVector = Icons.Default.Add,
-//            contentDescription = "Add"
-//        )
-//    }
-    Foodtime_compose0518Theme {
-        ExtendedFloatingActionButton(onClick = { navController.navigate("addFragment") }) {
-            Text(text = "新增食材")
-        }
-    }
-}
-
-@Composable
 fun IngredientsScreen(navController: NavController) {
-    TemplateScreen(
-        title = "食材庫"
-    ) {
 //        Column(
 //            modifier = Modifier
 //                .fillMaxSize()
@@ -182,9 +165,17 @@ fun IngredientsScreen(navController: NavController) {
 //                Text("添加食材")
 //            }
 //        }
-        Column {
-            // 将 NavController 传递给 NoteList 函数
-            NoteList(navController = navController)
-        }
+    Column {
+        // 将 NavController 传递给 NoteList 函数
+        NoteList(navController = navController)
     }
 }
+
+
+@Preview(showBackground = true)
+@Composable
+fun IngredientsScreenPreview() {
+    val navController = rememberNavController()
+    IngredientsScreen(navController = navController)
+}
+
