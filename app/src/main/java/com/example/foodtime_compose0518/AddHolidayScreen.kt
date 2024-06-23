@@ -161,7 +161,10 @@ fun HolidayAdd(navController: NavController,holidayViewModel: HolidayViewModel) 
                     colors = ButtonDefaults.buttonColors(
                         primaryLight // 使用您定义的颜色
                     ),
-                    onClick = { navController.navigate("holidays") },
+                    onClick = { holidayViewModel.setHolidayName(Holiday.value)
+                                holidayViewModel.addHoliday()
+                                navController.navigate("holidays")
+                              },
 
                     modifier = Modifier
                         .weight(1f)
