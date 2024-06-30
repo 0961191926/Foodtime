@@ -36,6 +36,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
 import com.example.foodtime_compose0518.ui.theme.Foodtime0518_Theme
 import com.example.foodtime_compose0518.ui.theme.onPrimaryLight
 import com.example.foodtime_compose0518.ui.theme.primaryLight
@@ -146,13 +147,10 @@ fun AddFragmentContent(navController: NavController) { // 接收 navController
                     modifier = Modifier.padding(end = 10.dp),
                     fontFamily = displayFontFamily
                 )
-                DateTextField(
-                    text = loginDate,
-                    onChange = { loginDate = it },
-                    label = "選擇日期",
-                    isIllegalInput = false,
-                    modifier = Modifier.weight(1f)
-                )
+                MyDatePickerComponent()
+
+
+
             }
 
             Spacer(modifier = Modifier.height(60.dp))
@@ -165,13 +163,7 @@ fun AddFragmentContent(navController: NavController) { // 接收 navController
                     fontFamily = displayFontFamily
                 )
 
-                DateTextField(
-                    text = expirationDate,
-                    onChange = { expirationDate = it },
-                    label = "選擇日期",
-                    isIllegalInput = false,
-                    modifier = Modifier.weight(1f)
-                )
+                MyDatePickerComponent()
             }
 
             Spacer(modifier = Modifier.height(120.dp))
@@ -276,38 +268,79 @@ fun DateTextFieldPreview() {
     )
 }
 
-@ExperimentalMaterial3Api
+
+
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun CustomDatePickerDialog (
-    state: DatePickerState,
-    confirmButtonText: String = "OK",
-    dismissButtonText: String = "Cancel",
-    onDismissRequest: () -> Unit,
-    onConfirmButtonClicked: (Long?) -> Unit
-) {
-    DatePickerDialog(
-        onDismissRequest = onDismissRequest,
-        confirmButton = { //OK按鈕
-            androidx.compose.material.TextButton(onClick = { onConfirmButtonClicked(state.selectedDateMillis) }) {
-                Text(text = confirmButtonText)
-            }
-        },
-        dismissButton = { //cancel按鈕
-            androidx.compose.material.TextButton(onClick = onDismissRequest) {
-                Text(text = dismissButtonText)
-            }
-        },
-        content = {
-            DatePicker( //headline, title 切換模式的按鈕不需要
-                state = state,
-                showModeToggle = false,
-                headline = null,
-                title = null,
+fun MyDatePickerComponent() {
+    var showDatePicker by remember { mutableStateOf(false) }
+    var selectedDate by remember { mutableStateOf(Date()) }
+    val dateFormat = remember { SimpleDateFormat("yyyy/MM/dd", Locale.US) }
+    var textFieldValue by remember { mutableStateOf(dateFormat.format(selectedDate)) }
+
+    Column(
+        verticalArrangement = Arrangement.spacedBy(8.dp),
+        modifier = Modifier.padding(16.dp)
+    ) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            OutlinedTextField(
+                value = textFieldValue,
+                onValueChange = { textFieldValue = it },
+                label = { Text("日期") },
+                placeholder = { Text("YYYY/MM/DD") },
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(end = 10.dp),
+                trailingIcon = {
+                    IconButton(onClick = { showDatePicker = true }) {
+                        Icon(Icons.Default.DateRange, contentDescription = "Date")
+                    }
+                },
+                textStyle = LocalTextStyle.current.copy(fontSize = 16.sp)
             )
         }
-    )
+
+        if (showDatePicker) {
+            Dialog(onDismissRequest = { showDatePicker = false }) {
+                Surface(
+                    shape = MaterialTheme.shapes.medium,
+                    color = MaterialTheme.colorScheme.background,
+                    contentColor = MaterialTheme.colorScheme.onBackground
+                ) {
+                    Column(
+                        modifier = Modifier
+                            .padding(16.dp)
+                            .fillMaxWidth(),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        val datePickerState = rememberDatePickerState(initialSelectedDateMillis = selectedDate.time)
+                        DatePicker(state = datePickerState, modifier = Modifier.padding(16.dp))
+                        Spacer(modifier = Modifier.height(16.dp))
+                        Button(
+                            onClick = {
+                                selectedDate = Date(datePickerState.selectedDateMillis ?: 0)
+                                textFieldValue = dateFormat.format(selectedDate)
+                                showDatePicker = false
+                            }
+                        ) {
+                            Text("OK")
+                        }
+                    }
+                }
+            }
+        }
+    }
 }
 
+
+
+@Preview
+@Composable
+private fun MadatePickerpreview() {
+    Foodtime0518_Theme {
+        MyDatePickerComponent()
+    }
+}
 
 
 
