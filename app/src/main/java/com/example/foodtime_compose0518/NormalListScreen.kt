@@ -58,21 +58,6 @@ import com.example.foodtime_compose0518.ui.theme.Foodtime0518_Theme
 //    }
 //}
 
-@Composable
-fun Greeting4(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
-
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview4() {
-    Foodtime0518_Theme {
-        Greeting4("Android")
-    }
-}
 
 @Composable
 fun Normallist(navController: NavController) {
@@ -208,6 +193,8 @@ fun Normallist(navController: NavController) {
 @Preview
 @Composable
 fun Normallistpreview() {
-    val navController = rememberNavController()
-    Normallist(navController)
+    Foodtime0518_Theme {
+        val navController = rememberNavController()
+        Normallist(navController)
+    }
 }

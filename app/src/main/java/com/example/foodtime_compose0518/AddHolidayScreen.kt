@@ -86,22 +86,6 @@ class AddHolidayScreen : ComponentActivity() {
     }
 }
 
-@Composable
-
-fun Greeting3(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
-
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview3() {
-    Foodtime0518_Theme {
-        Greeting3("Android")
-    }
-}
 
 @Composable
 fun HolidayAdd(navController: NavController,holidayViewModel: HolidayViewModel) {

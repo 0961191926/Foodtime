@@ -125,7 +125,7 @@ val drawerMenuItems = listOf(
     DrawerMenuItem("ingredients", Icons.Default.Menu, "食材庫"),
     DrawerMenuItem("holidays", Icons.Default.Add, "節日清單"),
     DrawerMenuItem("NormalList", Icons.Default.DateRange, "常備清單"),
-    DrawerMenuItem("Myself", Icons.Default.Email, "關於自己"),
+    DrawerMenuItem("Expired_food", Icons.Default.Email, "過期食材"),
     DrawerMenuItem("logout", Icons.Default.Search, "登出")
 )
 
