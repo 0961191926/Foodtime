@@ -29,6 +29,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
 import com.example.foodtime_compose0518.ui.theme.Foodtime0518_Theme
 import com.example.foodtime_compose0518.ui.theme.bodyFontFamily
 import com.example.foodtime_compose0518.ui.theme.displayFontFamily
@@ -52,21 +53,9 @@ import com.example.foodtime_compose0518.ui.theme.primaryLight
 //    }
 //}
 
-@Composable
-fun Greeting5(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
 
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview5() {
-    Foodtime0518_Theme {
-        Greeting5("Android")
-    }
-}
+
+
 
 @Composable
 fun LoginScreen (navController: NavHostController) {
@@ -165,5 +154,15 @@ fun LoginScreen (navController: NavHostController) {
                 )
             }
         }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun PreviewLoginScreen() {
+    Foodtime0518_Theme {
+// 创建一个 NavHostController 以用于预览
+        val navController = rememberNavController()
+        LoginScreen(navController = navController)
     }
 }
