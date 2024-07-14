@@ -7,9 +7,14 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Update
+import kotlinx.coroutines.flow.Flow
+
+
 
 @Dao
 interface FoodDao {
+    @Query("SELECT * FROM holiday_table")
+    fun getAllUsers(): Flow<List<HolidayTable>>
 
     @Insert
     suspend fun insert(holiday: HolidayTable)

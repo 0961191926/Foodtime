@@ -194,7 +194,7 @@ fun MyApp(holidayViewModel: HolidayViewModel) {
             ) { paddingValues ->
                 NavHost(navController = navController, startDestination = "home_page", Modifier.padding(paddingValues)) {
                     composable("ingredients") { IngredientsScreen(navController) }
-                    composable("holidays") { HolidayScreen(navController) }
+                    composable("holidays") { HolidayScreen(navController,holidayViewModel) }
                     composable("Addholiday") { HolidayAdd(navController, holidayViewModel) }
                     composable("HolidayDetail") { HolidayDetailScreen(navController) }
                     composable("NormalList") { Normallist(navController) }
