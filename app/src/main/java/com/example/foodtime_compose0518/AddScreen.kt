@@ -1,65 +1,33 @@
 package com.example.foodtime_compose0518
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.KeyboardArrowDown
 import androidx.compose.material.icons.outlined.KeyboardArrowUp
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Text
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
-import androidx.navigation.compose.rememberNavController
-import com.example.foodtime_compose0518.ui.theme.Foodtime0518_Theme
-import com.example.foodtime_compose0518.ui.theme.onPrimaryLight
-import com.example.foodtime_compose0518.ui.theme.primaryLight
 import com.example.foodtime_compose0518.ui.theme.bodyFontFamily
 import com.example.foodtime_compose0518.ui.theme.displayFontFamily
-
-//class NormalAddScreen : ComponentActivity() {
-//    override fun onCreate(savedInstanceState: Bundle?) {
-//        super.onCreate(savedInstanceState)
-//        setContent {
-//            Foodtime_compose0518Theme {
-//                // A surface container using the 'background' color from the theme
-//                Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
-//                    Greeting5("Android")
-//                }
-//            }
-//        }
-//    }
-//}
-
-
-
+import com.example.foodtime_compose0518.ui.theme.primaryLight
+import com.example.foodtime_compose0518.ui.theme.onPrimaryLight
 
 @Composable
-fun AddScreen(navController: NavHostController) {
+fun AddScreen(navController: NavHostController, normalViewModel: NormalViewModel) {
     val food = remember { mutableStateOf("") }
+    val number = remember { mutableStateOf(1) }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -75,7 +43,7 @@ fun AddScreen(navController: NavHostController) {
                 modifier = Modifier.padding(end = 10.dp),
                 fontFamily = displayFontFamily
             )
-            androidx.compose.material3.OutlinedTextField(
+            OutlinedTextField(
                 value = food.value,
                 onValueChange = { food.value = it },
                 label = { Text("食材") },
@@ -86,7 +54,6 @@ fun AddScreen(navController: NavHostController) {
                     fontFamily = bodyFontFamily, // 使用自定義字體
                     fontSize = 16.sp // 設置字體大小
                 )
-
             )
         }
 
@@ -100,26 +67,28 @@ fun AddScreen(navController: NavHostController) {
                 fontFamily = displayFontFamily
             )
             Spacer(modifier = Modifier.width(50.dp))
-            IconButton(onClick = { /* doSomething() */ }) {
+            IconButton(onClick = { number.value += 1 }) {
                 Icon(
                     Icons.Outlined.KeyboardArrowUp,
-                    contentDescription = "Localized description"
+                    contentDescription = "Increase number"
                 )
             }
 
             OutlinedTextField(
-                value = "1",
-                onValueChange = {},
+                value = number.value.toString(),
+                onValueChange = {
+                    number.value = it.toIntOrNull() ?: 1
+                },
                 label = { },
                 modifier = Modifier
                     .width(120.dp)
                     .padding(horizontal = 8.dp),
                 keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number)
             )
-            IconButton(onClick = { /* doSomething() */ }) {
+            IconButton(onClick = { number.value -= 1 }) {
                 Icon(
                     Icons.Outlined.KeyboardArrowDown,
-                    contentDescription = "Localized description"
+                    contentDescription = "Decrease number"
                 )
             }
         }
@@ -143,7 +112,7 @@ fun AddScreen(navController: NavHostController) {
                 shape = RoundedCornerShape(35.dp) // 设置按钮的弧度
             ) {
                 Text(
-                    "增加食材",
+                    "取消",
                     fontSize = 16.sp,
                     fontFamily = bodyFontFamily
                 )
@@ -151,7 +120,10 @@ fun AddScreen(navController: NavHostController) {
 
             Button(
                 onClick = {
-                    // 回到 Normallist 屏幕
+                    // 增加食材
+                    normalViewModel.setNormalName(food.value)
+                    normalViewModel.setNumber(number.value)
+                    normalViewModel.addNormalItem()
                     navController.popBackStack()
                 },
                 colors = ButtonDefaults.buttonColors(
@@ -165,7 +137,7 @@ fun AddScreen(navController: NavHostController) {
                 shape = RoundedCornerShape(35.dp) // 设置按钮的弧度
             ) {
                 Text(
-                    text = "取消",
+                    text = "增加食材",
                     fontSize = 16.sp,
                     fontFamily = bodyFontFamily,
                     style = TextStyle(color = primaryLight)
@@ -173,11 +145,4 @@ fun AddScreen(navController: NavHostController) {
             }
         }
     }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun NormalAddScreenPreview() {
-    val navController = rememberNavController()
-    AddScreen(navController)
 }

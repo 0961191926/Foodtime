@@ -86,6 +86,14 @@ class MainActivity : ComponentActivity() {
         HolidayViewModelFactory(FoodDatabase.getInstance(application).foodDao)
     }
 
+    private val normalViewModel: NormalViewModel by viewModels {
+        NormalViewModelFactory(FoodDatabase.getInstance(application).normalDao)
+    }
+
+    private val stockViewModel: StockViewModel by viewModels {
+        StockViewModelFactory(FoodDatabase.getInstance(application).stockDao)
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
@@ -94,7 +102,7 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    MyApp(holidayViewModel)
+                    MyApp(holidayViewModel, normalViewModel, stockViewModel)
                 }
             }
 
@@ -133,7 +141,7 @@ val drawerMenuItems = listOf(
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MyApp(holidayViewModel: HolidayViewModel) {
+fun MyApp(holidayViewModel: HolidayViewModel, normalViewModel: NormalViewModel, stockViewModel: StockViewModel) {
 
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
@@ -198,11 +206,11 @@ fun MyApp(holidayViewModel: HolidayViewModel) {
                     composable("Addholiday") { HolidayAdd(navController, holidayViewModel) }
                     composable("HolidayDetail") { HolidayDetailScreen(navController) }
                     composable("NormalList") { Normallist(navController) }
-                    composable("AddFood") { AddScreen(navController) }
+                    composable("AddFood") { AddScreen(navController, normalViewModel) }
                     composable("Expired_food") { ExpireScreen(navController) }
                     composable("home_page") { Home_pageScreen() }
                     composable("logout") { LoginScreen(navController) }
-                    composable("addFragment") { AddFragmentScreen(navController) }
+                    composable("addFragment") { AddFragmentScreen(navController, stockViewModel) }
                     composable("FoodDetail") { DetailFragment(navController) }
                 }
             }
