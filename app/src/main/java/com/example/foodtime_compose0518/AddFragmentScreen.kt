@@ -50,29 +50,23 @@ import java.util.Locale
 
 
 @Composable
-fun AddFragmentScreen(navController: NavController) {
+fun AddFragmentScreen(navController: NavController, stockViewModel: StockViewModel) {
     TemplateScreen(
         title = "新增食材"
     ) {
-        AddFragmentContent(navController = navController)
+        AddFragmentContent(navController = navController, stockViewModel=stockViewModel)
     }
 }
 
-@Preview
-@Composable
-private fun AddFragmentPreview() {
-    val  NavController = rememberNavController()
-    AddFragmentScreen(NavController)
-}
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AddFragmentContent(navController: NavController) { // 接收 navController
+fun AddFragmentContent(navController: NavController, stockViewModel: StockViewModel) { // 接收 navController
     var ingredientName by remember { mutableStateOf("") }
     var quantity by remember { mutableStateOf(1) } // 修改为 Int 类型
-    var loginDate by remember { mutableStateOf("2024/05/12") }
-    var expirationDate by remember { mutableStateOf("2024/05/12") }
-    val context = LocalContext.current
+    var loginDate by remember { mutableStateOf(Date()) }
+    var expirationDate by remember { mutableStateOf(Date()) }
 
     Foodtime0518_Theme {
         Column(
@@ -149,8 +143,6 @@ fun AddFragmentContent(navController: NavController) { // 接收 navController
                 )
                 MyDatePickerComponent()
 
-
-
             }
 
             Spacer(modifier = Modifier.height(60.dp))
@@ -174,6 +166,11 @@ fun AddFragmentContent(navController: NavController) { // 接收 navController
                         primaryLight // 使用您定义的颜色
                     ),
                     onClick = {
+                        stockViewModel.setStockName(ingredientName)
+                        stockViewModel.setNumber(quantity)
+                        stockViewModel.setLoginDate(loginDate)
+                        stockViewModel.setExpiryDate(expirationDate)
+                        stockViewModel.addStockItem()
                         navController.navigate("ingredients")
                     },
                     modifier = Modifier
@@ -213,11 +210,6 @@ fun AddFragmentContent(navController: NavController) { // 接收 navController
 
 
 
-@Preview
-@Composable
-private fun Addcontentpreview() {
-    AddFragmentContent(navController = rememberNavController())
-}
 
 @Composable
 fun DateTextField (

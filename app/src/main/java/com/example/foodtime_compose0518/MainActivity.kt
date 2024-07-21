@@ -90,6 +90,10 @@ class MainActivity : ComponentActivity() {
         NormalViewModelFactory(FoodDatabase.getInstance(application).normalDao)
     }
 
+    private val stockViewModel: StockViewModel by viewModels {
+        StockViewModelFactory(FoodDatabase.getInstance(application).stockDao)
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
@@ -98,7 +102,7 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    MyApp(holidayViewModel, normalViewModel)
+                    MyApp(holidayViewModel, normalViewModel, stockViewModel)
                 }
             }
 
@@ -137,7 +141,7 @@ val drawerMenuItems = listOf(
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MyApp(holidayViewModel: HolidayViewModel, normalViewModel: NormalViewModel) {
+fun MyApp(holidayViewModel: HolidayViewModel, normalViewModel: NormalViewModel, stockViewModel: StockViewModel) {
 
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
@@ -206,7 +210,7 @@ fun MyApp(holidayViewModel: HolidayViewModel, normalViewModel: NormalViewModel) 
                     composable("Expired_food") { ExpireScreen(navController) }
                     composable("home_page") { Home_pageScreen() }
                     composable("logout") { LoginScreen(navController) }
-                    composable("addFragment") { AddFragmentScreen(navController) }
+                    composable("addFragment") { AddFragmentScreen(navController, stockViewModel) }
                     composable("FoodDetail") { DetailFragment(navController) }
                 }
             }
