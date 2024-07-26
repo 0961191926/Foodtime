@@ -1,3 +1,4 @@
+import android.annotation.SuppressLint
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 
@@ -30,10 +31,10 @@ import androidx.navigation.NavController
 import com.example.foodtime_compose0518.FoodDatabase
 import com.example.foodtime_compose0518.HolidayTable
 import com.example.foodtime_compose0518.HolidayViewModel
-import com.example.foodtime_compose0518.Padding16dp
 import com.example.foodtime_compose0518.TemplateScreen
 
 
+@SuppressLint("SuspiciousIndentation")
 @Composable
 fun HolidayScreen(navController: NavController,viewModel: HolidayViewModel) {
      val holist =viewModel.holidayList.collectAsState(arrayListOf())

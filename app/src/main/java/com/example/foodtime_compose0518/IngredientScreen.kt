@@ -1,53 +1,80 @@
 package com.example.foodtime_compose0518
 
+import android.widget.Toast
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material.Divider
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Create
-import androidx.compose.material3.ExtendedFloatingActionButton
-import androidx.compose.material3.Icon
-import androidx.compose.material3.ListItemColors
-import androidx.compose.material3.Text
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
-import com.example.foodtime_compose0518.ui.theme.Foodtime0518_Theme
 import com.example.foodtime_compose0518.ui.theme.bodyFontFamily
 import com.example.foodtime_compose0518.ui.theme.displayFontFamily
+import androidx.compose.material3.SwipeToDismissBoxState
+import androidx.compose.material3.SwipeToDismissBoxValue
+import androidx.compose.material3.rememberSwipeToDismissBoxState
+import androidx.compose.material3.SwipeToDismissBox
+import androidx.compose.material3.ExperimentalMaterial3Api
 
 data class Note(val id: Int, val productname: String, val valid_date: String)
 
-
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun NoteItem(
     note: Note,
     cover1: Int,
     cover2: Int,
-    onClick: (Note) -> Unit // 移除 navController 參數
+    onClick: (Note) -> Unit,
+    onRemove: (Note) -> Unit
 ) {
+    val context = LocalContext.current
+    val currentItem = note
+    val dismissState = rememberSwipeToDismissBoxState(
+        confirmValueChange = {
+            when (it) {
+                SwipeToDismissBoxValue.EndToStart -> {
+                    onRemove(currentItem)
+                    Toast.makeText(context, "項目已刪除", Toast.LENGTH_SHORT).show()
+                    true
+                }
+                else -> false
+            }
+        },
+        positionalThreshold = { it * .25f }
+    )
+
+    SwipeToDismissBox(
+        state = dismissState,
+        content = {
+            NoteContent(note, cover1, cover2, onClick)
+        },
+        backgroundContent = { DismissBackground(dismissState) },
+    )
+}
+
+@Composable
+fun NoteContent(note: Note, cover1: Int, cover2: Int, onClick: (Note) -> Unit) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(all = 8.dp),
+            .height(IntrinsicSize.Min)  // 使用 IntrinsicSize.Min 來適應內容
+            .background(MaterialTheme.colorScheme.background),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.Start
     ) {
@@ -55,73 +82,105 @@ fun NoteItem(
             painter = painterResource(cover1),
             contentDescription = "Note cover 1",
             modifier = Modifier
-                .size(40.dp)
-                .clickable { onClick(note) } // 修改点击事件的调用方式
-
+                .size(50.dp)
+                .padding(start = 16.dp)
+                .clickable { onClick(note) }
         )
 
-        Spacer(modifier = Modifier.width(20.dp))
-
         Column(
-            modifier = Modifier.weight(1f)
+            modifier = Modifier
+                .weight(1f)
+                .padding(horizontal = 16.dp, vertical = 8.dp)
         ) {
-            Text(text = note.productname, fontFamily = displayFontFamily)
+            Text(
+                text = note.productname,
+                fontFamily = displayFontFamily,
+                style = MaterialTheme.typography.titleMedium
+            )
             Spacer(modifier = Modifier.height(4.dp))
-            Text(text = note.valid_date,   fontFamily = bodyFontFamily,)
+            Text(
+                text = note.valid_date,
+                fontFamily = bodyFontFamily,
+                style = MaterialTheme.typography.bodyMedium
+            )
         }
-
-        Spacer(modifier = Modifier.width(8.dp))
 
         Image(
             painter = painterResource(cover2),
             contentDescription = "Note cover 2",
             modifier = Modifier
-                .size(25.dp)
-                .clickable { onClick(note) } // 修改点击事件的调用方式
-
+                .size(30.dp)
+                .padding(end = 16.dp)
+                .clickable { onClick(note) }
         )
     }
 }
 
 
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun DismissBackground(dismissState: SwipeToDismissBoxState) {
+    val color = when (dismissState.dismissDirection) {
+        SwipeToDismissBoxValue.EndToStart -> Color(0xFFFF1744) // 紅色，表示刪除
+        else -> Color.Transparent
+    }
 
-
-
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(color)
+            .padding(8.dp, 6.dp),
+        contentAlignment = Alignment.CenterEnd
+    ) {
+        Icon(
+            Icons.Default.Delete,
+            contentDescription = "delete",
+            modifier = Modifier.padding(end = 16.dp)
+        )
+    }
+}
 
 @Composable
 fun NoteList(navController: NavController) {
+    val notes = remember { mutableStateListOf(
+        Note(id = 1, productname = "蘋果", valid_date = "2024/05/03"),
+        Note(id = 2, productname = "花椰菜", valid_date = "2024/05/03"),
+        Note(id = 3, productname = "牛肉", valid_date = "2024/05/03"),
+        Note(id = 4, productname = "蘋果", valid_date = "2024/05/03")
+    ) }
+
+    LazyColumn {
+        items(notes, key = { it.id }) { note ->
+            NoteItem(
+                note = note,
+                cover1 = R.drawable.apple,
+                cover2 = R.drawable.redlight,
+                onClick = { navController.navigate("FoodDetail") },
+                onRemove = { notes.remove(it) }
+            )
+            // 移除了 Divider
+            Divider()
+        }
+    }
+}
+
+@Composable
+fun Padding16dp(content: @Composable () -> Unit) {
+    Box(
+        modifier = Modifier
+            .padding(16.dp)
+            .fillMaxSize(),
+        contentAlignment = Alignment.BottomEnd
+    ) {
+        content()
+    }
+}
+
+@Composable
+fun IngredientsScreen(navController: NavController) {
     Column {
-        NoteItem(
-            note = Note(id = 1, productname = "蘋果", valid_date = "2024/05/03"),
-            cover1 = R.drawable.apple,
-            cover2 = R.drawable.yellowlight,
-            onClick = {navController.navigate("FoodDetail") }
-        )
-        Divider(modifier = Modifier.height(1.dp), color = Color.Gray)
-        NoteItem(
-            note = Note(id = 1, productname = "花椰菜", valid_date = "2024/05/03"),
-            cover1 = R.drawable.broccoli,
-            cover2 = R.drawable.yellowlight,
-            onClick = { /* Remove the navigation operation */ }
-        )
-        Divider(modifier = Modifier.height(1.dp), color = Color.Gray)
-        NoteItem(
-            note = Note(id = 1, productname = "牛肉", valid_date = "2024/05/03"),
-            cover1 = R.drawable.meat,
-            cover2 = R.drawable.skull,
-            onClick = { /* Remove the navigation operation */ }
-        )
-        Divider(modifier = Modifier.height(1.dp), color = Color.Gray)
-        NoteItem(
-            note = Note(id = 1, productname = "蘋果", valid_date = "2024/05/03"),
-            cover1 = R.drawable.apple,
-            cover2 = R.drawable.redlight,
-            onClick = { /* Remove the navigation operation */ }
-        )
-        Divider(modifier = Modifier.height(1.dp), color = Color.Gray)
-
+        NoteList(navController = navController)
         Spacer(modifier = Modifier.weight(1f))
-
         Padding16dp {
             ExtendedFloatingActionButton(
                 onClick = {
@@ -133,44 +192,11 @@ fun NoteList(navController: NavController) {
                         "Extended floating action button."
                     )
                 },
-                text = { Text(text = "新增食材")},
+                text = { Text(text = "新增食材") },
             )
         }
     }
 }
-
-@Composable
-fun Padding16dp(content: @Composable () -> Unit) {
-    Box(
-        modifier = Modifier
-            .padding(16.dp)
-            .fillMaxSize(), // 使用 fillMaxSize 将 Box 填充整个父容器
-        contentAlignment = Alignment.BottomEnd // 设置内容在底部和右侧对齐
-    ) {
-        content()
-    }
-}
-
-@Composable
-fun IngredientsScreen(navController: NavController) {
-//        Column(
-//            modifier = Modifier
-//                .fillMaxSize()
-//                .padding(16.dp),
-//            horizontalAlignment = Alignment.CenterHorizontally,
-//            verticalArrangement = Arrangement.Center
-//        ) {
-//            Text(text = "這是食材庫頁面")
-//            Button(onClick = { navController.navigate("addFragment") }) {
-//                Text("添加食材")
-//            }
-//        }
-    Column {
-        // 将 NavController 传递给 NoteList 函数
-        NoteList(navController = navController)
-    }
-}
-
 
 @Preview(showBackground = true)
 @Composable
@@ -178,4 +204,3 @@ fun IngredientsScreenPreview() {
     val navController = rememberNavController()
     IngredientsScreen(navController = navController)
 }
-

@@ -69,21 +69,7 @@ import com.example.foodtime_compose0518.ui.theme.primaryContainerLight
 //    }
 //}
 
-@Composable
-fun Greeting2(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
 
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview2() {
-    Foodtime0518_Theme {
-        Greeting2("Android")
-    }
-}
 
 @Composable
 fun HolidayDetailScreen(navController: NavController) {
@@ -174,7 +160,7 @@ fun HolidayDetailScreen(navController: NavController) {
 
         Foodtime0518_Theme {
             ExtendedFloatingActionButton(
-                onClick = { navController.navigate("AddFood") },
+                onClick = { navController.navigate("HolidayAddFragment") },
                 text = { Text("新增食材") },
                 modifier = Modifier
                     .align(Alignment.BottomEnd)

@@ -158,7 +158,7 @@ fun AddFragmentContent(navController: NavController, stockViewModel: StockViewMo
                 MyDatePickerComponent()
             }
 
-            Spacer(modifier = Modifier.height(120.dp))
+            Spacer(modifier = Modifier.height(65.dp))
 
             Row {
                 Button(
