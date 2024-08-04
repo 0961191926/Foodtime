@@ -24,7 +24,7 @@ import com.example.foodtime_compose0518.ui.theme.primaryLight
 import com.example.foodtime_compose0518.ui.theme.onPrimaryLight
 
 @Composable
-fun AddScreen(navController: NavHostController, normalViewModel: NormalViewModel) {
+fun HolidayAddFragmentScreen(navController: NavHostController, normalViewModel: NormalViewModel) {
     val food = remember { mutableStateOf("") }
     val number = remember { mutableStateOf(1) }
 

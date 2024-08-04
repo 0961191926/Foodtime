@@ -1,5 +1,6 @@
 package com.example.foodtime_compose0518
 
+import ExpireScreen
 import HolidayScreen
 import android.annotation.SuppressLint
 import android.os.Bundle
@@ -126,7 +127,8 @@ val routeTitleMap = mapOf(
     "Addholiday" to "新增節日",
     "FoodDetail" to "食材資訊",
     "HolidayDetail" to "所需食材",
-    "AddFood" to "新增食材"
+    "HolidayAddFragment" to "新增食材",
+    "NormalListAddFragment" to "常備清單新增食材"
 )
 
 val drawerMenuItems = listOf(
@@ -206,12 +208,14 @@ fun MyApp(holidayViewModel: HolidayViewModel, normalViewModel: NormalViewModel, 
                     composable("Addholiday") { HolidayAdd(navController, holidayViewModel) }
                     composable("HolidayDetail") { HolidayDetailScreen(navController) }
                     composable("NormalList") { Normallist(navController) }
-                    composable("AddFood") { AddScreen(navController, normalViewModel) }
+                    composable("HolidayAddFragment") { HolidayAddFragmentScreen(navController, normalViewModel) }
                     composable("Expired_food") { ExpireScreen(navController) }
                     composable("home_page") { Home_pageScreen() }
                     composable("logout") { LoginScreen(navController) }
                     composable("addFragment") { AddFragmentScreen(navController, stockViewModel) }
                     composable("FoodDetail") { DetailFragment(navController) }
+                    composable("NormalListAddFragment") { NormalAddFragment(navController,normalViewModel) }
+
                 }
             }
 
@@ -220,67 +224,8 @@ fun MyApp(holidayViewModel: HolidayViewModel, normalViewModel: NormalViewModel, 
 }
 
 
-@Preview
-@Composable
-private fun TRY() {
-    Foodtime0518_Theme {
-        Column() {
-            Button(onClick = { /*TODO*/ }) {
-                Text(text = "Button")
-            }
-            Text(
-                text = "Hello M3 theming",
-                color = MaterialTheme.colorScheme.tertiary
-            )
-        }
-    }
-}
 
 
-
-
-
-
-
-@Composable
-fun FrequentlyUsedScreen() {
-    TemplateScreen(
-        title = "常備清單"
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
-        ) {
-            Text(text = "這是常備清單頁面")
-            LazyColumn {
-                items(listOf("常用項目1", "常用項目2", "常用項目3")) { item ->
-                    Text(text = item, style = MaterialTheme.typography.bodyMedium, modifier = Modifier.padding(8.dp))
-                }
-            }
-        }
-    }
-}
-
-@Composable
-fun AboutScreen() {
-    TemplateScreen(
-        title = "關於自己"
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
-        ) {
-            Text(text = "這是關於自己頁面")
-            Text(text = "這是一些關於自己的描述。")
-        }
-    }
-}
 
 
 @Composable
