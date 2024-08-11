@@ -1,18 +1,36 @@
 package com.example.foodtime_compose0518
-
 import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.Divider
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material3.*
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExtendedFloatingActionButton
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SwipeToDismissBox
+import androidx.compose.material3.SwipeToDismissBoxState
+import androidx.compose.material3.SwipeToDismissBoxValue
+import androidx.compose.material3.Text
+import androidx.compose.material3.rememberSwipeToDismissBoxState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -20,28 +38,23 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.zIndex
 import androidx.navigation.NavController
-import androidx.navigation.compose.rememberNavController
 import com.example.foodtime_compose0518.ui.theme.bodyFontFamily
 import com.example.foodtime_compose0518.ui.theme.displayFontFamily
-import androidx.compose.material3.SwipeToDismissBoxState
-import androidx.compose.material3.SwipeToDismissBoxValue
-import androidx.compose.material3.rememberSwipeToDismissBoxState
-import androidx.compose.material3.SwipeToDismissBox
-import androidx.compose.material3.ExperimentalMaterial3Api
 
-data class Note(val id: Int, val productname: String, val valid_date: String)
+data class Note(val id: Int, val productname: String, val valid_date: String,val logindata:String)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun NoteItem(
-    note: Note,
+    note: StockTable,
     cover1: Int,
     cover2: Int,
-    onClick: (Note) -> Unit,
-    onRemove: (Note) -> Unit
+    stockViewModel: StockViewModel,
+    onClick: (StockTable) -> Unit,
+    onRemove: () -> Unit
 ) {
     val context = LocalContext.current
     val currentItem = note
@@ -49,7 +62,7 @@ fun NoteItem(
         confirmValueChange = {
             when (it) {
                 SwipeToDismissBoxValue.EndToStart -> {
-                    onRemove(currentItem)
+                    onRemove()
                     Toast.makeText(context, "項目已刪除", Toast.LENGTH_SHORT).show()
                     true
                 }
@@ -69,7 +82,7 @@ fun NoteItem(
 }
 
 @Composable
-fun NoteContent(note: Note, cover1: Int, cover2: Int, onClick: (Note) -> Unit) {
+fun NoteContent(note:StockTable, cover1: Int, cover2: Int, onClick: (StockTable) -> Unit) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -93,16 +106,18 @@ fun NoteContent(note: Note, cover1: Int, cover2: Int, onClick: (Note) -> Unit) {
                 .padding(horizontal = 16.dp, vertical = 8.dp)
         ) {
             Text(
-                text = note.productname,
+                text = note.stockitemName,
                 fontFamily = displayFontFamily,
                 style = MaterialTheme.typography.titleMedium
             )
             Spacer(modifier = Modifier.height(4.dp))
             Text(
-                text = note.valid_date,
+                text = note.expiryDate,
                 fontFamily = bodyFontFamily,
                 style = MaterialTheme.typography.bodyMedium
             )
+
+
         }
 
         Image(
@@ -141,22 +156,20 @@ fun DismissBackground(dismissState: SwipeToDismissBoxState) {
 }
 
 @Composable
-fun NoteList(navController: NavController) {
-    val notes = remember { mutableStateListOf(
-        Note(id = 1, productname = "蘋果", valid_date = "2024/05/03"),
-        Note(id = 2, productname = "花椰菜", valid_date = "2024/05/03"),
-        Note(id = 3, productname = "牛肉", valid_date = "2024/05/03"),
-        Note(id = 4, productname = "蘋果", valid_date = "2024/05/03")
-    ) }
+fun NoteList(navController: NavController,stockViewModel: StockViewModel) {
+    val datalist=stockViewModel.stockList.collectAsState(emptyList())
+
 
     LazyColumn {
-        items(notes, key = { it.id }) { note ->
+        items(datalist.value, key = { it.stockitemId }) { note ->
             NoteItem(
                 note = note,
                 cover1 = R.drawable.apple,
-                cover2 = R.drawable.redlight,
-                onClick = { navController.navigate("FoodDetail") },
-                onRemove = { notes.remove(it) }
+                cover2 = R.drawable.skull,
+                stockViewModel = stockViewModel,
+                onClick = { navController.navigate("FoodDetail/${note.stockitemId}",) },
+                onRemove ={ stockViewModel.deleteStockItem(note)
+                          }
             )
             // 移除了 Divider
             Divider()
@@ -169,7 +182,8 @@ fun Padding16dp(content: @Composable () -> Unit) {
     Box(
         modifier = Modifier
             .padding(16.dp)
-            .fillMaxSize(),
+            .fillMaxSize()
+            .zIndex(Float.MAX_VALUE),
         contentAlignment = Alignment.BottomEnd
     ) {
         content()
@@ -177,10 +191,12 @@ fun Padding16dp(content: @Composable () -> Unit) {
 }
 
 @Composable
-fun IngredientsScreen(navController: NavController) {
-    Column {
-        NoteList(navController = navController)
-        Spacer(modifier = Modifier.weight(1f))
+fun IngredientsScreen(navController: NavController, stockViewModel: StockViewModel) {
+    Box(modifier = Modifier.fillMaxSize()) {
+        Column {
+            NoteList(navController = navController, stockViewModel = stockViewModel)
+            Spacer(modifier = Modifier.weight(1f))
+        }
         Padding16dp {
             ExtendedFloatingActionButton(
                 onClick = {
@@ -198,9 +214,7 @@ fun IngredientsScreen(navController: NavController) {
     }
 }
 
-@Preview(showBackground = true)
-@Composable
-fun IngredientsScreenPreview() {
-    val navController = rememberNavController()
-    IngredientsScreen(navController = navController)
-}
+
+
+
+

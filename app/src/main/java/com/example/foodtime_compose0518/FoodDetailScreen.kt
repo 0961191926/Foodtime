@@ -23,6 +23,8 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -37,6 +39,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.foodtime_compose0518.ui.theme.Foodtime0518_Theme
@@ -79,9 +82,17 @@ fun GreetingPreview() {
 }
 
 @Composable
-fun DetailFragment(navController: NavController) {
-    var loginDate by remember { mutableStateOf("2024/05/12") }
-    var expirationDate by remember { mutableStateOf("2024/05/12") }
+fun DetailFragment(navController: NavController,stockitemId:Int,stockViewModel: StockViewModel) {
+    stockViewModel.fetchStockItem(stockitemId)
+    val stocklistById=stockViewModel.stockItem.collectAsState(StockTable())
+    var expirationDate by remember { mutableStateOf(stocklistById.value.expiryDate) }
+    var loginDate by remember { mutableStateOf(stocklistById.value.loginDate) }
+    var stockname by remember { mutableStateOf(stocklistById.value.stockitemName) }
+    LaunchedEffect(stocklistById.value) {
+        expirationDate = stocklistById.value.expiryDate
+        loginDate = stocklistById.value.loginDate
+        stockname=stocklistById.value.stockitemName
+    }
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -101,13 +112,14 @@ fun DetailFragment(navController: NavController) {
             )
             Spacer(modifier = Modifier.width(20.dp))
 
-            Text(
-                text = "品名： 蘋果",
+            OutlinedTextField(
+                value = stockname,
+                onValueChange = { stockname = it },
                 modifier = Modifier
-                    .padding(end = 10.dp)
+                    .padding(16.dp)
                     .clip(RoundedCornerShape(8.dp))
-                    .padding(16.dp),
-                style = androidx.compose.material3.MaterialTheme.typography.headlineLarge.copy(
+                    .padding(end = 10.dp),
+                textStyle = androidx.compose.material3.MaterialTheme.typography.headlineLarge.copy(
                     fontSize = 32.sp, // 指定文本大小
                     fontWeight = FontWeight.Bold // 选配，增加字体粗细
                 )
@@ -181,7 +193,16 @@ fun DetailFragment(navController: NavController) {
                 horizontalArrangement = Arrangement.Center,
             ) {
                 Button(
-                    onClick = { navController.popBackStack() },
+                    onClick = {val dataEntity = StockTable(
+                        stockitemId = stockitemId,
+                        stockitemName = stockname,
+                        number = 10,
+                        loginDate = loginDate,
+                        expiryDate = expirationDate
+
+                    )
+                        stockViewModel.updateStockItem(dataEntity)
+                        navController.popBackStack() },
                     colors = ButtonDefaults.buttonColors(
                         primaryLight // 使用您定义的颜色
                     ),
@@ -235,9 +256,3 @@ fun DetailFragment(navController: NavController) {
 
 
 
-@Preview
-@Composable
-private fun FooddetailPreview() {
-    val navController = rememberNavController()
-    DetailFragment(navController=navController)
-}

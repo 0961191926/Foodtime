@@ -17,8 +17,12 @@ data class StockTable(
     val number: Int,
 
     @ColumnInfo(name = "login_date")
-    val loginDate: Date,
+    val loginDate: String,
 
     @ColumnInfo(name = "expiry_date")
-    val expiryDate: Date
+    val expiryDate: String
 )
+{
+   // 無參數構造函數
+   constructor() : this(0, "", 0, "", "")
+}

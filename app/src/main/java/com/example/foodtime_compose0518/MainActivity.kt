@@ -17,14 +17,12 @@ import androidx.compose.foundation.Image
 
 import androidx.compose.foundation.background
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -37,7 +35,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
@@ -47,29 +44,17 @@ import kotlinx.coroutines.launch
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material.icons.filled.AccountBox
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Call
 import androidx.compose.material.icons.filled.DateRange
 
-import androidx.lifecycle.ViewModelProvider
-
-import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Email
-import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.List
-import androidx.compose.material.icons.filled.MoreVert
-import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 
 
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.unit.dp
-import androidx.navigation.NavHostController
-import androidx.navigation.compose.*
 
 import com.example.foodtime_compose0518.ui.theme.Foodtime0518_Theme
 import com.example.foodtime_compose0518.ui.theme.secondaryContainerLight
@@ -77,24 +62,17 @@ import com.example.foodtime_compose0518.ui.theme.surfaceContainerLowLight
 
 
 import androidx.activity.viewModels
-import com.example.foodtime_compose0518.FoodDatabase
-import com.example.foodtime_compose0518.HolidayViewModel
-import com.example.foodtime_compose0518.HolidayViewModelFactory
-import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
     private val holidayViewModel: HolidayViewModel by viewModels {
         HolidayViewModelFactory(FoodDatabase.getInstance(application).foodDao)
     }
-
-    private val normalViewModel: NormalViewModel by viewModels {
-        NormalViewModelFactory(FoodDatabase.getInstance(application).normalDao)
-    }
-
     private val stockViewModel: StockViewModel by viewModels {
         StockViewModelFactory(FoodDatabase.getInstance(application).stockDao)
     }
-
+    private val normalViewModel: NormalViewModel by viewModels {
+        NormalViewModelFactory(FoodDatabase.getInstance(application).normalDao)
+    }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
@@ -103,7 +81,7 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    MyApp(holidayViewModel, normalViewModel, stockViewModel)
+                    MyApp(holidayViewModel,normalViewModel,stockViewModel)
                 }
             }
 
@@ -143,7 +121,11 @@ val drawerMenuItems = listOf(
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MyApp(holidayViewModel: HolidayViewModel, normalViewModel: NormalViewModel, stockViewModel: StockViewModel) {
+fun MyApp(
+    holidayViewModel: HolidayViewModel,
+    normalViewModel: NormalViewModel,
+    stockViewModel: StockViewModel
+) {
 
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
@@ -203,7 +185,7 @@ fun MyApp(holidayViewModel: HolidayViewModel, normalViewModel: NormalViewModel, 
                 },
             ) { paddingValues ->
                 NavHost(navController = navController, startDestination = "home_page", Modifier.padding(paddingValues)) {
-                    composable("ingredients") { IngredientsScreen(navController) }
+                    composable("ingredients") { IngredientsScreen(navController,stockViewModel) }
                     composable("holidays") { HolidayScreen(navController,holidayViewModel) }
                     composable("Addholiday") { HolidayAdd(navController, holidayViewModel) }
                     composable("HolidayDetail") { HolidayDetailScreen(navController) }
@@ -213,7 +195,14 @@ fun MyApp(holidayViewModel: HolidayViewModel, normalViewModel: NormalViewModel, 
                     composable("home_page") { Home_pageScreen() }
                     composable("logout") { LoginScreen(navController) }
                     composable("addFragment") { AddFragmentScreen(navController, stockViewModel) }
-                    composable("FoodDetail") { DetailFragment(navController) }
+                    composable("FoodDetail/{stockitemId}") { backStackEntry ->
+                        val stockitemId = backStackEntry.arguments?.getString("stockitemId")?.toIntOrNull()
+                        if (stockitemId != null) {
+                            DetailFragment(navController, stockitemId = stockitemId, stockViewModel)
+                        } else {
+                            // 处理错误情况，例如显示错误消息或导航到错误页面
+                        }
+                    }
                     composable("NormalListAddFragment") { NormalAddFragment(navController,normalViewModel) }
 
                 }

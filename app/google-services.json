@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "989203039137",
+    "project_id": "foodtime-compose0518",
+    "storage_bucket": "foodtime-compose0518.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:989203039137:android:de1b9aa08cdd8a52f341e0",
+        "android_client_info": {
+          "package_name": "com.example.foodtime_compose0518"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCMHZ_OC9UTp9f1axvL4uFlmzA30MYdw7I"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

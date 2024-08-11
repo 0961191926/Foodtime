@@ -11,15 +11,21 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface StockDao {
-    @Query("SELECT * FROM stock_table")
-    fun getAllStockItems(): Flow<List<StockTable>>
 
-    @Insert
-    suspend fun insert(item: StockTable)
+        @Query("SELECT * FROM stock_table WHERE stockitemId = :id")
+        suspend fun getItemById(id: Int): StockTable
 
-    @Update
-    suspend fun update(item: StockTable)
+        @Query("SELECT * FROM stock_table ORDER BY expiry_date")
+        fun getAllStockItems(): Flow<List<StockTable>>
 
-    @Delete
-    suspend fun delete(item: StockTable)
+        @Insert(onConflict = OnConflictStrategy.REPLACE)
+        suspend fun insert(item: kotlin.collections.List<com.example.foodtime_compose0518.StockTable>)
+
+        @Update
+        suspend fun update(item: StockTable)
+
+        @Delete
+        suspend fun delete(item: StockTable)
+
+
 }

@@ -65,8 +65,8 @@ fun AddFragmentScreen(navController: NavController, stockViewModel: StockViewMod
 fun AddFragmentContent(navController: NavController, stockViewModel: StockViewModel) { // 接收 navController
     var ingredientName by remember { mutableStateOf("") }
     var quantity by remember { mutableStateOf(1) } // 修改为 Int 类型
-    var loginDate by remember { mutableStateOf(Date()) }
-    var expirationDate by remember { mutableStateOf(Date()) }
+    var loginDate by remember { mutableStateOf("") }
+    var expirationDate by remember { mutableStateOf("") }
 
     Foodtime0518_Theme {
         Column(
