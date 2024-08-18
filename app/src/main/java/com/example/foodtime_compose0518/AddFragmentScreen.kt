@@ -61,7 +61,6 @@ fun AddFragmentScreen(navController: NavController, stockViewModel: StockViewMod
     }
 }
 
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddFragmentContent(navController: NavController, stockViewModel: StockViewModel) { // 接收 navController

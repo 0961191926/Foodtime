@@ -167,8 +167,6 @@ fun NoteContent(note:NormalTable, cover1: Int,onClick: (NormalTable) -> Unit,nor
     }
 }
 
-
-
 @Composable
 fun NoteList2(navController: NavController) {
     // 使用 Note2 数据类

@@ -28,7 +28,6 @@ fun NormalAddFragment(navController: NavHostController,normalViewModel: NormalVi
     val food = remember { mutableStateOf("") }
     val number = remember { mutableStateOf(1) }
 
-
     Column(
         modifier = Modifier
             .fillMaxSize()
