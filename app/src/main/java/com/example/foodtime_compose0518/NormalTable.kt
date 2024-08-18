@@ -13,6 +13,6 @@ data class NormalTable (
     val normalitemName: String,
 
     @ColumnInfo(name = "number")
-    val number: Int,
+    var number: Int,
 
 )
