@@ -101,42 +101,35 @@ fun HolidayAdd(navController: NavController,holidayViewModel: HolidayViewModel) 
             modifier = Modifier
                 .padding(top = 60.dp)
         ) {
-
             // TextView for Label
-
             Row(
-                verticalAlignment = Alignment.CenterVertically
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.padding(horizontal = 18.dp)
+
             ) {
-                Text(
-                    text = "增加節日",
-                    fontSize = 24.sp,
-                    modifier = Modifier.padding(end = 10.dp),
-                    fontFamily = displayFontFamily
-                )
-
-
-
                 // EditText for User Input
                 androidx.compose.material3.OutlinedTextField(
                     value = Holiday.value,
                     onValueChange = { Holiday.value = it },
                     label = { Text(text="節日") },
-
                     singleLine = true,
                     keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
                     modifier = Modifier.fillMaxWidth(),
                     textStyle = TextStyle(
-
-
                         fontFamily = bodyFontFamily, // 使用自定義字體
                         fontSize = 16.sp // 設置字體大小
                     )
-
-
                 )
             }
-
-            Spacer(modifier = Modifier.height(440.dp))
+            Spacer(modifier = Modifier.height(30.dp))
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier
+                    .fillMaxWidth()
+            ) {
+                MyDatePickerComponent()
+            }
+            Spacer(modifier = Modifier.height(300.dp))
 
 
             // Confirm Button
@@ -159,7 +152,9 @@ fun HolidayAdd(navController: NavController,holidayViewModel: HolidayViewModel) 
                     shape = RoundedCornerShape(35.dp) // 设置按钮的弧度
 
                 ) {
-                    Text("確認")
+                    Text("確認",
+                        style = TextStyle(color = onPrimaryLight)
+                    )
                 }
 
                 Button(
@@ -180,6 +175,7 @@ fun HolidayAdd(navController: NavController,holidayViewModel: HolidayViewModel) 
                     Text(text = "取消",
                         fontSize = 16.sp,
                         fontFamily = bodyFontFamily,
+                        style = TextStyle(color = primaryLight)
 
                     )
                 }
