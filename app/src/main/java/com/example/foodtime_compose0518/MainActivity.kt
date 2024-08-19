@@ -62,6 +62,12 @@ import com.example.foodtime_compose0518.ui.theme.surfaceContainerLowLight
 
 
 import androidx.activity.viewModels
+import androidx.compose.material.icons.automirrored.filled.ExitToApp
+import androidx.compose.material.icons.automirrored.filled.List
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.ExitToApp
+import androidx.compose.material.icons.filled.FavoriteBorder
+import androidx.compose.material.icons.filled.List
 
 class MainActivity : ComponentActivity() {
     private val holidayViewModel: HolidayViewModel by viewModels {
@@ -111,10 +117,10 @@ val routeTitleMap = mapOf(
 
 val drawerMenuItems = listOf(
     DrawerMenuItem("ingredients", Icons.Default.Menu, "食材庫"),
-    DrawerMenuItem("holidays", Icons.Default.Add, "節日清單"),
-    DrawerMenuItem("NormalList", Icons.Default.DateRange, "常備清單"),
-    DrawerMenuItem("Expired_food", Icons.Default.Email, "過期食材"),
-    DrawerMenuItem("logout", Icons.Default.Search, "登出")
+    DrawerMenuItem("holidays", Icons.Default.FavoriteBorder, "節日清單"),
+    DrawerMenuItem("NormalList", Icons.AutoMirrored.Filled.List, "常備清單"),
+    DrawerMenuItem("Expired_food", Icons.Default.Delete, "過期食材"),
+    DrawerMenuItem("logout", Icons.AutoMirrored.Filled.ExitToApp, "登出")
 )
 
 
@@ -189,7 +195,7 @@ fun MyApp(
                     composable("holidays") { HolidayScreen(navController,holidayViewModel) }
                     composable("Addholiday") { HolidayAdd(navController, holidayViewModel) }
                     composable("HolidayDetail") { HolidayDetailScreen(navController) }
-                    composable("NormalList") { Normallist(navController) }
+                    composable("NormalList") { Normallist(navController, normalViewModel) }
                     composable("HolidayAddFragment") { HolidayAddFragmentScreen(navController, normalViewModel) }
                     composable("Expired_food") { ExpireScreen(navController) }
                     composable("home_page") { Home_pageScreen() }

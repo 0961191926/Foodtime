@@ -145,7 +145,7 @@ fun DetailFragment(navController: NavController,stockitemId:Int,stockViewModel: 
 
 
 
-        Spacer(modifier = Modifier.height(60.dp))
+        Spacer(modifier = Modifier.height(50.dp))
 
         // 登入日期 DatePicker
         Row(verticalAlignment = Alignment.CenterVertically) {
@@ -155,15 +155,11 @@ fun DetailFragment(navController: NavController,stockitemId:Int,stockViewModel: 
                 modifier = Modifier.padding(end = 10.dp),
                 fontFamily = displayFontFamily
             )
-            OutlinedTextField(
-                value = loginDate,
-                onValueChange = { loginDate = it },
-                label = { Text("選擇日期") },
-                modifier = Modifier.weight(1f)
-            )
+            MyDatePickerComponent()
+
         }
 
-        Spacer(modifier = Modifier.height(60.dp))
+        Spacer(modifier = Modifier.height(30.dp))
 
         // 保存期限
         Row(verticalAlignment = Alignment.CenterVertically) {
@@ -173,15 +169,11 @@ fun DetailFragment(navController: NavController,stockitemId:Int,stockViewModel: 
                 modifier = Modifier.padding(end = 10.dp),
                 fontFamily = displayFontFamily
             )
-            OutlinedTextField(
-                value = expirationDate,
-                onValueChange = { expirationDate = it },
-                label = { Text("選擇日期") },
-                modifier = Modifier.weight(1f)
-            )
+            MyDatePickerComponent()
+
         }
 
-        Spacer(modifier = Modifier.height(80.dp))
+        Spacer(modifier = Modifier.height(50.dp))
 
         Column(
             modifier = Modifier.fillMaxWidth(),

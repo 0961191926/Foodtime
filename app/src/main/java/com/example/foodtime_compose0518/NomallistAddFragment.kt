@@ -24,7 +24,7 @@ import com.example.foodtime_compose0518.ui.theme.primaryLight
 import com.example.foodtime_compose0518.ui.theme.onPrimaryLight
 
 @Composable
-fun NormalAddFragment(navController: NavHostController, normalViewModel: NormalViewModel) {
+fun NormalAddFragment(navController: NavHostController,normalViewModel: NormalViewModel) {
     val food = remember { mutableStateOf("") }
     val number = remember { mutableStateOf(1) }
 
@@ -85,7 +85,7 @@ fun NormalAddFragment(navController: NavHostController, normalViewModel: NormalV
                     .padding(horizontal = 8.dp),
                 keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number)
             )
-            IconButton(onClick = { number.value -= 1 }) {
+            IconButton(onClick = { if (number.value > 0) number.value-- }) {
                 Icon(
                     Icons.Outlined.KeyboardArrowDown,
                     contentDescription = "Decrease number"
@@ -101,7 +101,10 @@ fun NormalAddFragment(navController: NavHostController, normalViewModel: NormalV
                     primaryLight // 使用您定义的颜色
                 ),
                 onClick = {
-                    // 回到 Normallist 屏幕
+                    // 增加
+                    normalViewModel.setNormalName(food.value)
+                    normalViewModel.setNumber(number.value)
+                    normalViewModel.addNormalItem()
                     navController.popBackStack()
                 },
                 modifier = Modifier
@@ -120,10 +123,7 @@ fun NormalAddFragment(navController: NavHostController, normalViewModel: NormalV
 
             Button(
                 onClick = {
-                    // 增加食材
-                    normalViewModel.setNormalName(food.value)
-                    normalViewModel.setNumber(number.value)
-                    normalViewModel.addNormalItem()
+                    // 取消
                     navController.popBackStack()
                 },
                 colors = ButtonDefaults.buttonColors(
