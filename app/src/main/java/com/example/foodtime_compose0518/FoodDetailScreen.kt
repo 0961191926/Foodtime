@@ -47,6 +47,8 @@ import com.example.foodtime_compose0518.ui.theme.onPrimaryLight
 import com.example.foodtime_compose0518.ui.theme.bodyFontFamily
 import com.example.foodtime_compose0518.ui.theme.displayFontFamily
 import com.example.foodtime_compose0518.ui.theme.primaryLight
+import java.text.SimpleDateFormat
+import java.util.Locale
 
 class FoodDetailScreen : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -155,7 +157,8 @@ fun DetailFragment(navController: NavController,stockitemId:Int,stockViewModel: 
                 modifier = Modifier.padding(end = 10.dp),
                 fontFamily = displayFontFamily
             )
-            MyDatePickerComponent()
+            MyDatePickerComponent(initialDate = loginDate){selectedDate ->
+                loginDate = convertDateToLong( selectedDate)}
 
         }
 
@@ -169,7 +172,11 @@ fun DetailFragment(navController: NavController,stockitemId:Int,stockViewModel: 
                 modifier = Modifier.padding(end = 10.dp),
                 fontFamily = displayFontFamily
             )
-            MyDatePickerComponent()
+            expirationDate?.let {
+                MyDatePickerComponent(it) { selectedDate ->
+                    expirationDate = convertDateToLong(selectedDate)
+                }
+            }
 
         }
 
@@ -190,7 +197,8 @@ fun DetailFragment(navController: NavController,stockitemId:Int,stockViewModel: 
                         stockitemName = stockname,
                         number = 10,
                         loginDate = loginDate,
-                        expiryDate = expirationDate
+                        expiryDate = expirationDate,
+                        uuid = ""
 
                     )
                         stockViewModel.updateStockItem(dataEntity)
@@ -244,6 +252,11 @@ fun DetailFragment(navController: NavController,stockitemId:Int,stockViewModel: 
 
 
     }
+}
+fun convertDateToLong(dateString: String): Long {
+    val dateFormat = SimpleDateFormat("yyyy/MM/dd", Locale.US)
+    val date = dateFormat.parse(dateString)
+    return date?.time ?: 0L
 }
 
 
