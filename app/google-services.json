@@ -1,6 +1,7 @@
 {
   "project_info": {
     "project_number": "989203039137",
+    "firebase_url": "https://foodtime-compose0518-default-rtdb.firebaseio.com",
     "project_id": "foodtime-compose0518",
     "storage_bucket": "foodtime-compose0518.appspot.com"
   },

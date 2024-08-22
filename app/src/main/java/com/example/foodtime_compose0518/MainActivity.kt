@@ -68,6 +68,7 @@ import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.ExitToApp
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.List
+import com.google.firebase.database.FirebaseDatabase
 
 class MainActivity : ComponentActivity() {
     private val holidayViewModel: HolidayViewModel by viewModels {
@@ -81,6 +82,8 @@ class MainActivity : ComponentActivity() {
     }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        val database = FirebaseDatabase.getInstance()
+        database.setPersistenceEnabled(true)
         setContent {
             Foodtime0518_Theme {
                 Surface(
@@ -197,7 +200,7 @@ fun MyApp(
                     composable("HolidayDetail") { HolidayDetailScreen(navController) }
                     composable("NormalList") { Normallist(navController, normalViewModel) }
                     composable("HolidayAddFragment") { HolidayAddFragmentScreen(navController, normalViewModel) }
-                    composable("Expired_food") { ExpireScreen(navController) }
+                    composable("Expired_food") { ExpireScreen(navController,stockViewModel) }
                     composable("home_page") { Home_pageScreen() }
                     composable("logout") { LoginScreen(navController) }
                     composable("addFragment") { AddFragmentScreen(navController, stockViewModel) }
@@ -205,8 +208,6 @@ fun MyApp(
                         val stockitemId = backStackEntry.arguments?.getString("stockitemId")?.toIntOrNull()
                         if (stockitemId != null) {
                             DetailFragment(navController, stockitemId = stockitemId, stockViewModel)
-                        } else {
-                            // 处理错误情况，例如显示错误消息或导航到错误页面
                         }
                     }
                     composable("NormalListAddFragment") { NormalAddFragment(navController,normalViewModel) }

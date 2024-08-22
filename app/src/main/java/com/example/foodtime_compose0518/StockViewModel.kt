@@ -16,18 +16,33 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.withContext
 import java.util.Date
+import java.text.SimpleDateFormat
+import java.util.Locale
 
 class StockViewModel(val dao: StockDao) : ViewModel() {
     var newStockName = ""
     var newNumber = 0
-    var newLoginDate=""
-    var newExpiryDate=""
+    var newLoginDate: Long = 0L
+    var newExpiryDate: Long = 0L
+    var newuuid=""
     private val database = Firebase.database.reference.child("a")
     private val _stockItem = MutableStateFlow<StockTable>(StockTable())
+    val stockItem: Flow<StockTable> get() = _stockItem
 
+    private val _UnexpiredList = MutableStateFlow<List<StockTable>>(emptyList())
+    val UnexpiredList: StateFlow<List<StockTable>> get() = _UnexpiredList
+    init {
+        viewModelScope.launch {
+            dao.getUnexpiredStockItems()
+                .collect { items ->
+                    _UnexpiredList.value = items
+                }
+        }
+    }
     private val _dataFlow = MutableStateFlow<List<StockTable>>(emptyList())
     val dataFlow: StateFlow<List<StockTable>> get() = _dataFlow
     init {
@@ -36,28 +51,37 @@ class StockViewModel(val dao: StockDao) : ViewModel() {
         database.addValueEventListener(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 viewModelScope.launch {
-                    val dataList = mutableListOf<StockTable>()
-                    for (dataSnapshot in snapshot.children) {
-                        try {
-                            val dataModel = dataSnapshot.getValue(StockTable::class.java)
-                            dataModel?.let {
-                                val dataEntity = StockTable(
-                                    it.stockitemId ?: 0,
-                                    it.stockitemName ?: "",
-                                    it.number,
-                                    it.expiryDate,
-                                    it.loginDate
-                                )
-                                dataList.add(dataEntity)
+                    withContext(Dispatchers.IO) {
+                        val dataList = mutableListOf<StockTable>()
+                        for (dataSnapshot in snapshot.children) {
+                            try {
+                                val dataModel = dataSnapshot.getValue(StockTable::class.java)
+                                dataModel?.let {
+                                    val existingItem = dao.getItemByUUID(it.uuid)
+                                    if (existingItem == null) {
+                                        val dataEntity = StockTable(
+                                            it.stockitemId ?: 0,
+                                            it.stockitemName ?: "",
+                                            it.number,
+                                            it.loginDate,
+                                            it.expiryDate,
+                                            it.uuid
+                                        )
+                                        dataList.add(dataEntity)
+                                        dataSnapshot.ref.child("isWritten").setValue(true)
+                                    }
+                                }
+                            } catch (e: DatabaseException) {
+                                // 處理轉換失敗的情況
+                                Log.e("DataConversionhaha", "Error converting data: ${e.message}")
                             }
-                        } catch (e: DatabaseException) {
-                            // 處理轉換失敗的情況
-                            Log.e("DataConversionhaha", "Error converting data: ${e.message}")
+                        }
+                        if (dataList.isNotEmpty()) {
+                            dao.insert(dataList)
+                            Log.d("StockViewModel", "Inserted data list: $dataList")
+                            _dataFlow.value = dataList
                         }
                     }
-                    dao.insert(dataList)
-                    Log.d("StockViewModel", "Inserted data list: $dataList")
-                   _dataFlow.value=dataList
                 }
             }
 
@@ -67,12 +91,17 @@ class StockViewModel(val dao: StockDao) : ViewModel() {
             }
         })
     }
-    val stockList: Flow<List<StockTable>> = dao.getAllStockItems().stateIn(
+//    val UnexpiredList: Flow<List<StockTable>> = dao.getUnexpiredStockItems().stateIn(
+//        scope = viewModelScope,
+//        started = SharingStarted.WhileSubscribed(5000),
+//        initialValue = emptyList()
+//    )
+    val expiredList: Flow<List<StockTable>> = dao.getExpiredStockItems().stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5000),
         initialValue = emptyList()
     )
-    val stockItem: Flow<StockTable> get() = _stockItem
+
 
     fun setStockName(name: String) {
         newStockName = name
@@ -82,11 +111,11 @@ class StockViewModel(val dao: StockDao) : ViewModel() {
         newNumber = number
     }
 
-    fun setLoginDate(date:String) {
+    fun setLoginDate(date:Long) {
         newLoginDate = date
     }
 
-    fun setExpiryDate(date: String) {
+    fun setExpiryDate(date:Long) {
         newExpiryDate = date
     }
 
@@ -98,6 +127,8 @@ class StockViewModel(val dao: StockDao) : ViewModel() {
                     number = newNumber,
                     loginDate = newLoginDate ,
                     expiryDate = newExpiryDate ,
+                    uuid=newuuid
+
                 )
             dao.insert(listOf(datalist) )
         }
@@ -120,6 +151,38 @@ class StockViewModel(val dao: StockDao) : ViewModel() {
     fun deleteStockItem(item: StockTable) {
         viewModelScope.launch {
             dao.delete(item)
+        }
+
+    }
+    fun deleteExpiredStockItem() {
+        viewModelScope.launch {
+            dao.deleteExpiredStockItems()
+        }
+    }
+    fun convertDateToLong(dateString: String): Long {
+        val dateFormat = SimpleDateFormat("yyyy/MM/dd", Locale.US)
+        val date = dateFormat.parse(dateString)
+        return date?.time ?: 0L
+    }
+
+    fun fetchStockItemByName(stockitemName: String) {
+        viewModelScope.launch {
+            if (stockitemName.isEmpty()) {
+                dao.getUnexpiredStockItems()
+                    .collect { items ->
+                        _UnexpiredList.value = items
+                    }
+            } else {
+                dao.getItemByName("%$stockitemName%")
+                    .collect { items ->
+                        _UnexpiredList.value = items
+                    }
+            }
+        }
+    }
+    fun resetSearch() {
+        viewModelScope.launch {
+            _UnexpiredList.value = dao.getUnexpiredStockItems().first()
         }
     }
 }

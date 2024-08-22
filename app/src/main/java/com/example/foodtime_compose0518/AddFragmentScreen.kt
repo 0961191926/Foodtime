@@ -28,10 +28,12 @@ import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.outlined.KeyboardArrowDown
 import androidx.compose.material.icons.outlined.KeyboardArrowUp
 import androidx.compose.material3.*
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 
 import androidx.compose.ui.text.TextStyle
@@ -61,14 +63,19 @@ fun AddFragmentScreen(navController: NavController, stockViewModel: StockViewMod
     }
 }
 
+
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddFragmentContent(navController: NavController, stockViewModel: StockViewModel) { // 接收 navController
     var ingredientName by remember { mutableStateOf("") }
     var quantity by remember { mutableStateOf(1) } // 修改为 Int 类型
-    var loginDate by remember { mutableStateOf("") }
+    val dateFormat = SimpleDateFormat("yyyy/MM/dd", Locale.US)
+    val today = dateFormat.format(Date())
+    var loginDate by remember { mutableStateOf(today) }
     var expirationDate by remember { mutableStateOf("") }
-
+    var showError by remember { mutableStateOf(false) }
+    val initialDate = System.currentTimeMillis()
     Foodtime0518_Theme {
         Column(
             modifier = Modifier
@@ -142,7 +149,10 @@ fun AddFragmentContent(navController: NavController, stockViewModel: StockViewMo
                     modifier = Modifier.padding(end = 10.dp),
                     fontFamily = displayFontFamily
                 )
-                MyDatePickerComponent()
+                MyDatePickerComponent(initialDate = initialDate){ selectedDate ->
+                    loginDate = selectedDate
+                }
+
 
             }
 
@@ -156,10 +166,19 @@ fun AddFragmentContent(navController: NavController, stockViewModel: StockViewMo
                     fontFamily = displayFontFamily
                 )
 
-                MyDatePickerComponent()
+                MyDatePickerComponent(initialDate){ selectedDate ->
+                    expirationDate = selectedDate
+                }
             }
 
             Spacer(modifier = Modifier.height(65.dp))
+            if (showError) {
+                Text(
+                    text = "有效期限不可為空值",
+                    color = Color.Red,
+                    modifier = Modifier.padding(bottom = 16.dp)
+                )
+            }
 
             Row {
                 Button(
@@ -167,12 +186,17 @@ fun AddFragmentContent(navController: NavController, stockViewModel: StockViewMo
                         primaryLight // 使用您定义的颜色
                     ),
                     onClick = {
-                        stockViewModel.setStockName(ingredientName)
-                        stockViewModel.setNumber(quantity)
-                        stockViewModel.setLoginDate(loginDate)
-                        stockViewModel.setExpiryDate(expirationDate)
-                        stockViewModel.addStockItem()
-                        navController.navigate("ingredients")
+                        if (expirationDate.isEmpty()) {
+                            showError = true
+                        } else {
+                            showError = false
+                            stockViewModel.setStockName(ingredientName)
+                            stockViewModel.setNumber(quantity)
+                            stockViewModel.setLoginDate(convertDateToLong( loginDate))
+                            stockViewModel.setExpiryDate(convertDateToLong( expirationDate))
+                            stockViewModel.addStockItem()
+                            navController.navigate("ingredients")
+                        }
                     },
                     modifier = Modifier
                         .weight(1f)
@@ -262,106 +286,18 @@ fun DateTextFieldPreview() {
 }
 
 
-//第一版datepicker
-//@OptIn(ExperimentalMaterial3Api::class)
-//@Composable
-//fun MyDatePickerComponent() {
-//    var showDatePicker by remember { mutableStateOf(false) }
-//    var selectedDate by remember { mutableStateOf(Date()) }
-//    val dateFormat = remember { SimpleDateFormat("yyyy/MM/dd", Locale.US) }
-//    var textFieldValue by remember { mutableStateOf(dateFormat.format(selectedDate)) }
-//
-//    Column(
-////        verticalArrangement = Arrangement.spacedBy(2.dp),
-//        modifier = Modifier
-//            .fillMaxWidth(1f)
-//            .padding(horizontal = 0.dp)
-//    ) {
-//        Row(verticalAlignment = Alignment.CenterVertically) {
-//            OutlinedTextField(
-//                value = textFieldValue,
-//                onValueChange = { textFieldValue = it },
-//                label = { Text("日期") },
-//                placeholder = { Text("YYYY/MM/DD") },
-//                modifier = Modifier
-//                    .weight(1f)
-//                    .padding(horizontal = 2.dp),
-//                trailingIcon = {
-//                    IconButton(onClick = { showDatePicker = true }) {
-//                        Icon(Icons.Default.DateRange, contentDescription = "Date")
-//                    }
-//                },
-//                textStyle = LocalTextStyle.current.copy(fontSize = 16.sp)
-//            )
-//        }
-//
-//        if (showDatePicker) {
-//            Dialog(onDismissRequest = { showDatePicker = false }) {
-//                Surface(
-//                    shape = MaterialTheme.shapes.large,
-//                    color = MaterialTheme.colorScheme.background,
-//                    contentColor = MaterialTheme.colorScheme.onBackground,
-//                ) {
-//                    Column(
-//                        modifier = Modifier
-//                            .fillMaxWidth(1f)
-//                            .padding(0.dp)  // 增加 padding 以确保有足够空间
-//                            .wrapContentWidth(),
-//                        horizontalAlignment = Alignment.CenterHorizontally
-//                    ) {
-//                        val datePickerState = rememberDatePickerState(
-//                            initialSelectedDateMillis = selectedDate.time,
-//                            yearRange = IntRange(1900, 2100),
-//                            selectableDates = object : SelectableDates {
-//                                override fun isSelectableDate(utcTimeMillis: Long): Boolean {
-//                                    return true // 允許選擇所有日期
-//                                }
-//                                override fun isSelectableYear(year: Int): Boolean {
-//                                    return true // 允許選擇所有年份
-//                                }
-//                            }
-//                        )
-//                        DatePicker(
-//                            state = datePickerState,
-//                            modifier = Modifier
-//                                .fillMaxWidth()
-//                                .defaultMinSize(minWidth = 1000.dp),  // 设置最小宽度
-//                        )
-//                        Spacer(modifier = Modifier.height(16.dp))
-//                        Button(
-//                            onClick = {
-//                                selectedDate = Date(datePickerState.selectedDateMillis ?: 0)
-//                                textFieldValue = dateFormat.format(selectedDate)
-//                                showDatePicker = false
-//                            }
-//                        ) {
-//                            Text("OK")
-//                        }
-//                    }
-//                }
-//            }
-//        }
-//    }
-//}
-
-
-
-@Preview
-@Composable
-private fun MadatePickerpreview() {
-    Foodtime0518_Theme {
-        MyDatePickerComponent()
-    }
-}
-
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MyDatePickerComponent() {
+fun MyDatePickerComponent(initialDate: Long,onDateSelected: (String) -> Unit) {
     var showDatePicker by remember { mutableStateOf(false) }
-    var selectedDate by remember { mutableStateOf(Date()) }
-    val dateFormat = remember { SimpleDateFormat("MMM d, yyyy", Locale.US) }
+    var selectedDate by remember { mutableStateOf(Date(initialDate)) }
+    val dateFormat = remember { SimpleDateFormat("yyyy/MM/dd", Locale.US) }
     var textFieldValue by remember { mutableStateOf(dateFormat.format(selectedDate)) }
+    LaunchedEffect(initialDate) {
+        selectedDate = Date(initialDate)
+        textFieldValue = dateFormat.format(selectedDate)
+    }
 
     Column(
         modifier = Modifier
@@ -399,6 +335,7 @@ fun MyDatePickerComponent() {
                             datePickerState.selectedDateMillis?.let { millis ->
                                 selectedDate = Date(millis)
                                 textFieldValue = dateFormat.format(selectedDate)
+                                onDateSelected(textFieldValue)
                             }
                             showDatePicker = false
                         }
@@ -431,6 +368,12 @@ fun MyDatePickerComponent() {
         }
     }
 }
+
+
+
+
+
+
 
 
 

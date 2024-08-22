@@ -90,6 +90,7 @@ class AddHolidayScreen : ComponentActivity() {
 @Composable
 fun HolidayAdd(navController: NavController,holidayViewModel: HolidayViewModel) {
     var Holiday = remember { mutableStateOf("") }
+    val initialDate = System.currentTimeMillis()
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -127,7 +128,8 @@ fun HolidayAdd(navController: NavController,holidayViewModel: HolidayViewModel) 
                 modifier = Modifier
                     .fillMaxWidth()
             ) {
-                MyDatePickerComponent()
+                MyDatePickerComponent(initialDate){selectedDate ->
+                    Holiday.value = selectedDate}
             }
             Spacer(modifier = Modifier.height(300.dp))
 
