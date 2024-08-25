@@ -1,4 +1,5 @@
 package com.example.foodtime_compose0518.ui.theme
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
@@ -256,6 +257,7 @@ val unspecified_scheme = ColorFamily(
     Color.Unspecified, Color.Unspecified, Color.Unspecified, Color.Unspecified
 )
 
+@SuppressLint("SuspiciousIndentation")
 @Composable
 fun Foodtime0518_Theme(
     darkTheme: Boolean = isSystemInDarkTheme(),

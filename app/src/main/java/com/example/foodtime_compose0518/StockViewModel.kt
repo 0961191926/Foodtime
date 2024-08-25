@@ -22,19 +22,24 @@ import kotlinx.coroutines.withContext
 import java.util.Date
 import java.text.SimpleDateFormat
 import java.util.Locale
+import kotlin.math.exp
+import kotlin.math.ln
+import kotlin.math.pow
+
 
 class StockViewModel(val dao: StockDao) : ViewModel() {
     var newStockName = ""
     var newNumber = 0
     var newLoginDate: Long = 0L
     var newExpiryDate: Long = 0L
-    var newuuid=""
+    var newuuid = ""
     private val database = Firebase.database.reference.child("a")
     private val _stockItem = MutableStateFlow<StockTable>(StockTable())
     val stockItem: Flow<StockTable> get() = _stockItem
 
     private val _UnexpiredList = MutableStateFlow<List<StockTable>>(emptyList())
     val UnexpiredList: StateFlow<List<StockTable>> get() = _UnexpiredList
+
     init {
         viewModelScope.launch {
             dao.getUnexpiredStockItems()
@@ -43,8 +48,10 @@ class StockViewModel(val dao: StockDao) : ViewModel() {
                 }
         }
     }
+
     private val _dataFlow = MutableStateFlow<List<StockTable>>(emptyList())
     val dataFlow: StateFlow<List<StockTable>> get() = _dataFlow
+
     init {
 
 
@@ -91,11 +98,7 @@ class StockViewModel(val dao: StockDao) : ViewModel() {
             }
         })
     }
-//    val UnexpiredList: Flow<List<StockTable>> = dao.getUnexpiredStockItems().stateIn(
-//        scope = viewModelScope,
-//        started = SharingStarted.WhileSubscribed(5000),
-//        initialValue = emptyList()
-//    )
+
     val expiredList: Flow<List<StockTable>> = dao.getExpiredStockItems().stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5000),
@@ -111,28 +114,29 @@ class StockViewModel(val dao: StockDao) : ViewModel() {
         newNumber = number
     }
 
-    fun setLoginDate(date:Long) {
+    fun setLoginDate(date: Long) {
         newLoginDate = date
     }
 
-    fun setExpiryDate(date:Long) {
+    fun setExpiryDate(date: Long) {
         newExpiryDate = date
     }
 
     fun addStockItem() {
         viewModelScope.launch {
-            val datalist=
+            val datalist =
                 StockTable(
                     stockitemName = newStockName,
                     number = newNumber,
-                    loginDate = newLoginDate ,
-                    expiryDate = newExpiryDate ,
-                    uuid=newuuid
+                    loginDate = newLoginDate,
+                    expiryDate = newExpiryDate,
+                    uuid = newuuid
 
                 )
-            dao.insert(listOf(datalist) )
+            dao.insert(listOf(datalist))
         }
     }
+
     fun fetchStockItem(id: Int) {
         viewModelScope.launch {
             val item = withContext(Dispatchers.IO) {
@@ -154,11 +158,13 @@ class StockViewModel(val dao: StockDao) : ViewModel() {
         }
 
     }
+
     fun deleteExpiredStockItem() {
         viewModelScope.launch {
             dao.deleteExpiredStockItems()
         }
     }
+
     fun convertDateToLong(dateString: String): Long {
         val dateFormat = SimpleDateFormat("yyyy/MM/dd", Locale.US)
         val date = dateFormat.parse(dateString)
@@ -180,9 +186,54 @@ class StockViewModel(val dao: StockDao) : ViewModel() {
             }
         }
     }
+
     fun resetSearch() {
         viewModelScope.launch {
             _UnexpiredList.value = dao.getUnexpiredStockItems().first()
         }
+    }
+
+    fun freshness(note: StockTable): Double {
+        val loginDate = note.loginDate //登入日期
+        val expiryDate = note.expiryDate //到期日期
+        val currentDate = System.currentTimeMillis() // 現在日期
+
+        val n = when {
+            (expiryDate-loginDate) <= 30 -> 2.75
+            (expiryDate-loginDate) in 30..180 -> 2.5
+            else -> 2.3
+        }
+
+        val result = exp(ln(0.01) * ((currentDate-loginDate).toDouble() / expiryDate-loginDate).pow(n))
+        return result
+    }
+    fun lightSignal(freshness: Double): Int {
+        return when {
+            freshness in 1.0..0.5 -> R.drawable.greenlight // Fresh
+            freshness in 0.2..0.5 -> R.drawable.yellowlight
+            freshness in 0.1..0.2 -> R.drawable.redlight
+            else -> R.drawable.skull // Not fresh
+        }
+    }
+
+    fun calculateFreshness(note: StockTable): Double {
+        var currentDate = System.currentTimeMillis() // 現在時間
+        var expiryDate = note.expiryDate //到期時間
+        var productionDate = currentDate - expiryDate //製造時間
+
+        if (currentDate >= expiryDate) {
+            return 0.0 // Already expired
+        }
+        var n = when {
+            expiryDate-productionDate <= 30 -> 2.75
+            (expiryDate-productionDate).toDouble() in 30.0..180.0 -> 2.5
+            else -> 2.3
+        }
+
+        var totalShelfLife = (expiryDate - productionDate).toDouble() //保存期限
+        var elapsedLife = (currentDate - productionDate).toDouble() // 已經過時間
+
+        var freshness = exp(ln(0.01) * (elapsedLife/totalShelfLife).pow(n))
+        return freshness // Ensure freshness is between 0 and 100
     }
 }
