@@ -115,7 +115,6 @@ val drawerMenuItems = listOf(
     DrawerMenuItem("NormalList", Icons.AutoMirrored.Filled.List, "常備清單"),
     DrawerMenuItem("Expired_food", Icons.Default.Delete, "過期食材"),
     DrawerMenuItem("setting", Icons.AutoMirrored.Filled.ExitToApp, "設定")
-
 )
 
 
