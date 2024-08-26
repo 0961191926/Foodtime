@@ -69,94 +69,131 @@ fun Signal_Notification(navController: NavController) {
             .padding(16.dp)
     ) {
         val notificationEnabled = remember { mutableStateOf(true) }
+        val redLightNotification = remember { mutableStateOf(true) }
+        val yellowLightNotification = remember { mutableStateOf(true) }
+
         NotificationSetting(
             isEnabled = notificationEnabled.value,
-            onToggle = { notificationEnabled.value = it }
+            onToggle = {
+                notificationEnabled.value = it
+                if (!it) {
+                    redLightNotification.value = false
+                    yellowLightNotification.value = false
+                }
+            }
         )
 
         val redLightDays = remember { mutableStateOf(3) }
-        val redLightNotification = remember { mutableStateOf(true) }
         ListItem2(
             imageResId = R.drawable.redlight,
             name = "紅燈",
             expirationDays = redLightDays,
-            isNotificationEnabled = redLightNotification.value,
-            onNotificationToggle = { redLightNotification.value = it }
+            isNotificationEnabled = notificationEnabled.value && redLightNotification.value,
+            onNotificationToggle = {
+                if (notificationEnabled.value) {
+                    redLightNotification.value = it
+                }
+            }
         )
-            Divider()
+        Divider()
 
         val yellowLightDays = remember { mutableStateOf(5) }
-        val yellowLightNotification = remember { mutableStateOf(true) }
         ListItem2(
             imageResId = R.drawable.yellowlight,
             name = "黃燈",
             expirationDays = yellowLightDays,
-            isNotificationEnabled = yellowLightNotification.value,
-            onNotificationToggle = { yellowLightNotification.value = it }
+            isNotificationEnabled = notificationEnabled.value && yellowLightNotification.value,
+            onNotificationToggle = {
+                if (notificationEnabled.value) {
+                    yellowLightNotification.value = it
+                }
+            }
         )
-
         Divider()
 
-
-        val skullDays = remember { mutableStateOf(7) }
-        val skullNotification = remember { mutableStateOf(true) }
-        ListItem2(
+        val skullDays = remember { mutableStateOf(0) }
+        ListItem(
             imageResId = R.drawable.skull,
             name = "骷髏頭",
             expirationDays = skullDays,
-            isNotificationEnabled = skullNotification.value,
-            onNotificationToggle = { skullNotification.value = it }
+            onNotificationToggle = { }
         )
-
         Divider()
-
     }
 }
 
+// 骷髏頭
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ListItem(
     imageResId: Int,
     name: String,
     expirationDays: MutableState<Int>,
-    isNotificationEnabled: Boolean,
     onNotificationToggle: (Boolean) -> Unit
 ) {
-    Column(
+    Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 8.dp)
+            .padding(vertical = 8.dp),
+        verticalAlignment = Alignment.CenterVertically
     ) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically
+        Image(
+            painter = painterResource(id = imageResId),
+            contentDescription = null,
+            modifier = Modifier.size(40.dp)
+        )
+        Spacer(modifier = Modifier.width(4.dp))
+        Text(
+            text = name,
+            modifier = Modifier.weight(1f),
+            fontSize = 20.sp,
+            fontFamily = displayFontFamily
+        )
+        IconButton(onClick = {
+        },
+            modifier = Modifier.size(40.dp)
         ) {
-            Image(
-                painter = painterResource(id = imageResId),
-                contentDescription = null,
-                modifier = Modifier.size(40.dp)
-            )
-            Spacer(modifier = Modifier.width(8.dp))
-            Text(
-                text = name,
-                modifier = Modifier.weight(1f),
-                fontSize = 18.sp,
-                fontFamily = displayFontFamily
-            )
-            Text(
-                text = "${expirationDays.value} 天",
-                modifier = Modifier.padding(horizontal = 4.dp),
-                fontSize = 20.sp,
-                fontFamily = displayFontFamily
-            )
-            Switch(
-                checked = isNotificationEnabled,
-                onCheckedChange = onNotificationToggle
+            Icon(Icons.Default.KeyboardArrowDown, contentDescription = "减少天數",
+                modifier = Modifier.size(24.dp)
             )
         }
-        Slider(
-            value = expirationDays.value.toFloat(),
-            onValueChange = { expirationDays.value = it.toInt() },
-            valueRange = 0f..30f,
-            modifier = Modifier.padding(horizontal = 16.dp)
+        TextField(
+            value = "${expirationDays.value}天",
+            onValueChange = { newValue ->
+                val number = newValue.replace("天", "").toIntOrNull()
+                if (number != null && number >= 0) {
+                    expirationDays.value = number
+                } else if (newValue.isEmpty()) {
+                    expirationDays.value = 0
+                }
+            },
+            singleLine = true,
+            keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Done, keyboardType = KeyboardType.Number),
+            modifier = Modifier
+                .width(70.dp)
+                .background(MaterialTheme.colorScheme.background)
+                .padding(horizontal = 3.dp),
+            textStyle = TextStyle(
+                fontFamily = displayFontFamily,
+                fontSize = 18.sp
+            ),
+            colors = TextFieldDefaults.textFieldColors(
+                containerColor = Color.Transparent,
+                unfocusedIndicatorColor = Color.Transparent,
+                focusedIndicatorColor = Color.Transparent,
+                cursorColor = MaterialTheme.colorScheme.onSurface,
+                disabledTextColor = MaterialTheme.colorScheme.onSurface
+            )
+        )
+        IconButton(onClick = {
+        }) {
+            Icon(Icons.Default.KeyboardArrowUp, contentDescription = "增加天數",
+                modifier = Modifier.size(24.dp))
+        }
+        Switch(
+            checked = false,
+            onCheckedChange = {},
+            enabled = false
         )
     }
 }
