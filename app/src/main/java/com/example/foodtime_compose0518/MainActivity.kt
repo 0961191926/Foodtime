@@ -1,7 +1,9 @@
 package com.example.foodtime_compose0518
 
 import ExpireScreen
+import FoodExpirationScreen
 import HolidayScreen
+import Signal_Notification
 import android.annotation.SuppressLint
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -13,9 +15,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.foundation.Image
-
 import androidx.compose.foundation.background
-
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -39,27 +39,22 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import kotlinx.coroutines.launch
-
 import androidx.compose.foundation.layout.*
 
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-
-
 import androidx.compose.ui.graphics.Color
-
 import com.example.foodtime_compose0518.ui.theme.Foodtime0518_Theme
 import com.example.foodtime_compose0518.ui.theme.secondaryContainerLight
 import com.example.foodtime_compose0518.ui.theme.surfaceContainerLowLight
-
-
 import androidx.activity.viewModels
 import androidx.compose.material.icons.automirrored.filled.ExitToApp
 import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.FavoriteBorder
 import com.google.firebase.database.FirebaseDatabase
+import setting
 
 class MainActivity : ComponentActivity() {
     private val holidayViewModel: HolidayViewModel by viewModels {
@@ -113,7 +108,11 @@ val routeTitleMap = mapOf(
     "FoodDetail" to "食材資訊",
     "HolidayDetail" to "所需食材",
     "HolidayAddFragment" to "新增食材",
-    "NormalListAddFragment" to "常備清單新增食材"
+    "NormalListAddFragment" to "常備清單新增食材",
+    "setting" to "設定",
+    "Signal_Notification" to "燈號通知提醒",
+    "Foodexpiration_setting" to "食材到期設定",
+
 )
 
 val drawerMenuItems = listOf(
@@ -121,7 +120,7 @@ val drawerMenuItems = listOf(
     DrawerMenuItem("holidays", Icons.Default.FavoriteBorder, "節日清單"),
     DrawerMenuItem("NormalList", Icons.AutoMirrored.Filled.List, "常備清單"),
     DrawerMenuItem("Expired_food", Icons.Default.Delete, "過期食材"),
-    DrawerMenuItem("logout", Icons.AutoMirrored.Filled.ExitToApp, "登出")
+    DrawerMenuItem("setting", Icons.AutoMirrored.Filled.ExitToApp, "設定")
 )
 
 
@@ -210,7 +209,9 @@ fun MyApp(
                         }
                     }
                     composable("NormalListAddFragment") { NormalAddFragment(navController,normalViewModel) }
-
+                    composable("setting") { setting(navController) }
+                    composable("Signal_Notification"){Signal_Notification(navController)}
+                    composable("Foodexpiration_setting"){FoodExpirationScreen(navController)}
                 }
             }
 

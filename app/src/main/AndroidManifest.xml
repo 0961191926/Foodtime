@@ -13,14 +13,26 @@
         android:theme="@style/Theme.Foodtime_compose0518"
         tools:targetApi="31">
         <activity
-
-
+            android:name=".foodexpiration_setting"
+            android:exported="false"
+            android:label="@string/title_activity_foodexpiration_setting"
+            android:theme="@style/Theme.Foodtime_compose0518" />
+        <activity
+            android:name=".noticesetting"
+            android:exported="false"
+            android:label="@string/title_activity_noticesetting"
+            android:theme="@style/Theme.Foodtime_compose0518" />
+        <activity
+            android:name=".setting"
+            android:exported="false"
+            android:label="@string/title_activity_setting"
+            android:theme="@style/Theme.Foodtime_compose0518" />
+        <activity
             android:name=".trytrysee"
             android:exported="false"
             android:label="@string/title_activity_trytrysee"
             android:theme="@style/Theme.Foodtime_compose0518" />
         <activity
-
             android:name=".LogoutScreen"
             android:exported="false"
             android:label="@string/title_activity_logout_screen"
