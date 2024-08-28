@@ -13,5 +13,8 @@
     <string name="title_activity_myself_screen">myselfScreen</string>
     <string name="title_activity_logout_screen">LogoutScreen</string>
     <string name="title_activity_trytrysee">trytrysee</string>
+    <string name="title_activity_setting">setting</string>
+    <string name="title_activity_noticesetting">noticesetting</string>
+    <string name="title_activity_foodexpiration_setting">foodexpiration_setting</string>
 
 </resources>
