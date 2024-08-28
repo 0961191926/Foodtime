@@ -32,6 +32,7 @@ import com.example.foodtime_compose0518.FoodDatabase
 import com.example.foodtime_compose0518.HolidayTable
 import com.example.foodtime_compose0518.HolidayViewModel
 import com.example.foodtime_compose0518.TemplateScreen
+import com.example.foodtime_compose0518.convertLongToDateString
 
 
 @SuppressLint("SuspiciousIndentation")
@@ -39,13 +40,11 @@ import com.example.foodtime_compose0518.TemplateScreen
 fun HolidayScreen(navController: NavController,viewModel: HolidayViewModel) {
      val holist =viewModel.holidayList.collectAsState(arrayListOf())
 
-            LazyColumn(modifier = Modifier.clickable {
-                navController.navigate("HolidayDetail")
-            }){
+            LazyColumn{
                 items(holist.value) {
                     ListItem(
                         headlineContent = { Text(text = " ${it.holidayName}")},
-                        supportingContent = { Text("2024/09/17") },
+                        supportingContent = { Text(convertLongToDateString(it.Date) ) },
                         leadingContent = {
                             Icon(
                                 Icons.Filled.Favorite,
@@ -54,7 +53,7 @@ fun HolidayScreen(navController: NavController,viewModel: HolidayViewModel) {
                         },
 
                         modifier = Modifier.clickable {
-                            navController.navigate("HolidayDetail")
+                            navController.navigate("HolidayDetail/${it.holidayId}")
                         }
 
                     )

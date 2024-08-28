@@ -101,7 +101,6 @@ fun HolidayAddFragmentScreen(navController: NavHostController, normalViewModel: 
                     primaryLight // 使用您定义的颜色
                 ),
                 onClick = {
-                    // 回到 Normallist 屏幕
                     navController.popBackStack()
                 },
                 modifier = Modifier
