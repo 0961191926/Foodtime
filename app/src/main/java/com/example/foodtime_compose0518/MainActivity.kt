@@ -40,6 +40,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import kotlinx.coroutines.launch
 import androidx.compose.foundation.layout.*
+
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -51,21 +52,26 @@ import androidx.activity.viewModels
 import androidx.compose.material.icons.automirrored.filled.ExitToApp
 import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.ExitToApp
 import androidx.compose.material.icons.filled.FavoriteBorder
-import androidx.compose.material.icons.filled.List
 import com.google.firebase.database.FirebaseDatabase
 import setting
 
 class MainActivity : ComponentActivity() {
     private val holidayViewModel: HolidayViewModel by viewModels {
-        HolidayViewModelFactory(FoodDatabase.getInstance(application).foodDao)
+        val database = FoodDatabase.getInstance(application)
+        HolidayViewModelFactory(
+            dao = database.foodDao,
+            holidayDetailDao = database.holidayDetailDao // 傳遞 holidayDetailDao
+        )
     }
     private val stockViewModel: StockViewModel by viewModels {
         StockViewModelFactory(FoodDatabase.getInstance(application).stockDao)
     }
     private val normalViewModel: NormalViewModel by viewModels {
         NormalViewModelFactory(FoodDatabase.getInstance(application).normalDao)
+    }
+    private val settingViewModel: SettingViewModel by viewModels {
+        SettingViewModelFactory(FoodDatabase.getInstance(application).settingDao)
     }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -77,7 +83,7 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    MyApp(holidayViewModel,normalViewModel,stockViewModel)
+                    MyApp(holidayViewModel,normalViewModel,stockViewModel,settingViewModel)
                 }
             }
 
@@ -124,7 +130,8 @@ val drawerMenuItems = listOf(
 fun MyApp(
     holidayViewModel: HolidayViewModel,
     normalViewModel: NormalViewModel,
-    stockViewModel: StockViewModel
+    stockViewModel: StockViewModel,
+    settingViewModel: SettingViewModel
 ) {
 
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)

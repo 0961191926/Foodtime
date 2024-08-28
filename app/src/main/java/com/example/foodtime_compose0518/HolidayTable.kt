@@ -10,5 +10,8 @@ data class HolidayTable(
     val holidayId: Int = 0,
 
     @ColumnInfo(name = "holiday_name")
-    val holidayName: String
+    val holidayName: String,
+
+    @ColumnInfo(name = "date")
+    val Date: Long
 )
