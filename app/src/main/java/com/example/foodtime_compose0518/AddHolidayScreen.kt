@@ -3,7 +3,6 @@ package com.example.foodtime_compose0518
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -28,9 +27,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 
 
@@ -44,16 +41,10 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import androidx.compose.runtime.*
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.foodtime_compose0518.ui.theme.*
-import com.example.foodtime_compose0518.HolidayViewModel
-import com.example.foodtime_compose0518.HolidayViewModelFactory
-import com.example.foodtime_compose0518.FoodDatabase
-import com.example.foodtime_compose0518.HolidayTable
 
 
 import com.example.foodtime_compose0518.ui.theme.Foodtime0518_Theme
 import com.example.foodtime_compose0518.ui.theme.bodyFontFamily
-import com.example.foodtime_compose0518.ui.theme.displayFontFamily
 import com.example.foodtime_compose0518.ui.theme.onPrimaryLight
 import com.example.foodtime_compose0518.ui.theme.primaryLight
 
@@ -74,7 +65,7 @@ class AddHolidayScreen : ComponentActivity() {
 
                     val application = applicationContext
                     val database = FoodDatabase.getInstance(application)
-                    val viewModelFactory = HolidayViewModelFactory(database.foodDao)
+                    val viewModelFactory = HolidayViewModelFactory(database.foodDao, database.holidayDetailDao)
                     val holidayViewModel: HolidayViewModel = viewModel(factory = viewModelFactory)
                     HolidayAdd(navController = rememberNavController(), holidayViewModel)
 
@@ -91,6 +82,8 @@ class AddHolidayScreen : ComponentActivity() {
 fun HolidayAdd(navController: NavController,holidayViewModel: HolidayViewModel) {
     var Holiday = remember { mutableStateOf("") }
     val initialDate = System.currentTimeMillis()
+    var Date by remember { mutableStateOf("") }
+
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -112,7 +105,7 @@ fun HolidayAdd(navController: NavController,holidayViewModel: HolidayViewModel) 
                 androidx.compose.material3.OutlinedTextField(
                     value = Holiday.value,
                     onValueChange = { Holiday.value = it },
-                    label = { Text(text="節日") },
+                    label = { Text(text = "節日") },
                     singleLine = true,
                     keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
                     modifier = Modifier.fillMaxWidth(),
@@ -128,93 +121,64 @@ fun HolidayAdd(navController: NavController,holidayViewModel: HolidayViewModel) 
                 modifier = Modifier
                     .fillMaxWidth()
             ) {
-                MyDatePickerComponent(initialDate){selectedDate ->
-                    Holiday.value = selectedDate}
-            }
-            Spacer(modifier = Modifier.height(300.dp))
-
-
-            // Confirm Button
-            Row {
-                Button(
-                    colors = ButtonDefaults.buttonColors(
-                        primaryLight // 使用您定义的颜色
-                    ),
-                    onClick = { holidayViewModel.setHolidayName(Holiday.value)
-                                holidayViewModel.addHoliday()
-                                navController.navigate("holidays")
-                              },
-
-                    modifier = Modifier
-                        .weight(1f)
-                        .height(60.dp)
-                        .padding(horizontal = 30.dp)
-                        .padding(bottom = 16.dp),
-
-                    shape = RoundedCornerShape(35.dp) // 设置按钮的弧度
-
-                ) {
-                    Text("確認",
-                        style = TextStyle(color = onPrimaryLight)
-                    )
+                MyDatePickerComponent(initialDate) { selectedDate ->
+                    Date = selectedDate
                 }
+                Spacer(modifier = Modifier.height(300.dp))
 
-                Button(
-                    onClick = { navController.navigate("holidays") },
+            }
+                // Confirm Button
+                Row{
+                    Button(
+                        colors = ButtonDefaults.buttonColors(
+                            primaryLight // 使用您定义的颜色
+                        ),
+                        onClick = {
+                            holidayViewModel.setHolidayName(Holiday.value)
+                            holidayViewModel.setHolidayDate(convertDateToLong(Date))
+                            holidayViewModel.addHoliday()
+                            navController.navigate("holidays")
+                        },
 
-                    colors = ButtonDefaults.buttonColors(
-                        onPrimaryLight // 使用您定义的颜色
-                    ),
+                        modifier = Modifier
+                            .weight(1f)
+                            .height(60.dp)
+                            .padding(horizontal = 30.dp)
+                            .padding(bottom = 16.dp),
 
-                    modifier = Modifier
-                        .weight(1f)
-                        .height(60.dp)
-                        .padding(horizontal = 30.dp)
-                        .padding(bottom = 16.dp),
+                        shape = RoundedCornerShape(35.dp) // 设置按钮的弧度
 
-                    shape = RoundedCornerShape(35.dp) // 设置按钮的弧度
-                ) {
-                    Text(text = "取消",
-                        fontSize = 16.sp,
-                        fontFamily = bodyFontFamily,
-                        style = TextStyle(color = primaryLight)
+                    ) {
+                        Text(
+                            "確認",
+                            style = TextStyle(color = onPrimaryLight)
+                        )
+                    }
 
-                    )
+                    Button(
+                        onClick = { navController.navigate("holidays") },
+
+                        colors = ButtonDefaults.buttonColors(
+                            onPrimaryLight // 使用您定义的颜色
+                        ),
+
+                        modifier = Modifier
+                            .weight(1f)
+                            .height(60.dp)
+                            .padding(horizontal = 30.dp)
+                            .padding(bottom = 16.dp),
+
+                        shape = RoundedCornerShape(35.dp) // 设置按钮的弧度
+                    ) {
+                        Text(
+                            text = "取消",
+                            fontSize = 16.sp,
+                            fontFamily = bodyFontFamily,
+                            style = TextStyle(color = primaryLight)
+
+                        )
+                    }
                 }
             }
         }
     }
-}
-
-
-
-
-
-@Composable
-fun HolidayInputField(
-    holiday: MutableState<String>
-) {
-    OutlinedTextField(
-        value = holiday.value,
-        onValueChange = { holiday.value = it },
-        label = { Text("節日") },
-        singleLine = true,
-        keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
-        modifier = Modifier.fillMaxWidth(),
-        textStyle = TextStyle(
-            fontFamily = FontFamily.SansSerif,
-            fontSize = 16.sp
-        )
-    )
-}
-
-@Preview
-@Composable
-fun HolidayInputFieldPreview() {
-    val holidayState = remember { mutableStateOf("") }
-    HolidayInputField(holiday = holidayState)
-}
-
-
-
-
