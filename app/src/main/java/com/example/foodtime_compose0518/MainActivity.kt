@@ -195,9 +195,19 @@ fun MyApp(
                     composable("ingredients") { IngredientsScreen(navController,stockViewModel) }
                     composable("holidays") { HolidayScreen(navController,holidayViewModel) }
                     composable("Addholiday") { HolidayAdd(navController, holidayViewModel) }
-                    composable("HolidayDetail") { HolidayDetailScreen(navController) }
+                    composable("HolidayDetail/{holidayId}") { backStackEntry ->
+                        val holidayId = backStackEntry.arguments?.getString("holidayId")?.toIntOrNull()
+                        if (holidayId != null) {
+                            HolidayDetailScreen(navController, holidayId, holidayViewModel)
+                        }
+                    }
                     composable("NormalList") { Normallist(navController, normalViewModel) }
-                    composable("HolidayAddFragment") { HolidayAddFragmentScreen(navController, normalViewModel) }
+                    composable("HolidayAddFragment/{holidayId}") { backStackEntry ->
+                        val holidayId = backStackEntry.arguments?.getString("holidayId")?.toIntOrNull()
+                        if (holidayId != null) {
+                            HolidayAddFragmentScreen(navController, holidayId, holidayViewModel)
+                        }
+                    }
                     composable("Expired_food") { ExpireScreen(navController,stockViewModel) }
                     composable("home_page") { Home_pageScreen() }
                     composable("logout") { LoginScreen(navController) }

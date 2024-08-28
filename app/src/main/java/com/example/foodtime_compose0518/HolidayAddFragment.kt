@@ -24,7 +24,7 @@ import com.example.foodtime_compose0518.ui.theme.primaryLight
 import com.example.foodtime_compose0518.ui.theme.onPrimaryLight
 
 @Composable
-fun HolidayAddFragmentScreen(navController: NavHostController, normalViewModel: NormalViewModel) {
+fun HolidayAddFragmentScreen(navController: NavHostController, holidayId: Int, holidayViewModel: HolidayViewModel) {
     val food = remember { mutableStateOf("") }
     val number = remember { mutableStateOf(1) }
 
@@ -120,10 +120,8 @@ fun HolidayAddFragmentScreen(navController: NavHostController, normalViewModel: 
             Button(
                 onClick = {
                     // 增加食材
-                    normalViewModel.setNormalName(food.value)
-                    normalViewModel.setNumber(number.value)
-                    normalViewModel.addNormalItem()
-                    navController.popBackStack()
+                    holidayViewModel.addHolidayDetail(holidayId, food.value, number.value)
+                    navController.popBackStack() // 返回上一個畫面
                 },
                 colors = ButtonDefaults.buttonColors(
                     onPrimaryLight // 使用您定义的颜色
