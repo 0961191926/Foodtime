@@ -21,5 +21,10 @@ interface HolidayDetailDao {
     suspend fun update(item: HolidayDetailTable)
 
     @Delete
-    suspend fun delete(item: HolidayDetailTable)
+    suspend fun deletwe(item: HolidayDetailTable)
+
+    @Query("SELECT * FROM holiday_detail_table WHERE holidayId = :holidayId")
+    fun getDetailsByHolidayId(holidayId: Int): Flow<List<HolidayDetailTable>>
+
+
 }

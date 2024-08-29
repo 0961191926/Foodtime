@@ -113,7 +113,7 @@ val routeTitleMap = mapOf(
     "Signal_Notification" to "燈號通知提醒",
     "Foodexpiration_setting" to "食材到期設定",
 
-)
+    )
 
 val drawerMenuItems = listOf(
     DrawerMenuItem("ingredients", Icons.Default.Menu, "食材庫"),
@@ -142,7 +142,15 @@ fun MyApp(
     val navBackStackEntry by navController.currentBackStackEntryAsState()
 
     val currentRoute = navBackStackEntry?.destination?.route ?: "ingredients"
-    val currentTitle = routeTitleMap[currentRoute] ?: "食材庫"
+
+    // 检查 route 是否包含特定的参数
+    val currentTitle = when {
+        currentRoute.contains("FoodDetail/") -> "食材資訊"
+        currentRoute.contains("HolidayDetail/") -> "所需食材"
+        currentRoute.contains("HolidayAddFragment/") -> "新增食材"
+        else -> routeTitleMap[currentRoute] ?: "食材庫"
+    }
+
 
 
     ModalNavigationDrawer(
@@ -171,14 +179,11 @@ fun MyApp(
             Scaffold(
                 topBar = {
                     TopAppBar(
-
                         title = { Text(currentTitle) },
-
                         navigationIcon = {
                             IconButton(onClick = { scope.launch { drawerState.open() } }) {
                                 Icon(imageVector = Icons.Default.Menu, contentDescription = null)
                             }
-
                         },
                         actions = {
                             IconButton(onClick = { navController.navigate("home_page") }) {
@@ -195,9 +200,19 @@ fun MyApp(
                     composable("ingredients") { IngredientsScreen(navController,stockViewModel) }
                     composable("holidays") { HolidayScreen(navController,holidayViewModel) }
                     composable("Addholiday") { HolidayAdd(navController, holidayViewModel) }
-                    composable("HolidayDetail") { HolidayDetailScreen(navController) }
+                    composable("HolidayDetail/{holidayId}") { backStackEntry ->
+                        val holidayId = backStackEntry.arguments?.getString("holidayId")?.toIntOrNull()
+                        if (holidayId != null) {
+                            HolidayDetailScreen(navController, holidayId, holidayViewModel)
+                        }
+                    }
                     composable("NormalList") { Normallist(navController, normalViewModel) }
-                    composable("HolidayAddFragment") { HolidayAddFragmentScreen(navController, normalViewModel) }
+                    composable("HolidayAddFragment/{holidayId}") { backStackEntry ->
+                        val holidayId = backStackEntry.arguments?.getString("holidayId")?.toIntOrNull()
+                        if (holidayId != null) {
+                            HolidayAddFragmentScreen(navController, holidayId, holidayViewModel)
+                        }
+                    }
                     composable("Expired_food") { ExpireScreen(navController,stockViewModel) }
                     composable("home_page") { Home_pageScreen() }
                     composable("logout") { LoginScreen(navController) }
@@ -218,10 +233,6 @@ fun MyApp(
         }
     )
 }
-
-
-
-
 
 
 @Composable
@@ -248,26 +259,15 @@ fun Home_pageScreen() {
     }
 }
 
-
-
-
-
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TemplateScreen(
     title: String,
-
     backgroundColor: Color = surfaceContainerLowLight,
-
     content: @Composable () -> Unit
 ) {
     Scaffold(
-//        topBar = {
-//            TopAppBar(
-//                title = { Text(title) }
-//            )
-//        },
         content = {
 
             Box(modifier = Modifier
@@ -280,5 +280,4 @@ fun TemplateScreen(
         }
     )
 }
-
 

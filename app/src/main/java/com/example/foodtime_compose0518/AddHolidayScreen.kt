@@ -40,6 +40,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import androidx.compose.runtime.*
+import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.viewmodel.compose.viewModel
 
 
@@ -83,6 +84,7 @@ fun HolidayAdd(navController: NavController,holidayViewModel: HolidayViewModel) 
     var Holiday = remember { mutableStateOf("") }
     val initialDate = System.currentTimeMillis()
     var Date by remember { mutableStateOf("") }
+    var showError by remember { mutableStateOf(false) }
 
     Box(
         modifier = Modifier
@@ -116,6 +118,14 @@ fun HolidayAdd(navController: NavController,holidayViewModel: HolidayViewModel) 
                 )
             }
             Spacer(modifier = Modifier.height(30.dp))
+
+            if (showError) {
+                Text(
+                    text = "有效期限不可為空值",
+                    color = Color.Red,
+                    modifier = Modifier.padding(bottom = 16.dp)
+                )
+            }
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier
@@ -127,58 +137,63 @@ fun HolidayAdd(navController: NavController,holidayViewModel: HolidayViewModel) 
                 Spacer(modifier = Modifier.height(300.dp))
 
             }
-                // Confirm Button
-                Row{
-                    Button(
-                        colors = ButtonDefaults.buttonColors(
-                            primaryLight // 使用您定义的颜色
-                        ),
-                        onClick = {
+            // Confirm Button
+            Row{
+                Button(
+                    colors = ButtonDefaults.buttonColors(
+                        primaryLight
+                    ),
+                    onClick = {
+                        if (Date.isEmpty()) {
+                            showError = true
+                        }else {
+                            showError = false
                             holidayViewModel.setHolidayName(Holiday.value)
                             holidayViewModel.setHolidayDate(convertDateToLong(Date))
                             holidayViewModel.addHoliday()
                             navController.navigate("holidays")
-                        },
+                        }
+                    },
 
-                        modifier = Modifier
-                            .weight(1f)
-                            .height(60.dp)
-                            .padding(horizontal = 30.dp)
-                            .padding(bottom = 16.dp),
+                    modifier = Modifier
+                        .weight(1f)
+                        .height(60.dp)
+                        .padding(horizontal = 30.dp)
+                        .padding(bottom = 16.dp),
 
-                        shape = RoundedCornerShape(35.dp) // 设置按钮的弧度
+                    shape = RoundedCornerShape(35.dp)
 
-                    ) {
-                        Text(
-                            "確認",
-                            style = TextStyle(color = onPrimaryLight)
-                        )
-                    }
+                ) {
+                    Text(
+                        "確認",
+                        style = TextStyle(color = onPrimaryLight)
+                    )
+                }
 
-                    Button(
-                        onClick = { navController.navigate("holidays") },
+                Button(
+                    onClick = { navController.navigate("holidays") },
 
-                        colors = ButtonDefaults.buttonColors(
-                            onPrimaryLight // 使用您定义的颜色
-                        ),
+                    colors = ButtonDefaults.buttonColors(
+                        onPrimaryLight
+                    ),
 
-                        modifier = Modifier
-                            .weight(1f)
-                            .height(60.dp)
-                            .padding(horizontal = 30.dp)
-                            .padding(bottom = 16.dp),
+                    modifier = Modifier
+                        .weight(1f)
+                        .height(60.dp)
+                        .padding(horizontal = 30.dp)
+                        .padding(bottom = 16.dp),
 
-                        shape = RoundedCornerShape(35.dp) // 设置按钮的弧度
-                    ) {
-                        Text(
-                            text = "取消",
-                            fontSize = 16.sp,
-                            fontFamily = bodyFontFamily,
-                            style = TextStyle(color = primaryLight)
+                    shape = RoundedCornerShape(35.dp)
+                ) {
+                    Text(
+                        text = "取消",
+                        fontSize = 16.sp,
+                        fontFamily = bodyFontFamily,
+                        style = TextStyle(color = primaryLight)
 
-                        )
-                    }
+                    )
                 }
             }
         }
     }
+}
