@@ -33,6 +33,8 @@ class StockViewModel(val dao: StockDao) : ViewModel() {
     var newLoginDate: Long = 0L
     var newExpiryDate: Long = 0L
     var newuuid = ""
+    private val freshrange=0.5
+    private val unfreshrange=0.2
     private val database = Firebase.database.reference.child("a")
     private val _stockItem = MutableStateFlow<StockTable>(StockTable())
     val stockItem: Flow<StockTable> get() = _stockItem
@@ -194,46 +196,28 @@ class StockViewModel(val dao: StockDao) : ViewModel() {
     }
 
     fun freshness(note: StockTable): Double {
-        val loginDate = note.loginDate //登入日期
-        val expiryDate = note.expiryDate //到期日期
-        val currentDate = System.currentTimeMillis() // 現在日期
-
-        val n = when {
-            (expiryDate-loginDate) <= 30 -> 2.75
-            (expiryDate-loginDate) in 30..180 -> 2.5
-            else -> 2.3
+        var loginDate = note.loginDate //登入日期
+        var expiryDate = note.expiryDate //到期日期
+        var currentDate = System.currentTimeMillis() // 現在日期
+        val daysDifference = (expiryDate - loginDate) / (1000 * 60 * 60 * 24)
+        var n = when {
+            daysDifference <= 30 -> 2.75 // 30天以內
+            daysDifference in 30..180  -> 2.5 // 30到180天之間
+            else -> 2.3 // 超過180天
         }
+        var passedtime = (currentDate-loginDate).toDouble()
+        var totaltime = (expiryDate-loginDate).toDouble()
 
-        val result = exp(ln(0.01) * ((currentDate-loginDate).toDouble() / expiryDate-loginDate).pow(n))
+        var result = exp(ln(0.01) * (passedtime/totaltime).pow(n))
         return result
     }
     fun lightSignal(freshness: Double): Int {
         return when {
-            freshness in 1.0..0.5 -> R.drawable.greenlight // Fresh
+            freshness in 0.5..1.0 -> R.drawable.greenlight // Fresh
             freshness in 0.2..0.5 -> R.drawable.yellowlight
             freshness in 0.1..0.2 -> R.drawable.redlight
             else -> R.drawable.skull // Not fresh
         }
     }
 
-    fun calculateFreshness(note: StockTable): Double {
-        var currentDate = System.currentTimeMillis() // 現在時間
-        var expiryDate = note.expiryDate //到期時間
-        var productionDate = currentDate - expiryDate //製造時間
-
-        if (currentDate >= expiryDate) {
-            return 0.0 // Already expired
-        }
-        var n = when {
-            expiryDate-productionDate <= 30 -> 2.75
-            (expiryDate-productionDate).toDouble() in 30.0..180.0 -> 2.5
-            else -> 2.3
-        }
-
-        var totalShelfLife = (expiryDate - productionDate).toDouble() //保存期限
-        var elapsedLife = (currentDate - productionDate).toDouble() // 已經過時間
-
-        var freshness = exp(ln(0.01) * (elapsedLife/totalShelfLife).pow(n))
-        return freshness // Ensure freshness is between 0 and 100
-    }
 }

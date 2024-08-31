@@ -43,7 +43,7 @@ fun FoodExpirationScreen(navController: NavController) {
             ListItem(R.drawable.meat, "肉", 7),
             ListItem(R.drawable.salmon,"鮭魚", 10),
             ListItem(R.drawable.carrot,"紅蘿蔔", 10),
-            ListItem(R.drawable.tofu,"豆腐", 5),
+            ListItem(R.drawable.garbage,"豆腐", 5),
             ListItem(R.drawable.cabbage,"高麗菜", 5),
             ListItem(R.drawable.radish,"蘿蔔", 7),
             ListItem(R.drawable.eggplant,"茄子", 7),

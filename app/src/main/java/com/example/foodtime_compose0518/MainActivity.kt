@@ -5,6 +5,11 @@ import FoodExpirationScreen
 import HolidayScreen
 import Signal_Notification
 import android.annotation.SuppressLint
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.content.Context
+import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -53,10 +58,22 @@ import androidx.compose.material.icons.automirrored.filled.ExitToApp
 import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.FavoriteBorder
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
+import androidx.core.content.ContextCompat.getSystemService
+import androidx.work.ExistingPeriodicWorkPolicy
+import androidx.work.PeriodicWorkRequest
+import androidx.work.WorkManager
+import com.example.foodtime_compose0518.MainActivity.Companion.CHANNEL_ID
+import com.example.foodtime_compose0518.worker.NotificationWorker
 import com.google.firebase.database.FirebaseDatabase
 import setting
+import java.util.concurrent.TimeUnit
 
 class MainActivity : ComponentActivity() {
+    companion object {
+        const val CHANNEL_ID = "default_channel_id"
+    }
     private val holidayViewModel: HolidayViewModel by viewModels {
         val database = FoodDatabase.getInstance(application)
         HolidayViewModelFactory(
@@ -75,7 +92,11 @@ class MainActivity : ComponentActivity() {
     }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        createNotificationChannel(this)
         val database = FirebaseDatabase.getInstance()
+        val request = PeriodicWorkRequest.Builder(NotificationWorker::class.java, 15, TimeUnit.MINUTES)
+            .build()
+        WorkManager.getInstance(this).enqueueUniquePeriodicWork("notificationWorker", ExistingPeriodicWorkPolicy.KEEP, request)
         database.setPersistenceEnabled(true)
         setContent {
             Foodtime0518_Theme {
@@ -90,6 +111,18 @@ class MainActivity : ComponentActivity() {
         }
     }
 }
+private fun createNotificationChannel(context: Context) {
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+        val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        val channel = NotificationChannel(
+            CHANNEL_ID,
+            "Default Channelhappy",
+            NotificationManager.IMPORTANCE_DEFAULT
+        )
+        notificationManager.createNotificationChannel(channel)
+    }
+}
+
 
 data class DrawerMenuItem(
     val route: String,
