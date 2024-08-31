@@ -72,7 +72,7 @@ import com.example.foodtime_compose0518.ui.theme.primaryContainerLight
 
 
 @Composable
-fun HolidayDetailScreen(navController: NavController) {
+fun HolidayDetailScreen(navController: NavController, holidayId: Int, holidayViewModel: HolidayViewModel) {
     var quantity by remember { mutableStateOf(1) }
     Box(
         modifier = Modifier
@@ -160,7 +160,7 @@ fun HolidayDetailScreen(navController: NavController) {
 
         Foodtime0518_Theme {
             ExtendedFloatingActionButton(
-                onClick = { navController.navigate("HolidayAddFragment") },
+                onClick = { navController.navigate("HolidayAddFragment/$holidayId") },
                 text = { Text("新增食材") },
                 modifier = Modifier
                     .align(Alignment.BottomEnd)
@@ -171,12 +171,7 @@ fun HolidayDetailScreen(navController: NavController) {
     }
 }
 
-@Preview
-@Composable
-fun HolidayDetailScreenPreview() {
-    val navController = rememberNavController()
-    HolidayDetailScreen(navController)
-}
+
 
 
 

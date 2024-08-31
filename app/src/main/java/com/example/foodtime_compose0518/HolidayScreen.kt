@@ -34,7 +34,6 @@ import com.example.foodtime_compose0518.HolidayViewModel
 import com.example.foodtime_compose0518.TemplateScreen
 import com.example.foodtime_compose0518.convertLongToDateString
 
-
 @SuppressLint("SuspiciousIndentation")
 @Composable
 fun HolidayScreen(navController: NavController,viewModel: HolidayViewModel) {
