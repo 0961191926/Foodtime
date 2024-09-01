@@ -11,27 +11,33 @@ import kotlin.math.exp
 import kotlin.math.ln
 import kotlin.math.pow
 
-class StockRepository(private val dao: StockDao) {
-    private val freshrange=0.5
-    private val unfreshrange=0.5
-    fun getThreeLists(minFreshness: Double, maxFreshness: Double): Flow<Triple<List<StockTable>, List<StockTable>, List<StockTable>>> {
-        return dao.getUnexpiredStockItems()
-            .map { allItems ->
-                val (freshItems, mediumFreshItems, notFreshItems) = allItems.partition { item ->
-                    val freshness = freshness(item)
-                    freshness in minFreshness..maxFreshness
-                }.let { (freshItems, restItems) ->
-                    val (mediumFreshItems, notFreshItems) = restItems.partition { item ->
-                        val freshness = freshness(item)
-                        freshness in 0.5..1.0
-                    }
-                    Triple(freshItems, mediumFreshItems, notFreshItems)
-                }
-                Triple(freshItems, mediumFreshItems, notFreshItems)
-            }
-    }
+    class StockRepository(private val dao: StockDao) {
+        private val freshrange=0.5
+        private val unfreshrange=0.5
+        var yellowItem = mutableListOf<StockTable>()
+        var redItem = mutableListOf<StockTable>()
+        var dangerItem = mutableListOf<StockTable>()
+        val UnexpireItem=dao.getUnexpiredStockItems()
 
-        // 计算每个项目的 `freshness` 并筛选符合范围的项目
+       suspend fun categorizeUnexpiredItems(): Triple<List<StockTable>, List<StockTable>, List<StockTable>> {
+           yellowItem.clear()
+           redItem.clear()
+           dangerItem.clear()
+
+
+
+           UnexpireItem.collect { stockList ->
+               stockList.forEach { stock ->
+                   when (freshness(stock)) {
+                       in 0.0..30.0 -> yellowItem.add(stock) // 30天以内
+                       in 31.0..180.0 -> redItem.add(stock) // 31到180天
+                       else -> dangerItem.add(stock) // 超过180天
+                   }
+               }
+           }
+           return Triple(yellowItem, redItem, dangerItem)
+    }
+            // 计算每个项目的 `freshness` 并筛选符合范围的项目
 
 
 

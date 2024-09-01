@@ -9,6 +9,7 @@ import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import com.example.foodtime_compose0518.MainActivity.Companion.CHANNEL_ID
 import com.example.foodtime_compose0518.R
+import com.example.foodtime_compose0518.StockTable
 
 class StockNotification(private val context: Context) {
 
@@ -42,11 +43,25 @@ class StockNotification(private val context: Context) {
         }
 
         // 显示通知，使用唯一的通知ID
-        notificationManager.notify(0, notificationBuilder.build())
+        notificationManager.notify(2, notificationBuilder.build())
     }
 
     companion object {
 
         const val NOTIFICATION_PERMISSION_REQUEST_CODE = 1
     }
+    fun toMessage(title: String, items: List<StockTable>): String {
+        //
+        val messages = mutableListOf<String>()
+
+        items.forEach { chunk ->
+            val content = chunk.stockitemName // 假设 StockTable 有 stockitemName 属性
+            val message = "$title: $content"
+            messages.add(message)
+        }
+
+        return messages.joinToString(separator = "\n")
+    }
+
 }
+

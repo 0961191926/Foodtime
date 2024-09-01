@@ -66,6 +66,7 @@ import androidx.work.PeriodicWorkRequest
 import androidx.work.WorkManager
 import com.example.foodtime_compose0518.MainActivity.Companion.CHANNEL_ID
 import com.example.foodtime_compose0518.worker.NotificationWorker
+import com.example.foodtime_compose0518.worker.StockNotification
 import com.google.firebase.database.FirebaseDatabase
 import setting
 import java.util.concurrent.TimeUnit
@@ -93,9 +94,12 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         createNotificationChannel(this)
+        val notifiy=StockNotification(this)
+        notifiy.sendNotification("HEllo")
         val database = FirebaseDatabase.getInstance()
         val request = PeriodicWorkRequest.Builder(NotificationWorker::class.java, 15, TimeUnit.MINUTES)
             .build()
+
         WorkManager.getInstance(this).enqueueUniquePeriodicWork("notificationWorker", ExistingPeriodicWorkPolicy.KEEP, request)
         database.setPersistenceEnabled(true)
         setContent {
