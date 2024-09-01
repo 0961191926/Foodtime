@@ -137,61 +137,65 @@ fun HolidayAdd(navController: NavController,holidayViewModel: HolidayViewModel) 
                 Spacer(modifier = Modifier.height(300.dp))
 
             }
-            // Confirm Button
-            Row{
-                Button(
-                    colors = ButtonDefaults.buttonColors(
-                        primaryLight
-                    ),
-                    onClick = {
-                        if (Date.isEmpty()) {
-                            showError = true
-                        }else {
-                            showError = false
-                            holidayViewModel.setHolidayName(Holiday.value)
-                            holidayViewModel.setHolidayDate(convertDateToLong(Date))
-                            holidayViewModel.addHoliday()
-                            navController.navigate("holidays")
-                        }
-                    },
 
-                    modifier = Modifier
-                        .weight(1f)
-                        .height(60.dp)
-                        .padding(horizontal = 30.dp)
-                        .padding(bottom = 16.dp),
 
-                    shape = RoundedCornerShape(35.dp)
+                // Confirm Button
+                Row{
+                    Button(
+                        colors = ButtonDefaults.buttonColors(
+                            primaryLight
+                        ),
+                        onClick = {
+                            if (Date.isEmpty()) {
+                                showError = true
+                            }else {
+                                showError = false
+                                holidayViewModel.setHolidayName(Holiday.value)
+                                holidayViewModel.setHolidayDate(convertDateToLong(Date))
+                                holidayViewModel.addHoliday()
+                                navController.navigate("holidays")
+                            }
+                        },
 
-                ) {
-                    Text(
-                        "確認",
-                        style = TextStyle(color = onPrimaryLight)
-                    )
-                }
+                        modifier = Modifier
+                            .weight(1f)
+                            .height(60.dp)
+                            .padding(horizontal = 30.dp)
+                            .padding(bottom = 16.dp),
 
-                Button(
-                    onClick = { navController.navigate("holidays") },
+                        shape = RoundedCornerShape(35.dp)
 
-                    colors = ButtonDefaults.buttonColors(
-                        onPrimaryLight
-                    ),
+                    ) {
+                        Text(
+                            "確認",
+                            style = TextStyle(color = onPrimaryLight)
+                        )
+                    }
 
-                    modifier = Modifier
-                        .weight(1f)
-                        .height(60.dp)
-                        .padding(horizontal = 30.dp)
-                        .padding(bottom = 16.dp),
+                    Button(
+                        onClick = { navController.navigate("holidays") },
 
-                    shape = RoundedCornerShape(35.dp)
-                ) {
-                    Text(
-                        text = "取消",
-                        fontSize = 16.sp,
-                        fontFamily = bodyFontFamily,
-                        style = TextStyle(color = primaryLight)
+                        colors = ButtonDefaults.buttonColors(
+                            onPrimaryLight
+                        ),
 
-                    )
+                        modifier = Modifier
+                            .weight(1f)
+                            .height(60.dp)
+                            .padding(horizontal = 30.dp)
+                            .padding(bottom = 16.dp),
+
+                        shape = RoundedCornerShape(35.dp)
+                    ) {
+                        Text(
+                            text = "取消",
+                            fontSize = 16.sp,
+                            fontFamily = bodyFontFamily,
+                            style = TextStyle(color = primaryLight)
+
+                        )
+                    }
+
                 }
             }
         }

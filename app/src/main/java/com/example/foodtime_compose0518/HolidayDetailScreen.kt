@@ -108,6 +108,7 @@ fun NoteItem3(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
+
 fun NoteContent(
     note: HolidayDetailTable,
     cover1: Int,
@@ -208,6 +209,7 @@ fun NoteContent(
     }
 }
 
+
 @Composable
 fun HolidayDetailScreen(navController: NavController, holidayId: Int, holidayViewModel: HolidayViewModel) {
     val holidayDetailList by holidayViewModel.getHolidayDetailsByHolidayId(holidayId).collectAsState(emptyList())
@@ -225,7 +227,7 @@ fun HolidayDetailScreen(navController: NavController, holidayId: Int, holidayVie
                         holidayViewModel.deleteHolidayDetail(note)
                     }
                 }
-            )
+
             Divider()
         }
     }
@@ -244,8 +246,6 @@ fun HolidayDetailScreen(navController: NavController, holidayId: Int, holidayVie
         )
     }
 }
-
-
 
 
 
