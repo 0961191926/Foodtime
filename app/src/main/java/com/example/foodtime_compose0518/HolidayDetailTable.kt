@@ -26,5 +26,5 @@ data class HolidayDetailTable(
     val itemName: String,
 
     @ColumnInfo(name = "quantity")
-    val quantity: Int
+    var quantity: Int,
 )
