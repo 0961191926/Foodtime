@@ -137,6 +137,8 @@ fun HolidayAdd(navController: NavController,holidayViewModel: HolidayViewModel) 
                 Spacer(modifier = Modifier.height(300.dp))
 
             }
+
+
                 // Confirm Button
                 Row{
                     Button(
@@ -193,7 +195,9 @@ fun HolidayAdd(navController: NavController,holidayViewModel: HolidayViewModel) 
 
                         )
                     }
+
                 }
             }
         }
     }
+}
