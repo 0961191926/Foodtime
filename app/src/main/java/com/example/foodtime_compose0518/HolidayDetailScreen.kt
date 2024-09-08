@@ -227,7 +227,7 @@ fun HolidayDetailScreen(navController: NavController, holidayId: Int, holidayVie
                         holidayViewModel.deleteHolidayDetail(note)
                     }
                 }
-
+            )
             Divider()
         }
     }

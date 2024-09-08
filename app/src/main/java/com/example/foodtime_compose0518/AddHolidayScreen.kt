@@ -200,4 +200,3 @@ fun HolidayAdd(navController: NavController,holidayViewModel: HolidayViewModel) 
             }
         }
     }
-}

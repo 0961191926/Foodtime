@@ -171,7 +171,7 @@ fun NoteList(navController: NavController,stockViewModel: StockViewModel) {
         items(datalist.value, key = { it.stockitemId }) { note ->
             NoteItem(
                 note = note,
-                cover1 = R.drawable.cabbage,
+                cover1 =R.drawable.background,
                 cover2 = stockViewModel.lightSignal(stockViewModel.freshness(note)),
                 stockViewModel = stockViewModel,
                 onClick = { navController.navigate("FoodDetail/${note.stockitemId}",) },

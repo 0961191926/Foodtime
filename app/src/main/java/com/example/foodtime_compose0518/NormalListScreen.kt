@@ -175,7 +175,7 @@ fun Normallist(navController: NavController, normalViewModel: NormalViewModel) {
         items(nolist.value, key = { it.normalitemId }) { note2 ->
             NoteItem2(
                 note = note2,
-                cover1 = R.drawable.apple,
+                cover1 = R.drawable.background,
                 normalViewModel = normalViewModel, // 传递正确的 viewModel 实例
                 onClick = { },
                 onRemove = { normalViewModel.deleteNormalItem(note2) }

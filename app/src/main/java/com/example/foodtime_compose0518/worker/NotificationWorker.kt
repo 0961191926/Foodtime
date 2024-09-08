@@ -19,7 +19,7 @@ class NotificationWorker(appContext: Context, workerParams: WorkerParameters) : 
     private val database = FoodDatabase.getInstance(appContext)
     private val repository = StockRepository(database.stockDao)
     override fun doWork(): Result {
-
+        Log.d("NotificationWorker", "Sending notification...")
         val message = inputData.getString("message") ?: "Default message"
         val stockNotification = StockNotification(applicationContext)
         val (yellowItem, redItem, dangerItem) = runBlocking {
@@ -28,8 +28,7 @@ class NotificationWorker(appContext: Context, workerParams: WorkerParameters) : 
         // 调用 NotificationUtils 中的 sendNotification 方法
         stockNotification.sendNotification("yellow")
         Log.d("StockNotification", "Sent notification for yellowItem: ${toMessage("yellowItem", yellowItem)}")
-        stockNotification.sendNotification("red")
-        stockNotification.sendNotification("danger")
+
         return Result.success()
     }
 

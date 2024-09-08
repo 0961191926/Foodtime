@@ -124,6 +124,7 @@ class StockViewModel(val dao: StockDao) : ViewModel() {
         newExpiryDate = date
     }
 
+
     fun addStockItem() {
         viewModelScope.launch {
             val datalist =

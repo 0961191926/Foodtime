@@ -1,6 +1,7 @@
 package com.example.foodtime_compose0518
 
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -23,18 +24,26 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.outlined.KeyboardArrowDown
 import androidx.compose.material.icons.outlined.KeyboardArrowUp
 import androidx.compose.material3.*
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.focusTarget
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
@@ -76,7 +85,12 @@ fun AddFragmentContent(navController: NavController, stockViewModel: StockViewMo
     var expirationDate by remember { mutableStateOf("") }
     var showError by remember { mutableStateOf(false) }
     val initialDate = System.currentTimeMillis()
-    Foodtime0518_Theme {
+    var expanded by remember { mutableStateOf(false) }
+    val suggestions=stockViewModel.UnexpiredList.collectAsState(emptyList())
+    var text by remember { mutableStateOf("") }
+    val focusRequester = remember { FocusRequester() }
+    val keyboardController = LocalSoftwareKeyboardController.current
+ Foodtime0518_Theme {
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -93,11 +107,53 @@ fun AddFragmentContent(navController: NavController, stockViewModel: StockViewMo
                     fontFamily = displayFontFamily
                 )
                 OutlinedTextField(
+
                     value = ingredientName,
-                    onValueChange = { ingredientName = it },
+                    onValueChange = { ingredientName = it
+                        expanded = it.isNotEmpty() },
                     label = { Text(text = "輸入食材名稱") },
                     modifier = Modifier.weight(1f)
+                        .focusRequester(focusRequester)
+                        .onFocusChanged { focusState ->
+                            if (!focusState.isFocused) {
+                                keyboardController?.show()
+                            }
+                        },
+
+                    trailingIcon = {
+                        if (expanded) {
+                            Icon(Icons.Default.KeyboardArrowUp, contentDescription = null)
+                        } else {
+                            Icon(Icons.Default.ArrowDropDown, contentDescription = null)
+                        }
+                    }
                 )
+
+                DropdownMenu(
+                    expanded = expanded,
+                    onDismissRequest = { expanded = false },
+                    modifier = Modifier.fillMaxWidth()
+                        .focusable(false),
+
+
+
+                ) {
+
+                    val filteredSuggestions = suggestions.value.filter { it.stockitemName.contains(ingredientName, ignoreCase = true) }
+                    filteredSuggestions.forEach { suggestion ->
+                        DropdownMenuItem(
+                            text ={ Text(text =suggestion.stockitemName ) },
+
+                            onClick = {
+                            ingredientName = suggestion.stockitemName
+                            expanded = false
+                                focusRequester.requestFocus()
+
+
+                            })
+
+                    }
+                }
             }
 
             Spacer(modifier = Modifier.height(70.dp))

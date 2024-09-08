@@ -94,8 +94,7 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         createNotificationChannel(this)
-        val notifiy=StockNotification(this)
-        notifiy.sendNotification("HEllo")
+
         val database = FirebaseDatabase.getInstance()
         val request = PeriodicWorkRequest.Builder(NotificationWorker::class.java, 15, TimeUnit.MINUTES)
             .build()
