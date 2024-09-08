@@ -13,6 +13,7 @@ import java.util.Date
 
 @Dao
 interface StockDao {
+
         @Query("SELECT * FROM stock_table " +
                 "WHERE stockitem_name LIKE :stockitemName " +
                 "AND expiry_date >= :currentDate " +

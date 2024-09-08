@@ -131,7 +131,7 @@ fun NoteContent(note:StockTable, cover1: Int, cover2: Int, onClick: (StockTable)
             painter = painterResource(cover2),
             contentDescription = "Note cover 2",
             modifier = Modifier
-                .size(30.dp)
+                .size(50.dp)
                 .padding(end = 16.dp)
                 .clickable { onClick(note) }
         )
@@ -171,8 +171,8 @@ fun NoteList(navController: NavController,stockViewModel: StockViewModel) {
         items(datalist.value, key = { it.stockitemId }) { note ->
             NoteItem(
                 note = note,
-                cover1 = R.drawable.apple,
-                cover2 = R.drawable.skull,
+                cover1 =R.drawable.background,
+                cover2 = stockViewModel.lightSignal(stockViewModel.freshness(note)),
                 stockViewModel = stockViewModel,
                 onClick = { navController.navigate("FoodDetail/${note.stockitemId}",) },
                 onRemove ={ stockViewModel.deleteStockItem(note)
