@@ -58,6 +58,7 @@ import com.example.foodtime_compose0518.ui.theme.onPrimaryLight
 import com.example.foodtime_compose0518.ui.theme.primaryLight
 import com.example.foodtime_compose0518.ui.theme.bodyFontFamily
 import com.example.foodtime_compose0518.ui.theme.displayFontFamily
+import textFieldValue
 import java.text.SimpleDateFormat
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
@@ -89,6 +90,7 @@ fun AddFragmentContent(navController: NavController, stockViewModel: StockViewMo
     val initialDate = System.currentTimeMillis()
     val suggestions = stockViewModel.UnexpiredList.collectAsState(emptyList())
     var dropDownExpanded by remember { mutableStateOf(false) }
+
     Foodtime0518_Theme {
         Column(
             modifier = Modifier
@@ -123,6 +125,7 @@ fun AddFragmentContent(navController: NavController, stockViewModel: StockViewMo
 
             Spacer(modifier = Modifier.height(70.dp))
 
+            // 數量輸入區域
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(
                     text = "數量",
@@ -132,18 +135,18 @@ fun AddFragmentContent(navController: NavController, stockViewModel: StockViewMo
                 )
                 Spacer(modifier = Modifier.width(50.dp))
                 IconButton(onClick = {
-                    if (quantity > 0) quantity-- // 确保数量不会变成负数
+                    if (quantity > 1) quantity-- // 確保不會少於1
                 }) {
                     Icon(
                         Icons.Outlined.KeyboardArrowDown,
-                        contentDescription = "增加數量"
+                        contentDescription = "減少數量"
                     )
                 }
 
                 OutlinedTextField(
-                    value = quantity.toString(), // 显示当前数量
+                    value = quantity.toString(), // 顯示當前數量
                     onValueChange = {
-                        quantity = it.toIntOrNull() ?: quantity // 确保输入的是数字
+                        quantity = it.toIntOrNull()?.takeIf { it > 0 } ?: 1 // 確保是正整數
                     },
                     label = { },
                     modifier = Modifier
@@ -152,17 +155,18 @@ fun AddFragmentContent(navController: NavController, stockViewModel: StockViewMo
                     keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number)
                 )
                 IconButton(onClick = {
-                    quantity++ // 确保数量不会变成负数
+                    quantity++ // 增加數量
                 }) {
                     Icon(
                         Icons.Outlined.KeyboardArrowUp,
-                        contentDescription = "減少數量"
+                        contentDescription = "增加數量"
                     )
                 }
             }
 
             Spacer(modifier = Modifier.height(60.dp))
 
+            // 登入日期選擇區域
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(
                     text = "登入日期",
@@ -173,12 +177,11 @@ fun AddFragmentContent(navController: NavController, stockViewModel: StockViewMo
                 MyDatePickerComponent(initialDate = initialDate){ selectedDate ->
                     loginDate = selectedDate
                 }
-
-
             }
 
             Spacer(modifier = Modifier.height(60.dp))
 
+            // 有效期限選擇區域
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(
                     text = "有效期限",
@@ -186,13 +189,14 @@ fun AddFragmentContent(navController: NavController, stockViewModel: StockViewMo
                     modifier = Modifier.padding(end = 10.dp),
                     fontFamily = displayFontFamily
                 )
-
-                MyDatePickerComponent(initialDate){ selectedDate ->
+                MyDatePickerComponent(initialDate) { selectedDate ->
                     expirationDate = selectedDate
                 }
             }
 
             Spacer(modifier = Modifier.height(65.dp))
+
+            // 錯誤提示
             if (showError) {
                 Text(
                     text = "有效期限不可為空值",
@@ -201,20 +205,21 @@ fun AddFragmentContent(navController: NavController, stockViewModel: StockViewMo
                 )
             }
 
+            // 按鈕區域
             Row {
                 Button(
                     colors = ButtonDefaults.buttonColors(
-                        primaryLight // 使用您定义的颜色
+                        primaryLight // 使用您定義的顏色
                     ),
                     onClick = {
                         if (expirationDate.isEmpty()) {
                             showError = true
                         } else {
                             showError = false
-                            stockViewModel.setStockName(ingredientName.toString())
+                            stockViewModel.setStockName(ingredientName.text) // 使用 text 屬性
                             stockViewModel.setNumber(quantity)
-                            stockViewModel.setLoginDate(convertDateToLong( loginDate))
-                            stockViewModel.setExpiryDate(convertDateToLong( expirationDate))
+                            stockViewModel.setLoginDate(convertDateToLong(loginDate))
+                            stockViewModel.setExpiryDate(convertDateToLong(expirationDate))
                             stockViewModel.addStockItem()
                             navController.navigate("ingredients")
                         }
@@ -224,7 +229,7 @@ fun AddFragmentContent(navController: NavController, stockViewModel: StockViewMo
                         .height(60.dp)
                         .padding(horizontal = 30.dp)
                         .padding(bottom = 16.dp),
-                    shape = RoundedCornerShape(35.dp) // 设置按钮的弧度
+                    shape = RoundedCornerShape(35.dp) // 設置按鈕的弧度
                 ) {
                     Text("增加食材",
                         fontSize = 16.sp,
@@ -234,14 +239,14 @@ fun AddFragmentContent(navController: NavController, stockViewModel: StockViewMo
                 Button(
                     onClick = { navController.popBackStack() },
                     colors = ButtonDefaults.buttonColors(
-                        onPrimaryLight // 使用您定义的颜色
+                        onPrimaryLight // 使用您定義的顏色
                     ),
                     modifier = Modifier
                         .weight(1f)
                         .height(60.dp)
                         .padding(horizontal = 30.dp)
                         .padding(bottom = 16.dp),
-                    shape = RoundedCornerShape(35.dp) // 设置按钮的弧度
+                    shape = RoundedCornerShape(35.dp) // 設置按鈕的弧度
                 ) {
                     Text(text = "取消",
                         fontSize = 16.sp,
@@ -253,6 +258,7 @@ fun AddFragmentContent(navController: NavController, stockViewModel: StockViewMo
         }
     }
 }
+
 
 
 

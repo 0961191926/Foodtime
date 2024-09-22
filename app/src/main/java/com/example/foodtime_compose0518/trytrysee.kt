@@ -39,42 +39,57 @@ fun TextFieldWithDropdown(
     label: String = ""
 ) {
     Box(modifier) {
-        TextField(
+        OutlinedTextField(
             modifier = Modifier
                 .fillMaxWidth()
                 .onFocusChanged { focusState ->
-                    if (!focusState.isFocused)
+                    if (!focusState.isFocused) {
                         onDismissRequest()
+                    }
                 },
             value = value,
             onValueChange = setValue,
             label = { Text(label) },
             colors = TextFieldDefaults.outlinedTextFieldColors()
         )
-        DropdownMenu(
-            expanded = dropDownExpanded,
-            properties = PopupProperties(
-                focusable = false,
-                dismissOnBackPress = true,
-                dismissOnClickOutside = true
-            ),
-            onDismissRequest = onDismissRequest
-        ) {
-            list.forEach { text ->
-                DropdownMenuItem(onClick = {
-                    setValue(
-                        TextFieldValue(
-                            text,
-                            TextRange(text.length)
-                        )
-                    )
-                }) {
-                    Text(text = text)
+        if (dropDownExpanded) {
+            DropdownMenu(
+                expanded = dropDownExpanded,
+                properties = PopupProperties(
+                    focusable = false,
+                    dismissOnBackPress = true,
+                    dismissOnClickOutside = true
+                ),
+                onDismissRequest = onDismissRequest
+            ) {
+                val filteredList = list.filter {
+                    it.contains(value.text, ignoreCase = true)
+                }
+                if (filteredList.isEmpty()) {
+//                    DropdownMenuItem(onClick = {}) {
+//                        Text("No options available")
+//                    }
+                } else {
+                    filteredList.forEach { text ->
+                        DropdownMenuItem(onClick = {
+                            setValue(
+                                TextFieldValue(
+                                    text,
+                                    TextRange(text.length)
+                                )
+                            )
+                        },) {
+                            Text(text = text)
+                        }
+                    }
                 }
             }
         }
     }
 }
+
+
+
 
 val all = listOf("aaa", "baa", "aab", "abb", "bab")
 
