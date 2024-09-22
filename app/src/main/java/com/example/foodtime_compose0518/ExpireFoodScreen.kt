@@ -51,8 +51,8 @@ fun ExpiredNoteList(navController: NavController,stockViewModel: StockViewModel)
             items(datalist.value, key = { it.stockitemId }) { note ->
                 NoteItem(
                     note = note,
-                    cover1 = R.drawable.apple,
-                    cover2 = R.drawable.skull,
+                    cover1 = R.drawable.background,
+                    cover2 = R.drawable.background,
                     stockViewModel = stockViewModel,
                     onClick = { navController.navigate("FoodDetail/${note.stockitemId}",) },
                     onRemove ={ stockViewModel.deleteStockItem(note)

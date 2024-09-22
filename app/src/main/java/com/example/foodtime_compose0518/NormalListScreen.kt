@@ -42,6 +42,7 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.foundation.layout.width
 import androidx.compose.ui.text.input.TextFieldValue
+import com.example.foodtime_compose0518.ui.theme.Foodtime0518_Theme
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -157,7 +158,6 @@ fun NoteContent(note:NormalTable, cover1: Int,onClick: (NormalTable) -> Unit,nor
 
             IconButton(onClick = {
                 note.number++
-
                 quantity.value = note.number.toString()
                 normalViewModel.updateNormalItem(note)
             }) {
@@ -168,32 +168,6 @@ fun NoteContent(note:NormalTable, cover1: Int,onClick: (NormalTable) -> Unit,nor
 }
 
 @Composable
-fun NoteList2(navController: NavController) {
-    // 使用 Note2 数据类
-//    val notes = remember { mutableStateListOf(
-//        Note2(id = 1, productname = "蘋果", number = 5),
-//        Note2(id = 2, productname = "花椰菜", number = 2),
-//        Note2(id = 3, productname = "牛肉", number = 3),
-//        Note2(id = 4, productname = "蘋果", number = 7)
-//    ) }
-
-//    LazyColumn {
-//        items(notes, key = { it. }) { note ->
-//            NoteItem2(
-//                note = note,
-//                cover1 = R.drawable.apple,
-//                onClick = {},
-//                onRemove = { notes.remove(it) },
-//                NormalViewModel = {}
-//            )
-//            Divider()
-//        }
-//    }
-}
-
-
-
-@Composable
 fun Normallist(navController: NavController, normalViewModel: NormalViewModel) {
     var nolist = normalViewModel.normalList.collectAsState(emptyList())
 
@@ -201,7 +175,7 @@ fun Normallist(navController: NavController, normalViewModel: NormalViewModel) {
         items(nolist.value, key = { it.normalitemId }) { note2 ->
             NoteItem2(
                 note = note2,
-                cover1 = R.drawable.apple,
+                cover1 = R.drawable.background,
                 normalViewModel = normalViewModel, // 传递正确的 viewModel 实例
                 onClick = { },
                 onRemove = { normalViewModel.deleteNormalItem(note2) }
@@ -211,19 +185,19 @@ fun Normallist(navController: NavController, normalViewModel: NormalViewModel) {
     }
 
     Padding16dp {
-        ExtendedFloatingActionButton(
-            onClick = {
-                navController.navigate("NormalListAddFragment")
-            },
-            icon = {
-                Icon(
-                    Icons.Filled.Add,
-                    "Extended floating action button."
-                )
-            },
-            text = { Text(text = "新增食材") },
-        )
-    }
+            ExtendedFloatingActionButton(
+                onClick = {
+                    navController.navigate("NormalListAddFragment")
+                },
+                icon = {
+                    Icon(
+                        Icons.Filled.Add,
+                        "Extended floating action button."
+                    )
+                },
+                text = { Text(text = "新增食材") },
+            )
+        }
 }
 
 //@Preview(showBackground = true)

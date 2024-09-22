@@ -5,6 +5,11 @@ import FoodExpirationScreen
 import HolidayScreen
 import Signal_Notification
 import android.annotation.SuppressLint
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.content.Context
+import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -53,10 +58,23 @@ import androidx.compose.material.icons.automirrored.filled.ExitToApp
 import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.FavoriteBorder
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
+import androidx.core.content.ContextCompat.getSystemService
+import androidx.work.ExistingPeriodicWorkPolicy
+import androidx.work.PeriodicWorkRequest
+import androidx.work.WorkManager
+import com.example.foodtime_compose0518.MainActivity.Companion.CHANNEL_ID
+import com.example.foodtime_compose0518.worker.NotificationWorker
+import com.example.foodtime_compose0518.worker.StockNotification
 import com.google.firebase.database.FirebaseDatabase
 import setting
+import java.util.concurrent.TimeUnit
 
 class MainActivity : ComponentActivity() {
+    companion object {
+        const val CHANNEL_ID = "default_channel_id"
+    }
     private val holidayViewModel: HolidayViewModel by viewModels {
         val database = FoodDatabase.getInstance(application)
         HolidayViewModelFactory(
@@ -78,7 +96,13 @@ class MainActivity : ComponentActivity() {
     }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        createNotificationChannel(this)
+
         val database = FirebaseDatabase.getInstance()
+        val request = PeriodicWorkRequest.Builder(NotificationWorker::class.java, 15, TimeUnit.MINUTES)
+            .build()
+
+        WorkManager.getInstance(this).enqueueUniquePeriodicWork("notificationWorker", ExistingPeriodicWorkPolicy.KEEP, request)
         database.setPersistenceEnabled(true)
         setContent {
             Foodtime0518_Theme {
@@ -93,6 +117,18 @@ class MainActivity : ComponentActivity() {
         }
     }
 }
+private fun createNotificationChannel(context: Context) {
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+        val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        val channel = NotificationChannel(
+            CHANNEL_ID,
+            "Default Channelhappy",
+            NotificationManager.IMPORTANCE_DEFAULT
+        )
+        notificationManager.createNotificationChannel(channel)
+    }
+}
+
 
 data class DrawerMenuItem(
     val route: String,
@@ -116,7 +152,7 @@ val routeTitleMap = mapOf(
     "Signal_Notification" to "燈號通知提醒",
     "Foodexpiration_setting" to "食材到期設定",
 
-)
+    )
 
 val drawerMenuItems = listOf(
     DrawerMenuItem("ingredients", Icons.Default.Menu, "食材庫"),
@@ -146,7 +182,15 @@ fun MyApp(
     val navBackStackEntry by navController.currentBackStackEntryAsState()
 
     val currentRoute = navBackStackEntry?.destination?.route ?: "ingredients"
-    val currentTitle = routeTitleMap[currentRoute] ?: "食材庫"
+
+    // 检查 route 是否包含特定的参数
+    val currentTitle = when {
+        currentRoute.contains("FoodDetail/") -> "食材資訊"
+        currentRoute.contains("HolidayDetail/") -> "所需食材"
+        currentRoute.contains("HolidayAddFragment/") -> "新增食材"
+        else -> routeTitleMap[currentRoute] ?: "食材庫"
+    }
+
 
 
     ModalNavigationDrawer(
@@ -175,14 +219,11 @@ fun MyApp(
             Scaffold(
                 topBar = {
                     TopAppBar(
-
                         title = { Text(currentTitle) },
-
                         navigationIcon = {
                             IconButton(onClick = { scope.launch { drawerState.open() } }) {
                                 Icon(imageVector = Icons.Default.Menu, contentDescription = null)
                             }
-
                         },
                         actions = {
                             IconButton(onClick = { navController.navigate("home_page") }) {
@@ -234,10 +275,6 @@ fun MyApp(
 }
 
 
-
-
-
-
 @Composable
 fun Home_pageScreen() {
     TemplateScreen(
@@ -262,26 +299,15 @@ fun Home_pageScreen() {
     }
 }
 
-
-
-
-
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TemplateScreen(
     title: String,
-
     backgroundColor: Color = surfaceContainerLowLight,
-
     content: @Composable () -> Unit
 ) {
     Scaffold(
-//        topBar = {
-//            TopAppBar(
-//                title = { Text(title) }
-//            )
-//        },
         content = {
 
             Box(modifier = Modifier
@@ -294,5 +320,4 @@ fun TemplateScreen(
         }
     )
 }
-
 

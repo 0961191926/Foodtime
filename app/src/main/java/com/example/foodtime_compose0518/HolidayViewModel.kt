@@ -2,6 +2,7 @@ package com.example.foodtime_compose0518
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharingStarted
@@ -15,6 +16,13 @@ class HolidayViewModel(val dao: FoodDao,val holidayDetailDao: HolidayDetailDao) 
     scope = viewModelScope,
     started = SharingStarted.WhileSubscribed(5000),
     initialValue = emptyList()
+    )
+
+    val holidaydetailList : Flow<List<HolidayDetailTable>> =holidayDetailDao.getAllUsers().stateIn(
+
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5000),
+        initialValue = emptyList()
     )
 
 
@@ -32,9 +40,9 @@ class HolidayViewModel(val dao: FoodDao,val holidayDetailDao: HolidayDetailDao) 
         newHolidayDate = date
     }
 
-    fun updateHoliday(holiday: HolidayTable) {
+    fun updateHoliday(item: HolidayDetailTable) {
         viewModelScope.launch {
-            dao.update(holiday)
+            dao.update(item)
         }
     }
 
@@ -49,6 +57,34 @@ class HolidayViewModel(val dao: FoodDao,val holidayDetailDao: HolidayDetailDao) 
             holidayDetailDao.insert(HolidayDetailTable(holidayId = holidayId, itemName = itemName, quantity = quantity))
         }
     }
+
+    fun updateHolidayDetail(holidayDetail: HolidayDetailTable) {
+        viewModelScope.launch(Dispatchers.IO) {
+            dao.update(holidayDetail)
+        }
+    }
+
+    fun deleteHolidayDetail(item: HolidayDetailTable) {
+        viewModelScope.launch(Dispatchers.IO) {
+            dao.deleteHolidayDetail(item)
+        }
+    }
+
+
+
+    fun getHolidayDetailsByHolidayId(holidayId: Int): Flow<List<HolidayDetailTable>> {
+            return holidayDetailDao.getDetailsByHolidayId(holidayId).stateIn(
+                scope = viewModelScope,
+                started = SharingStarted.WhileSubscribed(5000),
+                initialValue = emptyList()
+            )
+    }
+
+
+
+
+
+
 }
 
 

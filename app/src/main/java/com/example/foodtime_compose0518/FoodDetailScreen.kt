@@ -247,12 +247,9 @@ fun DetailFragment(navController: NavController,stockitemId:Int,stockViewModel: 
                 }
             }
         }
-
-
-
-
     }
 }
+
 fun convertDateToLong(dateString: String): Long {
     val dateFormat = SimpleDateFormat("yyyy/MM/dd", Locale.US)
     val date = dateFormat.parse(dateString)
