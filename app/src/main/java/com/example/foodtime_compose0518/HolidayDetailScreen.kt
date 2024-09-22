@@ -71,6 +71,7 @@ import com.example.foodtime_compose0518.ui.theme.displayFontFamily
 import com.example.foodtime_compose0518.ui.theme.primaryContainerLight
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import androidx.compose.material.Divider
 
 
 @OptIn(ExperimentalMaterial3Api::class)

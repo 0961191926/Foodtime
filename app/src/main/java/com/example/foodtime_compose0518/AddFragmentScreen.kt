@@ -1,5 +1,6 @@
 package com.example.foodtime_compose0518
 
+import TextFieldWithDropdown
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Column
@@ -48,6 +49,7 @@ import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
@@ -76,21 +78,18 @@ fun AddFragmentScreen(navController: NavController, stockViewModel: StockViewMod
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AddFragmentContent(navController: NavController, stockViewModel: StockViewModel) { // 接收 navController
-    var ingredientName by remember { mutableStateOf("") }
-    var quantity by remember { mutableStateOf(1) } // 修改为 Int 类型
+fun AddFragmentContent(navController: NavController, stockViewModel: StockViewModel) {
+    var ingredientName by remember { mutableStateOf(TextFieldValue("")) }
+    var quantity by remember { mutableStateOf(1) }
     val dateFormat = SimpleDateFormat("yyyy/MM/dd", Locale.US)
     val today = dateFormat.format(Date())
     var loginDate by remember { mutableStateOf(today) }
     var expirationDate by remember { mutableStateOf("") }
     var showError by remember { mutableStateOf(false) }
     val initialDate = System.currentTimeMillis()
-    var expanded by remember { mutableStateOf(false) }
-    val suggestions=stockViewModel.UnexpiredList.collectAsState(emptyList())
-    var text by remember { mutableStateOf("") }
-    val focusRequester = remember { FocusRequester() }
-    val keyboardController = LocalSoftwareKeyboardController.current
- Foodtime0518_Theme {
+    val suggestions = stockViewModel.UnexpiredList.collectAsState(emptyList())
+    var dropDownExpanded by remember { mutableStateOf(false) }
+    Foodtime0518_Theme {
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -106,54 +105,20 @@ fun AddFragmentContent(navController: NavController, stockViewModel: StockViewMo
                     modifier = Modifier.padding(end = 10.dp),
                     fontFamily = displayFontFamily
                 )
-                OutlinedTextField(
-
+                TextFieldWithDropdown(
+                    modifier = Modifier.weight(1f),
                     value = ingredientName,
-                    onValueChange = { ingredientName = it
-                        expanded = it.isNotEmpty() },
-                    label = { Text(text = "輸入食材名稱") },
-                    modifier = Modifier.weight(1f)
-                        .focusRequester(focusRequester)
-                        .onFocusChanged { focusState ->
-                            if (!focusState.isFocused) {
-                                keyboardController?.show()
-                            }
-                        },
-
-                    trailingIcon = {
-                        if (expanded) {
-                            Icon(Icons.Default.KeyboardArrowUp, contentDescription = null)
-                        } else {
-                            Icon(Icons.Default.ArrowDropDown, contentDescription = null)
-                        }
-                    }
+                    setValue = { newValue ->
+                        ingredientName = newValue
+                        dropDownExpanded = newValue.text.isNotEmpty()
+                    },
+                    onDismissRequest = { dropDownExpanded = false },
+                    dropDownExpanded = dropDownExpanded,
+                    list = suggestions.value.filter {
+                        it.stockitemName.contains(ingredientName.text, ignoreCase = true)
+                    }.map { it.stockitemName },
+                    label = "輸入食材名稱"
                 )
-
-                DropdownMenu(
-                    expanded = expanded,
-                    onDismissRequest = { expanded = false },
-                    modifier = Modifier.fillMaxWidth()
-                        .focusable(false),
-
-
-
-                ) {
-
-                    val filteredSuggestions = suggestions.value.filter { it.stockitemName.contains(ingredientName, ignoreCase = true) }
-                    filteredSuggestions.forEach { suggestion ->
-                        DropdownMenuItem(
-                            text ={ Text(text =suggestion.stockitemName ) },
-
-                            onClick = {
-                            ingredientName = suggestion.stockitemName
-                            expanded = false
-                                focusRequester.requestFocus()
-
-
-                            })
-
-                    }
-                }
             }
 
             Spacer(modifier = Modifier.height(70.dp))
@@ -187,7 +152,7 @@ fun AddFragmentContent(navController: NavController, stockViewModel: StockViewMo
                     keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number)
                 )
                 IconButton(onClick = {
-                     quantity++ // 确保数量不会变成负数
+                    quantity++ // 确保数量不会变成负数
                 }) {
                     Icon(
                         Icons.Outlined.KeyboardArrowUp,
@@ -246,7 +211,7 @@ fun AddFragmentContent(navController: NavController, stockViewModel: StockViewMo
                             showError = true
                         } else {
                             showError = false
-                            stockViewModel.setStockName(ingredientName)
+                            stockViewModel.setStockName(ingredientName.toString())
                             stockViewModel.setNumber(quantity)
                             stockViewModel.setLoginDate(convertDateToLong( loginDate))
                             stockViewModel.setExpiryDate(convertDateToLong( expirationDate))
@@ -424,7 +389,6 @@ fun MyDatePickerComponent(initialDate: Long,onDateSelected: (String) -> Unit) {
         }
     }
 }
-
 
 
 
