@@ -47,7 +47,7 @@ class HolidayViewModel(val dao: FoodDao,val holidayDetailDao: HolidayDetailDao) 
     }
 
     fun deleteHoliday(holiday: HolidayTable) {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             dao.delete(holiday)
         }
     }

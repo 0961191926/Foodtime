@@ -13,8 +13,12 @@
         </DropdownSelection>
         <DialogSelection />
       </SelectionState>
-
-
+      <SelectionState runConfigName="MyScreen">
+        <option name="selectionMode" value="DROPDOWN" />
+      </SelectionState>
+      <SelectionState runConfigName="TextFieldWithDropdownUsage">
+        <option name="selectionMode" value="DROPDOWN" />
+      </SelectionState>
     </selectionStates>
   </component>
 </project>
