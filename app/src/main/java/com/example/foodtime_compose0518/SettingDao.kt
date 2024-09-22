@@ -22,4 +22,7 @@ interface SettingDao {
 
     @Delete
     suspend fun delete(setting: SettingTable)
+
+    @Query("SELECT * FROM setting_table WHERE name = :name LIMIT 1")
+    suspend fun getSettingByName(name: String): SettingTable?
 }
