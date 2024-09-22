@@ -17,13 +17,13 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Slider
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -33,13 +33,12 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import androidx.navigation.compose.rememberNavController
 import com.example.foodtime_compose0518.R
-import com.example.foodtime_compose0518.ui.theme.Foodtime0518_Theme
+import com.example.foodtime_compose0518.SettingTable
+import com.example.foodtime_compose0518.SettingViewModel
 import com.example.foodtime_compose0518.ui.theme.displayFontFamily
 
 @Composable
@@ -62,7 +61,7 @@ fun NotificationSetting(isEnabled: Boolean, onToggle: (Boolean) -> Unit) {
 }
 
 @Composable
-fun Signal_Notification(navController: NavController) {
+fun Signal_Notification(navController: NavController, settingViewModel: SettingViewModel) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -71,6 +70,8 @@ fun Signal_Notification(navController: NavController) {
         val notificationEnabled = remember { mutableStateOf(true) }
         val redLightNotification = remember { mutableStateOf(true) }
         val yellowLightNotification = remember { mutableStateOf(true) }
+        val redLightDays = remember { mutableStateOf(3) }
+        val yellowLightDays = remember { mutableStateOf(5) }
 
         NotificationSetting(
             isEnabled = notificationEnabled.value,
@@ -79,11 +80,16 @@ fun Signal_Notification(navController: NavController) {
                 if (!it) {
                     redLightNotification.value = false
                     yellowLightNotification.value = false
+
+                    settingViewModel.updateSetting("NotificationEnabled", it, 0)
+                    settingViewModel.updateSetting("RedLightEnabled", redLightNotification.value, 0)
+                    settingViewModel.updateSetting("YellowLightEnabled", yellowLightNotification.value, 0)
+                } else {
+                    settingViewModel.updateSetting("NotificationEnabled", it, 0)
                 }
             }
         )
 
-        val redLightDays = remember { mutableStateOf(3) }
         ListItem2(
             imageResId = R.drawable.redlight,
             name = "紅燈",
@@ -92,12 +98,17 @@ fun Signal_Notification(navController: NavController) {
             onNotificationToggle = {
                 if (notificationEnabled.value) {
                     redLightNotification.value = it
+                    settingViewModel.updateSetting("RedLightEnabled", it, redLightDays.value)
                 }
+            },
+            settingViewModel = settingViewModel,
+            onDayChange = { newDay ->  // 當使用者修改天數時調用
+                redLightDays.value = newDay
+                settingViewModel.updateSettingDay("RedLightEnabled", newDay)
             }
         )
         Divider()
 
-        val yellowLightDays = remember { mutableStateOf(5) }
         ListItem2(
             imageResId = R.drawable.yellowlight,
             name = "黃燈",
@@ -106,9 +117,16 @@ fun Signal_Notification(navController: NavController) {
             onNotificationToggle = {
                 if (notificationEnabled.value) {
                     yellowLightNotification.value = it
+                    settingViewModel.updateSetting("YellowLightEnabled", it, yellowLightDays.value)
                 }
+            },
+            settingViewModel = settingViewModel,
+            onDayChange = { newDay ->  // 當使用者修改天數時調用
+                yellowLightDays.value = newDay
+                settingViewModel.updateSettingDay("YellowLightEnabled", newDay)
             }
         )
+
         Divider()
 
         val skullDays = remember { mutableStateOf(0) }
@@ -205,7 +223,9 @@ fun ListItem2(
     name: String,
     expirationDays: MutableState<Int>,
     isNotificationEnabled: Boolean,
-    onNotificationToggle: (Boolean) -> Unit
+    onNotificationToggle: (Boolean) -> Unit,
+    settingViewModel: SettingViewModel,
+    onDayChange: (Int) -> Unit
 ) {
     Row(
         modifier = Modifier
@@ -219,6 +239,7 @@ fun ListItem2(
             modifier = Modifier.size(40.dp)
         )
         Spacer(modifier = Modifier.width(4.dp))
+        val settingList=settingViewModel.settingList.collectAsState(emptyList())
         Text(
             text = name,
             modifier = Modifier.weight(1f),
@@ -226,8 +247,11 @@ fun ListItem2(
             fontFamily = displayFontFamily
         )
         IconButton(onClick = {
-            if (expirationDays.value > 0) {
+            if (settingList.value[1].settingDay > 0) {
                 expirationDays.value--
+                onDayChange(expirationDays.value)
+                //val notificationSetting = SettingTable(settingId = , settingName = "NotificationEnabled", settingNotify = true, settingDay =0)
+                //settingViewModel.insertSetting(notificationSetting)
             }
         },
             modifier = Modifier.size(40.dp)  // 調整 IconButton 的大小
@@ -242,8 +266,10 @@ fun ListItem2(
                 val number = newValue.replace("天", "").toIntOrNull()
                 if (number != null && number >= 0) {
                     expirationDays.value = number
+                    onDayChange(number)
                 } else if (newValue.isEmpty()) {
                     expirationDays.value = 0
+                    onDayChange(0)
                 }
             },
             singleLine = true,
@@ -266,6 +292,7 @@ fun ListItem2(
         )
         IconButton(onClick = {
             expirationDays.value++
+            onDayChange(expirationDays.value)
         }) {
             Icon(Icons.Default.KeyboardArrowUp, contentDescription = "增加天数")
         }
@@ -280,14 +307,7 @@ fun ListItem2(
 
 
 
-@Preview
-@Composable
-private fun notificationpreview() {
-    Foodtime0518_Theme {
-        var navController = rememberNavController()
-        Signal_Notification(navController)
-    }
-}
+
 
 
 

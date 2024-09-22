@@ -9,13 +9,13 @@ data class SettingTable(
     @PrimaryKey(autoGenerate = true)
     val settingId: Int = 0,
 
-    @ColumnInfo(name = "day")
-    val settingDay: Int,
-
     @ColumnInfo(name = "name")
     val settingName: String,
 
     @ColumnInfo(name = "notify")
-    val settingNotify: Boolean
+    val settingNotify: Boolean,
+
+    @ColumnInfo(name = "day")
+    val settingDay: Int
 )
 

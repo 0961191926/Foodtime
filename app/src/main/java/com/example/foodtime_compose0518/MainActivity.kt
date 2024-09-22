@@ -73,6 +73,9 @@ class MainActivity : ComponentActivity() {
     private val settingViewModel: SettingViewModel by viewModels {
         SettingViewModelFactory(FoodDatabase.getInstance(application).settingDao)
     }
+    private val itemViewModel: ItemViewModel by viewModels {
+        ItemViewModelFactory(FoodDatabase.getInstance(application).itemDao)
+    }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val database = FirebaseDatabase.getInstance()
@@ -83,7 +86,7 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    MyApp(holidayViewModel,normalViewModel,stockViewModel,settingViewModel)
+                    MyApp(holidayViewModel,normalViewModel,stockViewModel,settingViewModel,itemViewModel)
                 }
             }
 
@@ -131,7 +134,8 @@ fun MyApp(
     holidayViewModel: HolidayViewModel,
     normalViewModel: NormalViewModel,
     stockViewModel: StockViewModel,
-    settingViewModel: SettingViewModel
+    settingViewModel: SettingViewModel,
+    itemViewModel: ItemViewModel
 ) {
 
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
@@ -220,7 +224,7 @@ fun MyApp(
                     }
                     composable("NormalListAddFragment") { NormalAddFragment(navController,normalViewModel) }
                     composable("setting") { setting(navController) }
-                    composable("Signal_Notification"){Signal_Notification(navController)}
+                    composable("Signal_Notification"){Signal_Notification(navController, settingViewModel)}
                     composable("Foodexpiration_setting"){FoodExpirationScreen(navController)}
                 }
             }
