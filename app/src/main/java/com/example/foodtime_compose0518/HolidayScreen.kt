@@ -84,7 +84,7 @@ fun HolidayScreen(navController: NavController, viewModel: HolidayViewModel) {
                 directions = setOf(DismissDirection.EndToStart),
                 background = {
                     val color = if (dismissState.dismissDirection == DismissDirection.EndToStart) {
-                        Color.Red
+                        Color(0xFFFF1744)
                     } else {
                         Color.Transparent
                     }
