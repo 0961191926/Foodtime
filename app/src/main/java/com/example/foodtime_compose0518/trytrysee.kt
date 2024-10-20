@@ -17,6 +17,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
@@ -50,7 +51,10 @@ fun TextFieldWithDropdown(
             value = value,
             onValueChange = setValue,
             label = { Text(label) },
-            colors = TextFieldDefaults.outlinedTextFieldColors()
+            colors = TextFieldDefaults.outlinedTextFieldColors(
+                focusedBorderColor = Color.DarkGray,
+                focusedLabelColor = Color.DarkGray
+            )
         )
         if (dropDownExpanded) {
             DropdownMenu(

@@ -67,11 +67,11 @@ import java.util.Locale
 
 
 @Composable
-fun AddFragmentScreen(navController: NavController, stockViewModel: StockViewModel) {
+fun AddFragmentScreen(navController: NavController, stockViewModel: StockViewModel,itemViewModel: ItemViewModel) {
     TemplateScreen(
         title = "新增食材"
     ) {
-        AddFragmentContent(navController = navController, stockViewModel=stockViewModel)
+        AddFragmentContent(navController = navController, stockViewModel=stockViewModel, itemViewModel = itemViewModel)
     }
 }
 
@@ -79,7 +79,7 @@ fun AddFragmentScreen(navController: NavController, stockViewModel: StockViewMod
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AddFragmentContent(navController: NavController, stockViewModel: StockViewModel) {
+fun AddFragmentContent(navController: NavController, stockViewModel: StockViewModel,itemViewModel: ItemViewModel) {
     var ingredientName by remember { mutableStateOf(TextFieldValue("")) }
     var quantity by remember { mutableStateOf(1) }
     val dateFormat = SimpleDateFormat("yyyy/MM/dd", Locale.US)
@@ -88,8 +88,10 @@ fun AddFragmentContent(navController: NavController, stockViewModel: StockViewMo
     var expirationDate by remember { mutableStateOf("") }
     var showError by remember { mutableStateOf(false) }
     val initialDate = System.currentTimeMillis()
-    val suggestions = stockViewModel.UnexpiredList.collectAsState(emptyList())
+
     var dropDownExpanded by remember { mutableStateOf(false) }
+    var itemList=itemViewModel.itemList.collectAsState(initial = emptyList())
+    val suggestions =itemList
 
     Foodtime0518_Theme {
         Column(
@@ -117,8 +119,8 @@ fun AddFragmentContent(navController: NavController, stockViewModel: StockViewMo
                     onDismissRequest = { dropDownExpanded = false },
                     dropDownExpanded = dropDownExpanded,
                     list = suggestions.value.filter {
-                        it.stockitemName.contains(ingredientName.text, ignoreCase = true)
-                    }.map { it.stockitemName },
+                        it.itemName.contains(ingredientName.text, ignoreCase = true)
+                    }.map { it.itemName },
                     label = "輸入食材名稱"
                 )
             }
@@ -221,9 +223,21 @@ fun AddFragmentContent(navController: NavController, stockViewModel: StockViewMo
                             stockViewModel.setLoginDate(convertDateToLong(loginDate))
                             stockViewModel.setExpiryDate(convertDateToLong(expirationDate))
                             stockViewModel.addStockItem()
+
+
+                            val currentItemList = itemList.value.map { it.itemName }
+                            // 获取 itemList 的值
+
+                            if (!currentItemList.contains<String>(ingredientName.text.trim())) {
+                                // 如果 ingredientName.text 不在 currentItemList 中，则将数据写入 Item 表
+                                itemViewModel.setItemName(ingredientName.text)
+                                // ... 设置 itemViewModel 的其他属性 ...
+                                itemViewModel.addItem()
+                            }
                             navController.navigate("ingredients")
                         }
                     },
+
                     modifier = Modifier
                         .weight(1f)
                         .height(60.dp)
@@ -255,6 +269,7 @@ fun AddFragmentContent(navController: NavController, stockViewModel: StockViewMo
                     )
                 }
             }
+
         }
     }
 }
@@ -395,6 +410,7 @@ fun MyDatePickerComponent(initialDate: Long,onDateSelected: (String) -> Unit) {
         }
     }
 }
+
 
 
 

@@ -10,9 +10,8 @@ data class ItemTable(
     @ColumnInfo(name = "item_id")
     val itemId: Int = 0,
 
-    @ColumnInfo(name = "holiday_id")
-    val holidayId: Int = 0,
+    @ColumnInfo(name = "item_name")
+    val itemName: String = "",
 
-    @ColumnInfo(name = "number")
-    var number: Int = 0
+
 )

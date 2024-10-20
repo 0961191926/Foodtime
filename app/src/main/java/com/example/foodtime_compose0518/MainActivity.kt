@@ -5,9 +5,12 @@ import FoodExpirationScreen
 import HolidayScreen
 import Signal_Notification
 import android.annotation.SuppressLint
+import android.app.AlarmManager
 import android.app.NotificationChannel
 import android.app.NotificationManager
+import android.app.PendingIntent
 import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
@@ -61,11 +64,13 @@ import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.content.ContextCompat.getSystemService
+import androidx.room.Room
 import androidx.work.ExistingPeriodicWorkPolicy
+import androidx.work.OutOfQuotaPolicy
 import androidx.work.PeriodicWorkRequest
 import androidx.work.WorkManager
 import com.example.foodtime_compose0518.MainActivity.Companion.CHANNEL_ID
-import com.example.foodtime_compose0518.worker.NotificationWorker
+import com.example.foodtime_compose0518.worker.NotificationReceiver
 import com.example.foodtime_compose0518.worker.StockNotification
 import com.google.firebase.database.FirebaseDatabase
 import setting
@@ -74,12 +79,16 @@ import java.util.concurrent.TimeUnit
 class MainActivity : ComponentActivity() {
     companion object {
         const val CHANNEL_ID = "default_channel_id"
+
     }
+
     private val holidayViewModel: HolidayViewModel by viewModels {
         val database = FoodDatabase.getInstance(application)
         HolidayViewModelFactory(
             dao = database.foodDao,
-            holidayDetailDao = database.holidayDetailDao // 傳遞 holidayDetailDao
+            holidayDetailDao = database.holidayDetailDao,
+            itemDao = database.itemDao
+
         )
     }
     private val stockViewModel: StockViewModel by viewModels {
@@ -96,13 +105,29 @@ class MainActivity : ComponentActivity() {
     }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
         createNotificationChannel(this)
+        val alarmManager = getSystemService(Context.ALARM_SERVICE) as AlarmManager
+        val intent = Intent(this, NotificationReceiver::class.java)
+        val pendingIntent = PendingIntent.getBroadcast(this, 0, intent, PendingIntent.FLAG_IMMUTABLE)
+
+// 设置重复间隔，例如 15 分钟
+        val repeatInterval =  60 * 1000L
+
+// 设置初始触发时间
+        val triggerTime = System.currentTimeMillis() + repeatInterval
+
+// 设置闹钟
+        alarmManager.setRepeating(
+            AlarmManager.RTC_WAKEUP,
+            triggerTime,
+            repeatInterval,
+            pendingIntent
+        )
 
         val database = FirebaseDatabase.getInstance()
-        val request = PeriodicWorkRequest.Builder(NotificationWorker::class.java, 15, TimeUnit.MINUTES)
-            .build()
 
-        WorkManager.getInstance(this).enqueueUniquePeriodicWork("notificationWorker", ExistingPeriodicWorkPolicy.KEEP, request)
+
         database.setPersistenceEnabled(true)
         setContent {
             Foodtime0518_Theme {
@@ -250,13 +275,13 @@ fun MyApp(
                     composable("HolidayAddFragment/{holidayId}") { backStackEntry ->
                         val holidayId = backStackEntry.arguments?.getString("holidayId")?.toIntOrNull()
                         if (holidayId != null) {
-                            HolidayAddFragmentScreen(navController, holidayId, holidayViewModel)
+                            HolidayAddFragmentScreen(navController, holidayId, holidayViewModel, itemViewModel = itemViewModel)
                         }
                     }
                     composable("Expired_food") { ExpireScreen(navController,stockViewModel) }
                     composable("home_page") { Home_pageScreen() }
                     composable("logout") { LoginScreen(navController) }
-                    composable("addFragment") { AddFragmentScreen(navController, stockViewModel) }
+                    composable("addFragment") { AddFragmentScreen(navController, stockViewModel,itemViewModel) }
                     composable("FoodDetail/{stockitemId}") { backStackEntry ->
                         val stockitemId = backStackEntry.arguments?.getString("stockitemId")?.toIntOrNull()
                         if (stockitemId != null) {

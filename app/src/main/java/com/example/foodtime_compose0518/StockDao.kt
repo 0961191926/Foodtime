@@ -32,6 +32,13 @@ interface StockDao {
                 "WHERE expiry_date < :currentDate " +
                 "ORDER BY expiry_date;")
         fun getExpiredStockItems(currentDate: Long = getCurrentDateWithoutTime()): Flow<List<StockTable>>
+
+        @Query("SELECT * FROM stock_table " +
+                "WHERE expiry_date >= :currentDate " +
+                "ORDER BY expiry_date;")
+        fun getUnExpiredStockItemsList(currentDate: Long = getCurrentDateWithoutTime()): List<StockTable>
+
+
         @Insert(onConflict = OnConflictStrategy.REPLACE)
         suspend fun insert(item: kotlin.collections.List<com.example.foodtime_compose0518.StockTable>)
 

@@ -6,9 +6,10 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.stateIn
 
-class HolidayViewModel(val dao: FoodDao,val holidayDetailDao: HolidayDetailDao) : ViewModel() {
+class HolidayViewModel(val dao: FoodDao,val holidayDetailDao: HolidayDetailDao,val itemDao: ItemDao) : ViewModel() {
     var newHolidayName = ""
     var newHolidayDate: Long = 0L
     val holidayList : Flow<List<HolidayTable>> =dao.getAllUsers().stateIn(
@@ -52,9 +53,9 @@ class HolidayViewModel(val dao: FoodDao,val holidayDetailDao: HolidayDetailDao) 
         }
     }
 
-    fun addHolidayDetail(holidayId: Int, itemName: String, quantity: Int){
+    fun addHolidayDetail(holidayId: Int, itemId: Int, quantity: Int){
         viewModelScope.launch{
-            holidayDetailDao.insert(HolidayDetailTable(holidayId = holidayId, itemName = itemName, quantity = quantity))
+            holidayDetailDao.insert(HolidayDetailTable(holidayId = holidayId, itemId = itemId, quantity = quantity))
         }
     }
 
@@ -70,7 +71,15 @@ class HolidayViewModel(val dao: FoodDao,val holidayDetailDao: HolidayDetailDao) 
         }
     }
 
-
+    fun getItemNameById(itemId: Int): Flow<String> {
+        return flow {
+            emit(itemDao.getItemNameById(itemId))
+        }.stateIn(
+            scope= viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = ""
+        )
+    }
 
     fun getHolidayDetailsByHolidayId(holidayId: Int): Flow<List<HolidayDetailTable>> {
             return holidayDetailDao.getDetailsByHolidayId(holidayId).stateIn(

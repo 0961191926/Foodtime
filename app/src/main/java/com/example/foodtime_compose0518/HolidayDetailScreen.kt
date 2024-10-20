@@ -136,9 +136,10 @@ fun NoteContent(
         )
 
         Spacer(modifier = Modifier.width(16.dp))
+        val itemName by holidayViewModel.getItemNameById(note.itemId).collectAsState("")
 
         Text(
-            text = note.itemName,
+            text = itemName,
             fontFamily = displayFontFamily,
             style = MaterialTheme.typography.titleMedium,
             modifier = Modifier.weight(1f)

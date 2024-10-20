@@ -9,16 +9,36 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
 
 class ItemViewModel(val dao: ItemDao) : ViewModel() {
-    var newNumber = 0
+
+    var newItemId = 0
+    var newItemName=""
+
 
     val itemList: Flow<List<ItemTable>> = dao.getAllUsers().stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5000),
         initialValue = emptyList()
     )
-
-    fun setNumber(number: Int) {
-        newNumber = number
+    fun setItemName(itemName: String) {
+        newItemName = itemName
     }
+   fun setItemId(itemId: Int) {
+        newItemId = itemId
+    }
+
+
+    fun addItem() {
+        viewModelScope.launch {
+            dao.insert(
+                ItemTable(
+                    itemName = newItemName,
+                    itemId = newItemId,
+                )
+            )
+        }
+    }
+
+
+
 
 }

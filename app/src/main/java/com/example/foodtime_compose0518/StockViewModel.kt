@@ -140,6 +140,7 @@ class StockViewModel(val dao: StockDao) : ViewModel() {
         }
     }
 
+
     fun fetchStockItem(id: Int) {
         viewModelScope.launch {
             val item = withContext(Dispatchers.IO) {

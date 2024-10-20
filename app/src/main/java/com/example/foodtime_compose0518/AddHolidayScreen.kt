@@ -66,7 +66,7 @@ class AddHolidayScreen : ComponentActivity() {
 
                     val application = applicationContext
                     val database = FoodDatabase.getInstance(application)
-                    val viewModelFactory = HolidayViewModelFactory(database.foodDao, database.holidayDetailDao)
+                    val viewModelFactory = HolidayViewModelFactory(database.foodDao, database.holidayDetailDao,database.itemDao)
                     val holidayViewModel: HolidayViewModel = viewModel(factory = viewModelFactory)
                     HolidayAdd(navController = rememberNavController(), holidayViewModel)
 

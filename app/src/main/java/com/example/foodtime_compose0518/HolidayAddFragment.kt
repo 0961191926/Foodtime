@@ -1,5 +1,6 @@
 package com.example.foodtime_compose0518
 
+import TextFieldWithDropdown
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
@@ -10,11 +11,15 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
@@ -24,8 +29,12 @@ import com.example.foodtime_compose0518.ui.theme.primaryLight
 import com.example.foodtime_compose0518.ui.theme.onPrimaryLight
 
 @Composable
-fun HolidayAddFragmentScreen(navController: NavHostController, holidayId: Int, holidayViewModel: HolidayViewModel) {
-    val food = remember { mutableStateOf("") }
+fun HolidayAddFragmentScreen(navController: NavHostController, holidayId: Int, holidayViewModel: HolidayViewModel,itemViewModel: ItemViewModel) {
+    var ingredientName by remember { mutableStateOf(TextFieldValue("")) }
+    var dropDownExpanded by remember { mutableStateOf(false) }
+    // 使用 collectAsState 来获取食材建议
+    var itemList=itemViewModel.itemList.collectAsState(initial = emptyList())
+    val suggestions =itemList
     val number = remember { mutableStateOf(1) }
 
     Column(
@@ -43,22 +52,27 @@ fun HolidayAddFragmentScreen(navController: NavHostController, holidayId: Int, h
                 modifier = Modifier.padding(end = 10.dp),
                 fontFamily = displayFontFamily
             )
-            OutlinedTextField(
-                value = food.value,
-                onValueChange = { food.value = it },
-                label = { Text("食材") },
-                singleLine = true,
-                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
-                modifier = Modifier.fillMaxWidth(),
-                textStyle = TextStyle(
-                    fontFamily = bodyFontFamily, // 使用自定義字體
-                    fontSize = 16.sp // 設置字體大小
-                )
+            TextFieldWithDropdown(
+                modifier = Modifier.weight(1f),
+                value = ingredientName,
+                setValue = { newValue ->
+                    ingredientName = newValue
+                    dropDownExpanded = newValue.text.isNotEmpty() // 当输入内容不为空时展开下拉菜单
+                },
+                onDismissRequest = { dropDownExpanded = false },
+                dropDownExpanded = dropDownExpanded,
+                // 根据节日过滤食材建议
+                list = suggestions.value.filter {
+                    it.itemName.contains(ingredientName.text, ignoreCase = true)
+                }.map { it.itemName }, // 显示 itemName 列表
+
+                label = "輸入食材名稱"
             )
         }
 
         Spacer(modifier = Modifier.height(60.dp))
 
+        // 数量选择（保持不变）
         Row(verticalAlignment = Alignment.CenterVertically) {
             Text(
                 text = "數量",
@@ -85,7 +99,8 @@ fun HolidayAddFragmentScreen(navController: NavHostController, holidayId: Int, h
                     .padding(horizontal = 8.dp),
                 keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number)
             )
-            IconButton(onClick = { number.value -= 1 }) {
+
+            IconButton(onClick = { number.value = (number.value - 1).coerceAtLeast(1) }) {
                 Icon(
                     Icons.Outlined.KeyboardArrowDown,
                     contentDescription = "Decrease number"
@@ -117,11 +132,24 @@ fun HolidayAddFragmentScreen(navController: NavHostController, holidayId: Int, h
                 )
             }
 
+
             Button(
                 onClick = {
-                    // 增加食材
-                    holidayViewModel.addHolidayDetail(holidayId, food.value, number.value)
-                    navController.popBackStack() // 返回上一個畫面
+                    if (itemList.value != null) {
+                        val currentItemList = itemList.value.map { it.itemName }
+                        val itemId: Int = if (!currentItemList.contains(ingredientName.text.trim())) {
+                            // 如果 ingredientName.text 不在 currentItemList 中，则将数据写入 Item 表
+                            itemViewModel.setItemName(ingredientName.text)
+                            // ... 设置 itemViewModel 的其他属性 ...
+                            itemViewModel.addItem()
+                            currentItemList.size + 1 // 新添加的 item 的 id
+                        } else {
+                            currentItemList.indexOf(ingredientName.text.trim()) + 1
+                        }
+                        // 增加食材
+                        holidayViewModel.addHolidayDetail(holidayId, itemId, number.value)
+                        navController.popBackStack() // 返回上一個畫面
+                    }
                 },
                 colors = ButtonDefaults.buttonColors(
                     onPrimaryLight // 使用您定义的颜色

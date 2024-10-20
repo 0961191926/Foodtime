@@ -22,8 +22,8 @@ class StockNotification(private val context: Context) {
         // 构建通知
         val notificationBuilder = NotificationCompat.Builder(context, CHANNEL_ID)
             .setSmallIcon(R.drawable.fridge)  // 替换为你实际的图标资源
-            .setContentTitle(message)
-            .setContentText(message)
+            .setContentTitle("hello")
+            .setContentText("sjksjdlkajdlkjsalkdjsa")
             .setPriority(NotificationCompat.PRIORITY_MAX)
 
             .setAutoCancel(true)

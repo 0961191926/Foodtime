@@ -14,6 +14,9 @@ interface ItemDao {
     @Query("SELECT * FROM item_table")
     fun getAllUsers(): Flow<List<ItemTable>>
 
+    @Query("SELECT item_name FROM item_table WHERE item_Id = :itemId")
+    suspend fun getItemNameById(itemId: Int): String
+
     @Insert
     suspend fun insert(item: ItemTable)
 
