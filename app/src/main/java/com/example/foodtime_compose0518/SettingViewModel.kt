@@ -76,6 +76,16 @@ class SettingViewModel(val dao: SettingDao) : ViewModel() {
         }
     }
 
+    fun updateFoodExpiration(settingName: String, newDays: Int) {
+        viewModelScope.launch {
+            val setting = dao.getSettingByName(settingName)
+            if (setting != null) {
+                val updatedSetting = setting.copy(settingDay = newDays)
+                dao.update(updatedSetting)
+            }
+        }
+    }
+
     init {
         initializeSettings()
     }
