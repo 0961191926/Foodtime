@@ -266,7 +266,7 @@ fun MyApp(
                     composable("NormalListAddFragment") { NormalAddFragment(navController,normalViewModel) }
                     composable("setting") { setting(navController) }
                     composable("Signal_Notification"){Signal_Notification(navController, settingViewModel)}
-                    composable("Foodexpiration_setting"){FoodExpirationScreen(navController)}
+                    composable("Foodexpiration_setting"){FoodExpirationScreen(navController, settingViewModel)}
                 }
             }
 
