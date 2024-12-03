@@ -27,4 +27,5 @@ data class HolidayDetailTable(
 
     @ColumnInfo(name = "quantity")
     var quantity: Int,
+
 )

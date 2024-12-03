@@ -79,10 +79,12 @@ fun NoteItem(
         positionalThreshold = { it * .25f }
     )
 
+    val cover1 = ImageMapper.getImageResourceByName(note.stockitemName)
+
     SwipeToDismissBox(
         state = dismissState,
         content = {
-            NoteContent(note, cover1, cover2, onClick)
+            NoteContent(note, cover1,stockViewModel.lightSignal(stockViewModel.freshness(note)) , onClick)
         },
         backgroundContent = { DismissBackground(dismissState) },
     )
@@ -100,7 +102,7 @@ fun NoteContent(note:StockTable, cover1: Int, cover2: Int, onClick: (StockTable)
     ) {
         Image(
             painter = painterResource(cover1),
-            contentDescription = "Note cover 1",
+            contentDescription = "食材圖片",
             modifier = Modifier
                 .size(50.dp)
                 .padding(start = 16.dp)
@@ -129,7 +131,7 @@ fun NoteContent(note:StockTable, cover1: Int, cover2: Int, onClick: (StockTable)
 
         Image(
             painter = painterResource(cover2),
-            contentDescription = "Note cover 2",
+            contentDescription = "燈號",
             modifier = Modifier
                 .size(50.dp)
                 .padding(end = 16.dp)
@@ -171,7 +173,7 @@ fun NoteList(navController: NavController,stockViewModel: StockViewModel) {
         items(datalist.value, key = { it.stockitemId }) { note ->
             NoteItem(
                 note = note,
-                cover1 =R.drawable.background,
+                cover1 = ImageMapper.getImageResourceByName(note.stockitemName),
                 cover2 = stockViewModel.lightSignal(stockViewModel.freshness(note)),
                 stockViewModel = stockViewModel,
                 onClick = { navController.navigate("FoodDetail/${note.stockitemId}",) },

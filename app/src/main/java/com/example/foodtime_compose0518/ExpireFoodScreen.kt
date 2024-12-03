@@ -16,6 +16,7 @@ import com.example.foodtime_compose0518.NoteItem
 import com.example.foodtime_compose0518.NoteList
 import com.example.foodtime_compose0518.R
 import com.example.foodtime_compose0518.StockViewModel
+import com.example.foodtime_compose0518.ImageMapper
 
 @Composable
 fun ExpireScreen(navController: NavController,stockViewModel:StockViewModel) {
@@ -51,8 +52,8 @@ fun ExpiredNoteList(navController: NavController,stockViewModel: StockViewModel)
             items(datalist.value, key = { it.stockitemId }) { note ->
                 NoteItem(
                     note = note,
-                    cover1 = R.drawable.background,
-                    cover2 = R.drawable.background,
+                    cover1 = ImageMapper.getImageResourceByName(note.stockitemName),
+                    cover2 = stockViewModel.lightSignal(stockViewModel.freshness(note)),
                     stockViewModel = stockViewModel,
                     onClick = { navController.navigate("FoodDetail/${note.stockitemId}",) },
                     onRemove ={ stockViewModel.deleteStockItem(note)

@@ -90,10 +90,14 @@ fun DetailFragment(navController: NavController,stockitemId:Int,stockViewModel: 
     var expirationDate by remember { mutableStateOf(stocklistById.value.expiryDate) }
     var loginDate by remember { mutableStateOf(stocklistById.value.loginDate) }
     var stockname by remember { mutableStateOf(stocklistById.value.stockitemName) }
+    var quantity by remember { mutableStateOf(stocklistById.value.number) }
+    var cover1 = ImageMapper.getImageResourceByName(stockname)
+
     LaunchedEffect(stocklistById.value) {
         expirationDate = stocklistById.value.expiryDate
         loginDate = stocklistById.value.loginDate
         stockname=stocklistById.value.stockitemName
+        quantity = stocklistById.value.number
     }
     Column(
         modifier = Modifier
@@ -106,7 +110,7 @@ fun DetailFragment(navController: NavController,stockitemId:Int,stockViewModel: 
         // 食材名稱输入框
         Row(verticalAlignment = Alignment.CenterVertically) {
             Image(
-                painter = painterResource(id = R.drawable.apple),
+                painter = painterResource(id = cover1),
                 contentDescription = null, // 提供描述以支持辅助功能
                 modifier = Modifier
                     .size(70.dp)
@@ -139,7 +143,7 @@ fun DetailFragment(navController: NavController,stockitemId:Int,stockViewModel: 
 
             Spacer(modifier = Modifier.width(10.dp))
             Text(
-                text = "一份",
+                text = "$quantity 份",
                 fontSize = 28.sp,
                 modifier = Modifier.padding(end = 10.dp)
             )

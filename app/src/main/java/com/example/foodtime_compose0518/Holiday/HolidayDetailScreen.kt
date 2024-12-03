@@ -78,7 +78,6 @@ import androidx.compose.material.Divider
 @Composable
 fun NoteItem3(
     note: HolidayDetailTable,
-    cover1: Int,
     holidayViewModel: HolidayViewModel,
     onClick: (HolidayDetailTable) -> Unit,
     onRemove: () -> Unit
@@ -97,6 +96,9 @@ fun NoteItem3(
         },
         positionalThreshold = { it * .25f }
     )
+
+    val itemName by holidayViewModel.getItemNameById(note.itemId).collectAsState("")
+    val cover1 = ImageMapper.getImageResourceByName(itemName)
 
     SwipeToDismissBox(
         state = dismissState,
@@ -221,7 +223,6 @@ fun HolidayDetailScreen(navController: NavController, holidayId: Int, holidayVie
         items(holidayDetailList, key = { it.detailId }) { note ->
             NoteItem3(
                 note = note,
-                cover1 = R.drawable.apple,
                 holidayViewModel = holidayViewModel,
                 onClick = { /* 处理点击事件 */ },
                 onRemove = {
