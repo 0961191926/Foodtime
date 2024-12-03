@@ -49,7 +49,6 @@ import com.example.foodtime_compose0518.ui.theme.Foodtime0518_Theme
 @Composable
 fun NoteItem2(
     note: NormalTable,
-    cover1: Int,
     normalViewModel:NormalViewModel,
     onClick: (NormalTable) -> Unit,
     onRemove: () -> Unit,
@@ -69,6 +68,8 @@ fun NoteItem2(
         },
         positionalThreshold = { it * .25f }
     )
+
+    val cover1 = ImageMapper.getImageResourceByName(note.normalitemName)
 
     SwipeToDismissBox(
         state = dismissState,
@@ -175,7 +176,6 @@ fun Normallist(navController: NavController, normalViewModel: NormalViewModel) {
         items(nolist.value, key = { it.normalitemId }) { note2 ->
             NoteItem2(
                 note = note2,
-                cover1 = R.drawable.background,
                 normalViewModel = normalViewModel, // 传递正确的 viewModel 实例
                 onClick = { },
                 onRemove = { normalViewModel.deleteNormalItem(note2) }
