@@ -134,15 +134,15 @@ fun AddFragmentContent(navController: NavController, stockViewModel: StockViewMo
                     fontFamily = displayFontFamily
                 )
                 Spacer(modifier = Modifier.width(50.dp))
+
                 IconButton(onClick = {
-                    if (quantity > 1) quantity-- // 確保不會少於1
+                    quantity++ // 增加數量
                 }) {
                     Icon(
-                        Icons.Outlined.KeyboardArrowDown,
-                        contentDescription = "減少數量"
+                        Icons.Outlined.KeyboardArrowUp,
+                        contentDescription = "增加數量"
                     )
                 }
-
                 OutlinedTextField(
                     value = quantity.toString(), // 顯示當前數量
                     onValueChange = {
@@ -154,12 +154,13 @@ fun AddFragmentContent(navController: NavController, stockViewModel: StockViewMo
                         .padding(horizontal = 8.dp),
                     keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number)
                 )
+
                 IconButton(onClick = {
-                    quantity++ // 增加數量
+                    if (quantity > 1) quantity-- // 確保不會少於1
                 }) {
                     Icon(
-                        Icons.Outlined.KeyboardArrowUp,
-                        contentDescription = "增加數量"
+                        Icons.Outlined.KeyboardArrowDown,
+                        contentDescription = "減少數量"
                     )
                 }
             }
@@ -200,8 +201,10 @@ fun AddFragmentContent(navController: NavController, stockViewModel: StockViewMo
             if (showError) {
                 Text(
                     text = "有效期限不可為空值",
-                    color = Color.Red,
-                    modifier = Modifier.padding(bottom = 16.dp)
+                   color = Color.Red,
+                    modifier = Modifier
+                        .padding(start = 16.dp, end = 16.dp)
+                        .padding(bottom = 24.dp) // 添加底部間距
                 )
             }
 
@@ -334,7 +337,7 @@ fun MyDatePickerComponent(initialDate: Long,onDateSelected: (String) -> Unit) {
         OutlinedTextField(
             value = textFieldValue,
             onValueChange = { /* 禁止直接編輯 */ },
-            label = { Text("Select date") },
+            label = { Text("選擇日期") },
             readOnly = true,
             modifier = Modifier
                 .fillMaxWidth()
@@ -380,7 +383,7 @@ fun MyDatePickerComponent(initialDate: Long,onDateSelected: (String) -> Unit) {
                             modifier = Modifier.fillMaxWidth(),
                             title = {
                                 Text(
-                                    "Select date",
+                                    "選擇日期",
                                     style = MaterialTheme.typography.titleLarge,
                                     modifier = Modifier.padding(start = 24.dp, top = 16.dp)
                                 )
@@ -390,7 +393,8 @@ fun MyDatePickerComponent(initialDate: Long,onDateSelected: (String) -> Unit) {
                         )
                     }
                 },
-                properties = DialogProperties(usePlatformDefaultWidth = false)
+                properties = DialogProperties(usePlatformDefaultWidth = false),
+                containerColor = (Color(0xFFF0F5ED)),
             )
         }
     }

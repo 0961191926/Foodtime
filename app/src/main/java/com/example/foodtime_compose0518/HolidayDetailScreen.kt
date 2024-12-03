@@ -151,17 +151,18 @@ fun NoteContent(
         ) {
             IconButton(onClick = {
                 val number = quantity.toIntOrNull()
-                if (number != null && number > 0) {
-                    val newQuantity = number - 1
+                if (number != null) {
+                    val newQuantity = number + 1
                     quantity = newQuantity.toString()
-                    holidayViewModel.updateHolidayDetail(
-                        note.copy(quantity = newQuantity)
-                    )
+                    holidayViewModel.viewModelScope.launch {
+                        holidayViewModel.updateHolidayDetail(
+                            note.copy(quantity = newQuantity)
+                        )
+                    }
                 }
             }) {
-                Icon(Icons.Default.KeyboardArrowDown, contentDescription = "减少数量")
+                Icon(Icons.Default.KeyboardArrowUp, contentDescription = "增加数量")
             }
-
             TextField(
                 value = quantity,
                 onValueChange = { newValue ->
@@ -191,20 +192,17 @@ fun NoteContent(
                     disabledTextColor = MaterialTheme.colorScheme.onSurface
                 )
             )
-
             IconButton(onClick = {
                 val number = quantity.toIntOrNull()
-                if (number != null) {
-                    val newQuantity = number + 1
+                if (number != null && number > 0) {
+                    val newQuantity = number - 1
                     quantity = newQuantity.toString()
-                    holidayViewModel.viewModelScope.launch {
-                        holidayViewModel.updateHolidayDetail(
-                            note.copy(quantity = newQuantity)
-                        )
-                    }
+                    holidayViewModel.updateHolidayDetail(
+                        note.copy(quantity = newQuantity)
+                    )
                 }
             }) {
-                Icon(Icons.Default.KeyboardArrowUp, contentDescription = "增加数量")
+                Icon(Icons.Default.KeyboardArrowDown, contentDescription = "减少数量")
             }
         }
     }
@@ -218,9 +216,10 @@ fun HolidayDetailScreen(navController: NavController, holidayId: Int, holidayVie
 
     LazyColumn {
         items(holidayDetailList, key = { it.detailId }) { note ->
+            val cover1 = imageMapping[note.itemName] ?: R.drawable.kang // 默认图片
             NoteItem3(
                 note = note,
-                cover1 = R.drawable.apple,
+                cover1 = cover1,
                 holidayViewModel = holidayViewModel,
                 onClick = { /* 处理点击事件 */ },
                 onRemove = {

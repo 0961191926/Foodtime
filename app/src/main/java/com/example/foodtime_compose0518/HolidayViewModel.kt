@@ -40,11 +40,14 @@ class HolidayViewModel(val dao: FoodDao,val holidayDetailDao: HolidayDetailDao) 
         newHolidayDate = date
     }
 
-    fun updateHoliday(item: HolidayDetailTable) {
+    fun updateHolidayDate(holidayId: Int, newDateMillis: Long) {
         viewModelScope.launch {
-            dao.update(item)
+            dao.updateHolidayDate(holidayId, newDateMillis)
         }
     }
+
+
+
 
     fun deleteHoliday(holiday: HolidayTable) {
         viewModelScope.launch(Dispatchers.IO) {

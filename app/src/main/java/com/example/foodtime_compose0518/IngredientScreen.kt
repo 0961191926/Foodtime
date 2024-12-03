@@ -169,9 +169,10 @@ fun NoteList(navController: NavController,stockViewModel: StockViewModel) {
 
     LazyColumn {
         items(datalist.value, key = { it.stockitemId }) { note ->
+            val cover1 = imageMapping[note.stockitemName] ?: R.drawable.kang // 默认图片
             NoteItem(
                 note = note,
-                cover1 =R.drawable.background,
+                cover1 = cover1,
                 cover2 = stockViewModel.lightSignal(stockViewModel.freshness(note)),
                 stockViewModel = stockViewModel,
                 onClick = { navController.navigate("FoodDetail/${note.stockitemId}",) },

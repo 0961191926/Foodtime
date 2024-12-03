@@ -14,7 +14,6 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Create
-import androidx.compose.material3.AlertDialogDefaults.containerColor
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -57,6 +56,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogProperties
+import com.example.foodtime_compose0518.ui.theme.Foodtime0518_Theme
 import kotlinx.coroutines.delay
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -67,6 +67,7 @@ import kotlin.math.roundToInt
 @SuppressLint("SuspiciousIndentation")
 @Composable
 fun HolidayScreen(navController: NavController, viewModel: HolidayViewModel) {
+
     val holist = viewModel.holidayList.collectAsState(arrayListOf())
 
     LazyColumn {
@@ -81,21 +82,16 @@ fun HolidayScreen(navController: NavController, viewModel: HolidayViewModel) {
 
             SwipeToDismiss(
                 state = dismissState,
-                directions = setOf(DismissDirection.EndToStart),
+                directions = setOf(DismissDirection.EndToStart), // 只允许从右向左滑动
                 background = {
-                    val color = if (dismissState.dismissDirection == DismissDirection.EndToStart) {
-                        Color(0xFFFF1744)
-                    } else {
-                        Color.Transparent
-                    }
-                    Box(
-                        Modifier
-                            .fillMaxSize()
-                            .background(color)
-                            .padding(horizontal = 20.dp),
-                        contentAlignment = Alignment.CenterEnd
-                    ) {
-                        if (dismissState.dismissDirection == DismissDirection.EndToStart) {
+                    if (dismissState.dismissDirection == DismissDirection.EndToStart) {
+                        Box(
+                            Modifier
+                                .fillMaxSize()
+                                .background(Color(0xFFFF1744)) // 右侧红色背景
+                                .padding(horizontal = 20.dp),
+                            contentAlignment = Alignment.CenterEnd // 右侧对齐
+                        ) {
                             Icon(
                                 imageVector = Icons.Default.Delete,
                                 contentDescription = "Delete",
@@ -108,7 +104,8 @@ fun HolidayScreen(navController: NavController, viewModel: HolidayViewModel) {
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(horizontal = 16.dp),
+                            .padding(horizontal = 0.dp)
+                            .background(androidx.compose.material3.MaterialTheme.colorScheme.background),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         ListItem(
@@ -117,7 +114,8 @@ fun HolidayScreen(navController: NavController, viewModel: HolidayViewModel) {
                             leadingContent = {
                                 Icon(
                                     Icons.Filled.Favorite,
-                                    contentDescription = "Localized description"
+                                    contentDescription = "Localized description",
+                                    modifier = Modifier.padding(start = 8.dp) // 添加右侧边距
                                 )
                             },
                             modifier = Modifier
@@ -130,11 +128,14 @@ fun HolidayScreen(navController: NavController, viewModel: HolidayViewModel) {
                         MyDatePickerIcon(
                             initialDate = holiday.Date,
                             onDateSelected = { newDate ->
-                                // 处理日期更新的逻辑
+                                val newDateMillis = SimpleDateFormat("yyyy/MM/dd", Locale.US).parse(newDate)?.time
+                                if (newDateMillis != null) {
+                                    viewModel.updateHolidayDate(holiday.holidayId, newDateMillis)
+                                }
                             }
                         )
                     }
-                    Spacer(modifier = Modifier.width(60.dp))
+                    Spacer(modifier = Modifier.width(1.dp))
                     HorizontalDivider()
                 }
             )
@@ -173,11 +174,12 @@ fun MyDatePickerIcon(initialDate: Long, onDateSelected: (String) -> Unit) {
     }
 
     if (showDatePicker) {
-        val datePickerState = rememberDatePickerState(
-            initialSelectedDateMillis = selectedDate.time
-        )
+            val datePickerState = rememberDatePickerState(
+                initialSelectedDateMillis = selectedDate.time
+            )
         AlertDialog(
             onDismissRequest = { showDatePicker = false },
+            backgroundColor = (Color(0xFFF0F5ED)),
             confirmButton = {
                 TextButton(
                     onClick = {
@@ -202,7 +204,7 @@ fun MyDatePickerIcon(initialDate: Long, onDateSelected: (String) -> Unit) {
                         modifier = Modifier.fillMaxWidth(),
                         title = {
                             Text(
-                                "Select date",
+                                "選擇日期",
                                 style = MaterialTheme.typography.body2,
                                 modifier = Modifier.padding(start = 24.dp, top = 16.dp)
                             )
@@ -211,7 +213,8 @@ fun MyDatePickerIcon(initialDate: Long, onDateSelected: (String) -> Unit) {
                     )
                 }
             },
-            properties = DialogProperties(usePlatformDefaultWidth = false)
+            properties = DialogProperties(usePlatformDefaultWidth = false),
+
         )
     }
 }

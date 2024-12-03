@@ -80,7 +80,7 @@ class AddHolidayScreen : ComponentActivity() {
 
 
 @Composable
-fun HolidayAdd(navController: NavController,holidayViewModel: HolidayViewModel) {
+fun HolidayAdd(navController: NavController, holidayViewModel: HolidayViewModel) {
     var Holiday = remember { mutableStateOf("") }
     val initialDate = System.currentTimeMillis()
     var Date by remember { mutableStateOf("") }
@@ -89,8 +89,6 @@ fun HolidayAdd(navController: NavController,holidayViewModel: HolidayViewModel) 
     Box(
         modifier = Modifier
             .fillMaxSize()
-//            .background(Color(0xFFECF5FF))
-
             .padding(horizontal = 16.dp)
     ) {
         Column(
@@ -101,7 +99,6 @@ fun HolidayAdd(navController: NavController,holidayViewModel: HolidayViewModel) 
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier.padding(horizontal = 18.dp)
-
             ) {
                 // EditText for User Input
                 androidx.compose.material3.OutlinedTextField(
@@ -112,91 +109,75 @@ fun HolidayAdd(navController: NavController,holidayViewModel: HolidayViewModel) 
                     keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
                     modifier = Modifier.fillMaxWidth(),
                     textStyle = TextStyle(
-                        fontFamily = bodyFontFamily, // 使用自定義字體
-                        fontSize = 16.sp // 設置字體大小
+                        fontFamily = bodyFontFamily, // 使用自定义字体
+                        fontSize = 16.sp // 设置字体大小
                     )
                 )
             }
-            Spacer(modifier = Modifier.height(30.dp))
+            Spacer(modifier = Modifier.height(40.dp)) // 控制日期选择器的间距
+
+            // 日期选择器组件
+            MyDatePickerComponent(initialDate) { selectedDate ->
+                Date = selectedDate
+            }
 
             if (showError) {
+                Spacer(modifier = Modifier.height(8.dp))
                 Text(
                     text = "有效期限不可為空值",
                     color = Color.Red,
                     modifier = Modifier.padding(bottom = 16.dp)
                 )
             }
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier
-                    .fillMaxWidth()
-            ) {
-                MyDatePickerComponent(initialDate) { selectedDate ->
-                    Date = selectedDate
+
+            Spacer(modifier = Modifier.height(300.dp)) // 与按钮的间距
+
+            // Confirm Button
+            Row {
+                Button(
+                    colors = ButtonDefaults.buttonColors(primaryLight),
+                    onClick = {
+                        if (Date.isEmpty()) {
+                            showError = true
+                        } else {
+                            showError = false
+                            holidayViewModel.setHolidayName(Holiday.value)
+                            holidayViewModel.setHolidayDate(convertDateToLong(Date))
+                            holidayViewModel.addHoliday()
+                            navController.navigate("holidays")
+                        }
+                    },
+                    modifier = Modifier
+                        .weight(1f)
+                        .height(60.dp)
+                        .padding(horizontal = 30.dp)
+                        .padding(bottom = 16.dp),
+                    shape = RoundedCornerShape(35.dp)
+                ) {
+                    Text(
+                        "確認",
+                        style = TextStyle(color = onPrimaryLight)
+                    )
                 }
-                Spacer(modifier = Modifier.height(300.dp))
 
-            }
-
-
-                // Confirm Button
-                Row{
-                    Button(
-                        colors = ButtonDefaults.buttonColors(
-                            primaryLight
-                        ),
-                        onClick = {
-                            if (Date.isEmpty()) {
-                                showError = true
-                            }else {
-                                showError = false
-                                holidayViewModel.setHolidayName(Holiday.value)
-                                holidayViewModel.setHolidayDate(convertDateToLong(Date))
-                                holidayViewModel.addHoliday()
-                                navController.navigate("holidays")
-                            }
-                        },
-
-                        modifier = Modifier
-                            .weight(1f)
-                            .height(60.dp)
-                            .padding(horizontal = 30.dp)
-                            .padding(bottom = 16.dp),
-
-                        shape = RoundedCornerShape(35.dp)
-
-                    ) {
-                        Text(
-                            "確認",
-                            style = TextStyle(color = onPrimaryLight)
-                        )
-                    }
-
-                    Button(
-                        onClick = { navController.navigate("holidays") },
-
-                        colors = ButtonDefaults.buttonColors(
-                            onPrimaryLight
-                        ),
-
-                        modifier = Modifier
-                            .weight(1f)
-                            .height(60.dp)
-                            .padding(horizontal = 30.dp)
-                            .padding(bottom = 16.dp),
-
-                        shape = RoundedCornerShape(35.dp)
-                    ) {
-                        Text(
-                            text = "取消",
-                            fontSize = 16.sp,
-                            fontFamily = bodyFontFamily,
-                            style = TextStyle(color = primaryLight)
-
-                        )
-                    }
-
+                Button(
+                    onClick = { navController.navigate("holidays") },
+                    colors = ButtonDefaults.buttonColors(onPrimaryLight),
+                    modifier = Modifier
+                        .weight(1f)
+                        .height(60.dp)
+                        .padding(horizontal = 30.dp)
+                        .padding(bottom = 16.dp),
+                    shape = RoundedCornerShape(35.dp)
+                ) {
+                    Text(
+                        text = "取消",
+                        fontSize = 16.sp,
+                        fontFamily = bodyFontFamily,
+                        style = TextStyle(color = primaryLight)
+                    )
                 }
             }
         }
     }
+}

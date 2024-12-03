@@ -1,8 +1,10 @@
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -38,21 +40,20 @@ import com.example.foodtime_compose0518.ui.theme.displayFontFamily
 fun FoodExpirationScreen(navController: NavController) {
     val items = remember {
         mutableStateListOf(
-            ListItem(R.drawable.apple, "蘋果", 3),
-            ListItem(R.drawable.broccoli_1, "花椰菜", 5),
+            ListItem(R.drawable.ingredients_apple, "蘋果", 3),
+            ListItem(R.drawable.ingredients_broccoli, "花椰菜", 5),
             ListItem(R.drawable.meat, "肉", 7),
-            ListItem(R.drawable.salmon,"鮭魚", 10),
-            ListItem(R.drawable.carrot,"紅蘿蔔", 10),
-            ListItem(R.drawable.garbage,"豆腐", 5),
-            ListItem(R.drawable.cabbage,"高麗菜", 5),
-            ListItem(R.drawable.radish,"蘿蔔", 7),
-            ListItem(R.drawable.eggplant,"茄子", 7),
-            ListItem(R.drawable.tomato,"番茄", 8),
-            ListItem(R.drawable.fish,"魚", 5),
-            ListItem(R.drawable.sprout,"豆芽菜", 5),
-            ListItem(R.drawable.shellfish,"蛤利", 5),
-            ListItem(R.drawable.egg,"蛋", 5),
-            ListItem(R.drawable.sausage,"豬肉", 4),
+            ListItem(R.drawable.ingredients_salmon,"鮭魚", 10),
+            ListItem(R.drawable.ingredients_carrot,"紅蘿蔔", 10),
+            ListItem(R.drawable.ingredients_tofu,"豆腐", 5),
+            ListItem(R.drawable.ingredients_cabbage,"高麗菜", 5),
+            ListItem(R.drawable.ingredients_radish,"蘿蔔", 7),
+            ListItem(R.drawable.ingredients_eggplant,"茄子", 7),
+            ListItem(R.drawable.ingredients_fish,"魚", 5),
+            ListItem(R.drawable.ingredients_sprout,"豆芽菜", 5),
+            ListItem(R.drawable.ingredients_shellfish,"蛤利", 5),
+            ListItem(R.drawable.ingredients_egg,"蛋", 5),
+            ListItem(R.drawable.ingredients_sausage,"豬肉", 4),
 
 
             )
@@ -63,23 +64,29 @@ fun FoodExpirationScreen(navController: NavController) {
             ItemRow(item) { newDays ->
                 val index = items.indexOf(item)
                 if (index != -1) {
-                    items[index] = item.copy(days = newDays)
+                    // 如果 newDays 是 null，則不更新，或者使用一個默認值
+                    newDays?.let {
+                        items[index] = item.copy(days = it) // 只有在 newDays 不為 null 時更新
+                    }
                 }
             }
+//        Divider()
         }
     }
+
 }
 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ItemRow(item: ListItem, onDaysChange: (Int) -> Unit) {
-    var days by remember { mutableStateOf(item.days) }
+fun ItemRow(item: ListItem, onDaysChange: (Int?) -> Unit) {
+    var daysText by remember { mutableStateOf(item.days.toString()) }
 
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(16.dp),
+            .padding(16.dp)
+            .height(IntrinsicSize.Min),  // 使用 IntrinsicSize.Min 來適應內容
         verticalAlignment = Alignment.CenterVertically
     ) {
         Image(
@@ -99,14 +106,15 @@ fun ItemRow(item: ListItem, onDaysChange: (Int) -> Unit) {
         )
         Spacer(modifier = Modifier.weight(1f))
         TextField(
-            value = days.toString(),
+            value = daysText,
             onValueChange = { newValue ->
-                days = newValue.toIntOrNull() ?: days
-                onDaysChange(days)
+                daysText = newValue
+                val newDays = newValue.toIntOrNull() // 只在有有效數字時進行轉換
+                onDaysChange(newDays)
             },
             textStyle = TextStyle(fontSize = 20.sp, fontFamily = displayFontFamily),
             modifier = Modifier
-                .width(60.dp)
+                .width(80.dp)
                 .background(MaterialTheme.colorScheme.background),
             colors = TextFieldDefaults.textFieldColors(
                 containerColor = Color.Transparent,

@@ -16,8 +16,14 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.KeyboardArrowDown
+import androidx.compose.material.icons.outlined.KeyboardArrowUp
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
@@ -36,6 +42,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -49,6 +56,8 @@ import com.example.foodtime_compose0518.ui.theme.displayFontFamily
 import com.example.foodtime_compose0518.ui.theme.primaryLight
 import java.text.SimpleDateFormat
 import java.util.Locale
+import com.example.foodtime_compose0518.MainActivity
+
 
 class FoodDetailScreen : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -84,21 +93,30 @@ fun GreetingPreview() {
 }
 
 @Composable
-fun DetailFragment(navController: NavController,stockitemId:Int,stockViewModel: StockViewModel) {
+fun DetailFragment(navController: NavController, stockitemId: Int, stockViewModel: StockViewModel) {
     stockViewModel.fetchStockItem(stockitemId)
-    val stocklistById=stockViewModel.stockItem.collectAsState(StockTable())
+    val stocklistById = stockViewModel.stockItem.collectAsState(StockTable())
+
     var expirationDate by remember { mutableStateOf(stocklistById.value.expiryDate) }
     var loginDate by remember { mutableStateOf(stocklistById.value.loginDate) }
     var stockname by remember { mutableStateOf(stocklistById.value.stockitemName) }
+    var number by remember { mutableStateOf(stocklistById.value.number) } // 现在是用户可编辑的
+
+
+
+
+    val currentImageRes = imageMapping[stockname.lowercase()] ?: R.drawable.kang // 默认图片
+
     LaunchedEffect(stocklistById.value) {
         expirationDate = stocklistById.value.expiryDate
         loginDate = stocklistById.value.loginDate
-        stockname=stocklistById.value.stockitemName
+        stockname = stocklistById.value.stockitemName
+        number = stocklistById.value.number
     }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
-//            .background(Color(0xFFECF5FF))
             .padding(horizontal = 16.dp)
     ) {
         Spacer(modifier = Modifier.height(40.dp))
@@ -106,8 +124,8 @@ fun DetailFragment(navController: NavController,stockitemId:Int,stockViewModel: 
         // 食材名稱输入框
         Row(verticalAlignment = Alignment.CenterVertically) {
             Image(
-                painter = painterResource(id = R.drawable.apple),
-                contentDescription = null, // 提供描述以支持辅助功能
+                painter = painterResource(id = currentImageRes),
+                contentDescription = null,
                 modifier = Modifier
                     .size(70.dp)
                     .clip(RoundedCornerShape(8.dp))
@@ -121,31 +139,49 @@ fun DetailFragment(navController: NavController,stockitemId:Int,stockViewModel: 
                     .padding(16.dp)
                     .clip(RoundedCornerShape(8.dp))
                     .padding(end = 10.dp),
-                textStyle = androidx.compose.material3.MaterialTheme.typography.headlineLarge.copy(
-                    fontSize = 32.sp, // 指定文本大小
-                    fontWeight = FontWeight.Bold // 选配，增加字体粗细
+                textStyle = MaterialTheme.typography.headlineLarge.copy(
+                    fontSize = 32.sp,
+                    fontWeight = FontWeight.Bold
                 )
             )
         }
 
         Spacer(modifier = Modifier.height(40.dp))
 
+        // 顯示數量
         Row(verticalAlignment = Alignment.CenterVertically) {
             Text(
-                text = "數量：",
-                fontSize = 28.sp,
-                modifier = Modifier.padding(start = 100.dp)
+                text = "數量",
+                fontSize = 20.sp,
+                modifier = Modifier.padding(end = 10.dp),
+                fontFamily = displayFontFamily
+            )
+            Spacer(modifier = Modifier.width(50.dp))
+            IconButton(onClick = { number += 1 }) {
+                Icon(
+                    Icons.Outlined.KeyboardArrowUp,
+                    contentDescription = "Increase number"
+                )
+            }
+
+            OutlinedTextField(
+                value = number.toString(),
+                onValueChange = {
+                    number = it.toIntOrNull() ?: 1
+                },
+                modifier = Modifier
+                    .width(120.dp)
+                    .padding(horizontal = 8.dp),
+                keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number)
             )
 
-            Spacer(modifier = Modifier.width(10.dp))
-            Text(
-                text = "一份",
-                fontSize = 28.sp,
-                modifier = Modifier.padding(end = 10.dp)
-            )
+            IconButton(onClick = { if (number > 0) number-- }) {
+                Icon(
+                    Icons.Outlined.KeyboardArrowDown,
+                    contentDescription = "Decrease number"
+                )
+            }
         }
-
-
 
         Spacer(modifier = Modifier.height(50.dp))
 
@@ -157,9 +193,9 @@ fun DetailFragment(navController: NavController,stockitemId:Int,stockViewModel: 
                 modifier = Modifier.padding(end = 10.dp),
                 fontFamily = displayFontFamily
             )
-            MyDatePickerComponent(initialDate = loginDate){selectedDate ->
-                loginDate = convertDateToLong( selectedDate)}
-
+            MyDatePickerComponent(initialDate = loginDate) { selectedDate ->
+                loginDate = convertDateToLong(selectedDate)
+            }
         }
 
         Spacer(modifier = Modifier.height(30.dp))
@@ -177,7 +213,6 @@ fun DetailFragment(navController: NavController,stockitemId:Int,stockViewModel: 
                     expirationDate = convertDateToLong(selectedDate)
                 }
             }
-
         }
 
         Spacer(modifier = Modifier.height(50.dp))
@@ -192,26 +227,25 @@ fun DetailFragment(navController: NavController,stockitemId:Int,stockViewModel: 
                 horizontalArrangement = Arrangement.Center,
             ) {
                 Button(
-                    onClick = {val dataEntity = StockTable(
-                        stockitemId = stockitemId,
-                        stockitemName = stockname,
-                        number = 10,
-                        loginDate = loginDate,
-                        expiryDate = expirationDate,
-                        uuid = ""
-
-                    )
+                    onClick = {
+                        val dataEntity = StockTable(
+                            stockitemId = stockitemId,
+                            stockitemName = stockname,
+                            number = number,  // 使用用户输入的数量
+                            loginDate = loginDate,
+                            expiryDate = expirationDate,
+                            uuid = ""
+                        )
                         stockViewModel.updateStockItem(dataEntity)
-                        navController.popBackStack() },
-                    colors = ButtonDefaults.buttonColors(
-                        primaryLight // 使用您定义的颜色
-                    ),
+                        navController.popBackStack()
+                    },
+                    colors = ButtonDefaults.buttonColors(primaryLight),
                     modifier = Modifier
                         .weight(1f)
                         .height(60.dp)
                         .padding(horizontal = 30.dp)
                         .padding(bottom = 16.dp),
-                    shape = RoundedCornerShape(35.dp) // 设置按钮的弧度
+                    shape = RoundedCornerShape(35.dp)
                 ) {
                     Text(
                         text = "更新食材資訊",
@@ -228,15 +262,13 @@ fun DetailFragment(navController: NavController,stockitemId:Int,stockViewModel: 
             ) {
                 Button(
                     onClick = { navController.popBackStack() },
-                    colors = ButtonDefaults.buttonColors(
-                        onPrimaryLight // 使用您定义的颜色
-                    ),
+                    colors = ButtonDefaults.buttonColors(onPrimaryLight),
                     modifier = Modifier
                         .weight(1f)
                         .height(60.dp)
                         .padding(horizontal = 30.dp)
                         .padding(bottom = 16.dp),
-                    shape = RoundedCornerShape(35.dp) // 设置按钮的弧度
+                    shape = RoundedCornerShape(35.dp)
                 ) {
                     Text(
                         text = "取消",

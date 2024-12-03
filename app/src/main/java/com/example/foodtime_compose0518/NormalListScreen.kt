@@ -116,15 +116,12 @@ fun NoteContent(note:NormalTable, cover1: Int,onClick: (NormalTable) -> Unit,nor
             verticalAlignment = Alignment.CenterVertically
         ) {
             IconButton(onClick = {
-                if (note.number > 0) {
-                    note.number--
-                    normalViewModel.updateNormalItem(note)
-                    quantity.value = note.number.toString()
-                }
+                note.number++
+                quantity.value = note.number.toString()
+                normalViewModel.updateNormalItem(note)
             }) {
-                Icon(Icons.Default.KeyboardArrowDown, contentDescription = "减少数量")
+                Icon(Icons.Default.KeyboardArrowUp, contentDescription = "增加数量")
             }
-
             TextField(
                 value = quantity.value,
                 onValueChange = { newValue ->
@@ -155,14 +152,16 @@ fun NoteContent(note:NormalTable, cover1: Int,onClick: (NormalTable) -> Unit,nor
                     disabledTextColor = MaterialTheme.colorScheme.onSurface
                 )
             )
-
             IconButton(onClick = {
-                note.number++
-                quantity.value = note.number.toString()
-                normalViewModel.updateNormalItem(note)
+                if (note.number > 0) {
+                    note.number--
+                    normalViewModel.updateNormalItem(note)
+                    quantity.value = note.number.toString()
+                }
             }) {
-                Icon(Icons.Default.KeyboardArrowUp, contentDescription = "增加数量")
+                Icon(Icons.Default.KeyboardArrowDown, contentDescription = "减少数量")
             }
+
         }
     }
 }
@@ -173,9 +172,10 @@ fun Normallist(navController: NavController, normalViewModel: NormalViewModel) {
 
     LazyColumn {
         items(nolist.value, key = { it.normalitemId }) { note2 ->
+            val cover1 = imageMapping[note2.normalitemName] ?: R.drawable.kang
             NoteItem2(
                 note = note2,
-                cover1 = R.drawable.background,
+                cover1 = cover1,
                 normalViewModel = normalViewModel, // 传递正确的 viewModel 实例
                 onClick = { },
                 onRemove = { normalViewModel.deleteNormalItem(note2) }

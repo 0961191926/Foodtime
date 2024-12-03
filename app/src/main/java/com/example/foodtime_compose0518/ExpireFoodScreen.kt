@@ -16,6 +16,8 @@ import com.example.foodtime_compose0518.NoteItem
 import com.example.foodtime_compose0518.NoteList
 import com.example.foodtime_compose0518.R
 import com.example.foodtime_compose0518.StockViewModel
+import com.example.foodtime_compose0518.imageMapping
+
 
 @Composable
 fun ExpireScreen(navController: NavController,stockViewModel:StockViewModel) {
@@ -49,9 +51,10 @@ fun ExpiredNoteList(navController: NavController,stockViewModel: StockViewModel)
 
         LazyColumn {
             items(datalist.value, key = { it.stockitemId }) { note ->
+                val cover1 = imageMapping[note.stockitemName] ?: R.drawable.kang // 默认图片
                 NoteItem(
                     note = note,
-                    cover1 = R.drawable.background,
+                    cover1 = cover1,
                     cover2 = R.drawable.background,
                     stockViewModel = stockViewModel,
                     onClick = { navController.navigate("FoodDetail/${note.stockitemId}",) },

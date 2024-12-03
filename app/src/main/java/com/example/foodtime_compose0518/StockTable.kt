@@ -24,6 +24,8 @@ data class StockTable(
 
     @ColumnInfo(name = "uuid")
     val uuid: String,
+
+
 )
 {
    // 無參數構造函數

@@ -26,5 +26,9 @@ interface HolidayDetailDao {
     @Query("SELECT * FROM holiday_detail_table WHERE holidayId = :holidayId")
     fun getDetailsByHolidayId(holidayId: Int): Flow<List<HolidayDetailTable>>
 
+    @Query("UPDATE holiday_table SET date = :newDateMillis WHERE holidayId = :holidayId")
+    suspend fun updateHolidayDate(holidayId: Long, newDateMillis: Long)
+
+
 
 }
