@@ -229,7 +229,7 @@ fun IngredientsScreen(navController: NavController, stockViewModel: StockViewMod
                  modifier = Modifier
                      .fillMaxWidth()
                      .padding(16.dp),
-                 placeholder = { Text(text = "搜索食材") },
+                 placeholder = { Text(text = "搜尋食材") },
                  active = false,
                  onActiveChange = { },
                  content = {},

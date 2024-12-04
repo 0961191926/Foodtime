@@ -14,7 +14,7 @@ interface SettingDao {
     @Query("SELECT * FROM setting_table")
     fun getAllUsers(): Flow<List<SettingTable>>
 
-    @Insert
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(setting: SettingTable)
 
     @Update

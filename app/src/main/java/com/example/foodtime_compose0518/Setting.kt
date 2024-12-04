@@ -45,7 +45,6 @@ fun setting(navController: NavController) {
                     text = "到期日提醒設定",
                     fontSize = 20.sp,
                     fontFamily = displayFontFamily,
-                    fontWeight = FontWeight.Bold
                 )
             },
             trailingContent = {
@@ -73,7 +72,6 @@ fun setting(navController: NavController) {
                     text = "食材到期設定",
                     fontSize = 20.sp,
                     fontFamily = displayFontFamily,
-                    fontWeight = FontWeight.Bold
                 )
             },
             trailingContent = {

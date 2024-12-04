@@ -1,7 +1,7 @@
 package com.example.foodtime_compose0518
 
 import ExpireScreen
-import FoodExpirationScreen
+import Foodexpiration_SettingScreen
 import HolidayScreen
 import Signal_Notification
 import android.annotation.SuppressLint
@@ -810,7 +810,8 @@ fun MyApp(
                     composable("NormalListAddFragment") { NormalAddFragment(navController,normalViewModel) }
                     composable("setting") { setting(navController) }
                     composable("Signal_Notification"){Signal_Notification(navController)}
-                    composable("Foodexpiration_setting"){FoodExpirationScreen(navController)}
+                    composable("Foodexpiration_setting"){Foodexpiration_SettingScreen(navController,settingViewModel)}
+                    composable("Addfoodexpiration"){Addfoodexpiration(navController,settingViewModel)}
 
                 }
             }

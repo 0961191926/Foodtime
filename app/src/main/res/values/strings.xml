@@ -18,5 +18,6 @@
     <string name="title_activity_foodexpiration_setting">foodexpiration_setting</string>
     <string name="R.drawable.ingredients_cheesecake">起司</string>
     <string name="title_activity_chinese_translate_english">Chinese_translate_English</string>
+    <string name="title_activity_foodexpiration_addfood">Foodexpiration_addfood</string>
 
 </resources>
