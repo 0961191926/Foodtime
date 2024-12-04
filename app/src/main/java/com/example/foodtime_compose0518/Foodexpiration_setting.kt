@@ -208,12 +208,4 @@ fun Foodexpiration_SettingScreen(navController: NavController, settingViewModel:
         }
     }
 
-    com.example.foodtime_compose0518.Padding16dp {
-        ExtendedFloatingActionButton(
-            onClick = { navController.navigate("Addfoodexpiration") },
-            icon = { Icon(Icons.Filled.Add, "新增設定") },
-            text = { Text(text = "新增設定") }
-        )
-    }
 }
-

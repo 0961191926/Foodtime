@@ -24,10 +24,12 @@ import com.example.foodtime_compose0518.ui.theme.Foodtime0518_Theme
 import com.example.foodtime_compose0518.ui.theme.displayFontFamily
 
 
+
 @Composable
 fun setting(navController: NavController) {
     Column (modifier = Modifier
         .background(MaterialTheme.colorScheme.background),
+
 
     ) {
         ListItem(

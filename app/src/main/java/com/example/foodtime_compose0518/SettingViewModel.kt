@@ -20,7 +20,13 @@ class SettingViewModel(val dao: SettingDao) : ViewModel() {
 
     fun addSetting() {
         viewModelScope.launch {
-            dao.insert(SettingTable(settingName = newSettingName, settingDay = newSettingDay, settingNotify = newSettingBoolean))
+            dao.insert(
+                SettingTable(
+                    settingName = newSettingName,
+                    settingDay = newSettingDay,
+                    settingNotify = newSettingBoolean
+                )
+            )
         }
     }
 
@@ -31,4 +37,5 @@ class SettingViewModel(val dao: SettingDao) : ViewModel() {
     fun deleteSettingItem(setting: SettingTable) {
         viewModelScope.launch { dao.delete(setting) }
     }
+
 }

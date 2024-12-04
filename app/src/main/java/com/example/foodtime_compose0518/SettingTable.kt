@@ -20,4 +20,3 @@ data class SettingTable(
     @ColumnInfo(name = "notify")
     val settingNotify: Boolean
 )
-

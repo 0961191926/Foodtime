@@ -326,6 +326,7 @@ val imageMapping = mapOf(
     "菠菜" to R.drawable.ingredients_spinach,
     "芽菜" to R.drawable.ingredients_sprout,
     "豆芽菜" to R.drawable.ingredients_sprout,
+    "豆芽" to R.drawable.ingredients_sprout,
     "魷魚" to R.drawable.ingredients_squid,
     "楊桃" to R.drawable.ingredients_starfruit,
     "草莓蛋糕" to R.drawable.ingredients_strawberry_cake,
@@ -615,6 +616,7 @@ val imageMapping = mapOf(
     "豬血" to R.drawable.ingredients_pig,
     //魚
     "魚鬆" to R.drawable.ingredients_fish,
+    "魚" to R.drawable.ingredients_fish,
     //加工食品
     "百頁豆腐" to R.drawable.ingredients_process_food,
     "雞蛋豆腐" to R.drawable.ingredients_process_food,
@@ -812,7 +814,6 @@ fun MyApp(
                     composable("Signal_Notification"){Signal_Notification(navController)}
                     composable("Foodexpiration_setting"){Foodexpiration_SettingScreen(navController,settingViewModel)}
                     composable("Addfoodexpiration"){Addfoodexpiration(navController,settingViewModel)}
-
                 }
             }
 
