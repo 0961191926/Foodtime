@@ -106,51 +106,84 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        // 創建通知頻道
         createNotificationChannel(this)
-        val alarmManager = getSystemService(Context.ALARM_SERVICE) as AlarmManager
-        val intent = Intent(this, NotificationReceiver::class.java)
-        val pendingIntent = PendingIntent.getBroadcast(this, 0, intent, PendingIntent.FLAG_IMMUTABLE)
 
-// 设置重复间隔，例如 15 分钟
-        val repeatInterval =  60 * 1000L
+        // 處理來自通知的啟動
+        handleNotificationIntent(intent)
 
-// 设置初始触发时间
-        val triggerTime = System.currentTimeMillis() + repeatInterval
-
-// 设置闹钟
-        alarmManager.setRepeating(
-            AlarmManager.RTC_WAKEUP,
-            triggerTime,
-            repeatInterval,
-            pendingIntent
-        )
+        // 設置定時通知
+        setupRepeatingNotification()
 
         val database = FirebaseDatabase.getInstance()
-
-
         database.setPersistenceEnabled(true)
+
         setContent {
             Foodtime0518_Theme {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    MyApp(holidayViewModel,normalViewModel,stockViewModel,settingViewModel,itemViewModel)
+                    MyApp(
+                        holidayViewModel,
+                        normalViewModel,
+                        stockViewModel,
+                        settingViewModel,
+                        itemViewModel
+                    )
                 }
             }
-
         }
     }
-}
-private fun createNotificationChannel(context: Context) {
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-        val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-        val channel = NotificationChannel(
-            CHANNEL_ID,
-            "Default Channelhappy",
-            NotificationManager.IMPORTANCE_DEFAULT
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        handleNotificationIntent(intent)
+    }
+
+    private fun handleNotificationIntent(intent: Intent) {
+            val notificationType = intent.getStringExtra("notification_type")
+            notificationType?.let { type ->
+                when (type) {
+                    "food_expired" -> println("處理通知: 食物過期")
+                    "food_expiring" -> println("處理通知: 即將過期")
+                    else -> println("處理通知: 其他通知")
+                }
+            }
+    }
+
+    private fun setupRepeatingNotification() {
+        val alarmManager = getSystemService(Context.ALARM_SERVICE) as AlarmManager
+        val intent = Intent(this, NotificationReceiver::class.java)
+        val pendingIntent = PendingIntent.getBroadcast(
+            this,
+            0,
+            intent,
+            PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
         )
-        notificationManager.createNotificationChannel(channel)
+
+        val repeatInterval = 60 * 1000L
+        val triggerTime = System.currentTimeMillis() + repeatInterval
+
+        alarmManager.setRepeating(
+            AlarmManager.RTC_WAKEUP,
+            triggerTime,
+            repeatInterval,
+            pendingIntent
+        )
+    }
+
+    private fun createNotificationChannel(context: Context) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val notificationManager =
+                context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+            val channel = NotificationChannel(
+                CHANNEL_ID,
+                "Default Channel",
+                NotificationManager.IMPORTANCE_DEFAULT
+            )
+            notificationManager.createNotificationChannel(channel)
+        }
     }
 }
 

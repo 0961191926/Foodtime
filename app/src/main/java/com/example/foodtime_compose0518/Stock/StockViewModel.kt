@@ -1,8 +1,6 @@
 package com.example.foodtime_compose0518
 
 import android.util.Log
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.room.Room
@@ -244,7 +242,8 @@ class StockViewModel(val dao: StockDao, val settingDao: SettingDao) : ViewModel(
         var expiryDate = note.expiryDate //到期日期
         var currentDate = System.currentTimeMillis() // 現在日期
         val daysDifference = (expiryDate - loginDate) / (1000 * 60 * 60 * 24)
-        var n = when {
+        var n =
+           when {
             daysDifference <= 30 -> 2.75 // 30天以內
             daysDifference in 30..180  -> 2.5 // 30到180天之間
             else -> 2.3 // 超過180天
@@ -259,7 +258,7 @@ class StockViewModel(val dao: StockDao, val settingDao: SettingDao) : ViewModel(
         return when {
             freshness in 0.5..1.0 -> R.drawable.greenlight // Fresh
             freshness in 0.2..0.5 -> R.drawable.yellowlight
-            freshness in 0.1..0.2 -> R.drawable.redlight
+            freshness in 0.000001..0.2 -> R.drawable.redlight
             else -> R.drawable.skull // Not fresh
         }
     }

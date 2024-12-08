@@ -5,7 +5,6 @@ import android.content.Context
 import android.content.Intent
 import androidx.core.app.NotificationCompat
 import com.example.foodtime_compose0518.FoodDatabase
-
 import com.example.foodtime_compose0518.R
 import com.example.foodtime_compose0518.StockTable
 import com.example.foodtime_compose0518.convertLongToDateString
@@ -16,6 +15,9 @@ import kotlinx.coroutines.withContext
 import kotlin.math.exp
 import kotlin.math.ln
 import kotlin.math.pow
+import com.example.foodtime_compose0518.MainActivity
+import android.app.PendingIntent
+
 data class StockItemWithFreshness(
     val stockItem: StockTable,
     val freshness: Double,
@@ -31,10 +33,9 @@ class NotificationReceiver : BroadcastReceiver() {
             val enabledYellowLight=database.settingDao.getSettingByName("YellowLightEnabled")
             val enabledRedLight=database.settingDao.getSettingByName("RedLightEnabled")
             val enableNotifiction=database.settingDao.getSettingByName("NotificationEnabled")
+
             if (enableNotifiction != null) {
                 if (enableNotifiction.settingNotify) {
-
-
                     val stockItemsWithFreshness = data.map { stockItem ->
                         val freshnessValue = freshness(stockItem)
                         val lightSignalValue = lightSignal(freshnessValue)
@@ -60,14 +61,29 @@ class NotificationReceiver : BroadcastReceiver() {
                     // 切换到主线程以显示通知
 
                     withContext(Dispatchers.Main) {
+                        val intent = Intent(context, MainActivity::class.java).apply {
+                            flags = Intent.FLAG_ACTIVITY_SINGLE_TOP or Intent.FLAG_ACTIVITY_CLEAR_TOP
+                            putExtra("notification_type", "food_expired")
+                        }
+                        val requestCode = System.currentTimeMillis().toInt()
+                        val pendingIntent = PendingIntent.getActivity(
+                            context,
+                            requestCode,
+                            intent,
+                            PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
+                        )
+
                         val notificationManager =
                             context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
                         val notification = NotificationCompat.Builder(context, "default_channel_id")
-                            .setContentTitle("這是即將到期時食物通知")
+                            .setContentTitle("這是即將到期的食物通知")
                             .setContentText("")
-                            .setSmallIcon(R.drawable.apple)
+                            .setSmallIcon(R.drawable.ingredients_apple)
                             .setStyle(NotificationCompat.BigTextStyle().bigText(messageContent))
+                            .setContentIntent(pendingIntent) // 設置點擊通知時的行為
+                            .setAutoCancel(true) // 點擊後自動移除通知
                             .build()
+
                         notificationManager.notify(1, notification)
                     }
                 }
@@ -86,15 +102,13 @@ class NotificationReceiver : BroadcastReceiver() {
         }
         var passedtime = (currentDate-loginDate).toDouble()
         var totaltime = (expiryDate-loginDate).toDouble()
-
-        var result = exp(ln(0.01) * (passedtime/totaltime).pow(n))
-        return result
+        return exp(ln(0.01) * (passedtime/totaltime).pow(n))
     }
     fun lightSignal(freshness: Double): Int {
         return when {
             freshness in 0.5..1.0 -> R.drawable.greenlight // Fresh
             freshness in 0.2..0.5 -> R.drawable.yellowlight
-            freshness in 0.1..0.2 -> R.drawable.redlight
+            freshness in 0.000001..0.2 -> R.drawable.redlight
             else -> R.drawable.skull // Not fresh
         }
     }
