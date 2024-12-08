@@ -43,6 +43,7 @@ import com.example.foodtime_compose0518.TemplateScreen
 import com.example.foodtime_compose0518.convertLongToDateString
 
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.layout.*
@@ -53,9 +54,12 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogProperties
+import com.example.foodtime_compose0518.defaultImage
+import com.example.foodtime_compose0518.holidayImageMapping
 import com.example.foodtime_compose0518.ui.theme.Foodtime0518_Theme
 import kotlinx.coroutines.delay
 import java.text.SimpleDateFormat
@@ -82,15 +86,15 @@ fun HolidayScreen(navController: NavController, viewModel: HolidayViewModel) {
 
             SwipeToDismiss(
                 state = dismissState,
-                directions = setOf(DismissDirection.EndToStart), // 只允许从右向左滑动
+                directions = setOf(DismissDirection.EndToStart),
                 background = {
                     if (dismissState.dismissDirection == DismissDirection.EndToStart) {
                         Box(
                             Modifier
                                 .fillMaxSize()
-                                .background(Color(0xFFFF1744)) // 右侧红色背景
+                                .background(Color(0xFFFF1744))
                                 .padding(horizontal = 20.dp),
-                            contentAlignment = Alignment.CenterEnd // 右侧对齐
+                            contentAlignment = Alignment.CenterEnd
                         ) {
                             Icon(
                                 imageVector = Icons.Default.Delete,
@@ -108,14 +112,17 @@ fun HolidayScreen(navController: NavController, viewModel: HolidayViewModel) {
                             .background(androidx.compose.material3.MaterialTheme.colorScheme.background),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
+                        val holidayImage = holidayImageMapping[holiday.holidayName] ?: defaultImage
                         ListItem(
                             headlineContent = { Text(text = holiday.holidayName) },
                             supportingContent = { Text(convertLongToDateString(holiday.Date)) },
                             leadingContent = {
-                                Icon(
-                                    Icons.Filled.Favorite,
-                                    contentDescription = "Localized description",
-                                    modifier = Modifier.padding(start = 8.dp) // 添加右侧边距
+                                Image(
+                                    painter = painterResource(id = holidayImage),
+                                    contentDescription = holiday.holidayName,
+                                    modifier = Modifier
+                                        .size(40.dp)
+                                        .padding(start = 8.dp)
                                 )
                             },
                             modifier = Modifier
@@ -124,11 +131,11 @@ fun HolidayScreen(navController: NavController, viewModel: HolidayViewModel) {
                                     navController.navigate("HolidayDetail/${holiday.holidayId}")
                                 }
                         )
-                        // 在列表右侧添加日期选择 Icon
                         MyDatePickerIcon(
                             initialDate = holiday.Date,
                             onDateSelected = { newDate ->
-                                val newDateMillis = SimpleDateFormat("yyyy/MM/dd", Locale.US).parse(newDate)?.time
+                                val newDateMillis =
+                                    SimpleDateFormat("yyyy/MM/dd", Locale.US).parse(newDate)?.time
                                 if (newDateMillis != null) {
                                     viewModel.updateHolidayDate(holiday.holidayId, newDateMillis)
                                 }
@@ -141,6 +148,7 @@ fun HolidayScreen(navController: NavController, viewModel: HolidayViewModel) {
             )
         }
     }
+
 
     Padding16dp {
         ExtendedFloatingActionButton(

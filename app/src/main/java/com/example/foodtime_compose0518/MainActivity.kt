@@ -93,6 +93,7 @@ class MainActivity : ComponentActivity() {
     }
     private val settingViewModel: SettingViewModel by viewModels {
         SettingViewModelFactory(FoodDatabase.getInstance(application).settingDao)
+
     }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -677,6 +678,22 @@ val imageMapping = mapOf(
     "青豆" to R.drawable.ingredients_vegetable
 )
 
+val holidayImageMapping = mapOf(
+    "新年" to R.drawable.holiday_new_year,
+    "情人節" to R.drawable.holiday_valentines_day,
+    "母親節" to R.drawable.holiday_love,
+    "父親節" to R.drawable.holiday_man,
+    "元宵節" to R.drawable.holiday_chinese_lantern,
+    "端午節" to R.drawable.holiday_paddler,
+    "中秋節" to R.drawable.holiday_mid_autumn,
+    "聖誕節" to R.drawable.holiday_santa_claus,
+    "萬聖節" to R.drawable.holiday_candy_bag,
+    "感恩節" to R.drawable.holiday_thanksgiving
+)
+val defaultImage = R.drawable.holiday_party
+
+
+
 
 
 data class DrawerMenuItem(
@@ -813,7 +830,6 @@ fun MyApp(
                     composable("setting") { setting(navController) }
                     composable("Signal_Notification"){Signal_Notification(navController)}
                     composable("Foodexpiration_setting"){Foodexpiration_SettingScreen(navController,settingViewModel)}
-                    composable("Addfoodexpiration"){Addfoodexpiration(navController,settingViewModel)}
                 }
             }
 
@@ -835,11 +851,11 @@ fun Home_pageScreen(navController: NavController) {
             verticalArrangement = Arrangement.Center
         ) {
             Image(
-                painter = painterResource(id = R.drawable.new_cover_8),
+                painter = painterResource(id = R.drawable.cover_kang),
                 contentDescription = "Example Image",
                 modifier = Modifier
-                    .fillMaxWidth(0.8f) // 占据宽度的80%，您可以根据需求调整比例
-                    .height(450.dp) // 具体高度，按需求调整
+                    .fillMaxWidth(0.99f) //
+                    .height(750.dp) // 具体高度，按需求调整
                     .padding(8.dp)
                     .clickable {
                         navController.navigate("ingredients") // 点击跳转到 ingredients 页面

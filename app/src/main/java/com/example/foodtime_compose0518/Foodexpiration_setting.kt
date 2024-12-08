@@ -62,37 +62,16 @@ import com.example.foodtime_compose0518.ui.theme.Foodtime0518_Theme
 import com.example.foodtime_compose0518.ui.theme.bodyFontFamily
 import com.example.foodtime_compose0518.ui.theme.displayFontFamily
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun NoteItem3(
     note: SettingTable,
     cover1: Int,
     settingViewModel: SettingViewModel,
-    onClick: (SettingTable) -> Unit,
-    onRemove: () -> Unit
+    onClick: (SettingTable) -> Unit
 ) {
-    val context = LocalContext.current
-    val dismissState = rememberSwipeToDismissBoxState(
-        confirmValueChange = {
-            if (it == SwipeToDismissBoxValue.EndToStart) {
-                onRemove()
-                Toast.makeText(context, "項目已刪除", Toast.LENGTH_SHORT).show()
-                true
-            } else {
-                false
-            }
-        }
-    )
-
-    SwipeToDismissBox(
-        state = dismissState,
-        content = {
-            NoteContent(note, cover1, onClick, settingViewModel)
-        },
-        backgroundContent = { DismissBackground(dismissState) },
-    )
+    // 直接显示内容，不涉及滑动删除
+    NoteContent(note, cover1, onClick, settingViewModel)
 }
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun NoteContent(
@@ -185,11 +164,8 @@ fun NoteContent(
                 Icon(Icons.Default.KeyboardArrowDown, contentDescription = "减少天数")
             }
         }
-
     }
 }
-
-
 @Composable
 fun Foodexpiration_SettingScreen(navController: NavController, settingViewModel: SettingViewModel) {
     val settingList = settingViewModel.settingList.collectAsState()
@@ -202,10 +178,8 @@ fun Foodexpiration_SettingScreen(navController: NavController, settingViewModel:
                 cover1 = cover1,
                 settingViewModel = settingViewModel,
                 onClick = { },
-                onRemove = { settingViewModel.deleteSettingItem(settingItem) }
             )
             Divider()
         }
     }
-
 }

@@ -214,9 +214,9 @@ class StockViewModel(val dao: StockDao) : ViewModel() {
     }
     fun lightSignal(freshness: Double): Int {
         return when {
-            freshness in 0.5..1.0 -> R.drawable.greenlight // Fresh
-            freshness in 0.2..0.5 -> R.drawable.yellowlight
-            freshness in 0.00001..0.2 -> R.drawable.redlight
+            freshness in 0.93..1.0 -> R.drawable.greenlight // Fresh
+            freshness in 0.55..0.93 -> R.drawable.yellowlight
+            freshness in 0.00001..0.55 -> R.drawable.redlight
             else -> R.drawable.skull // Not fresh
         }
     }
