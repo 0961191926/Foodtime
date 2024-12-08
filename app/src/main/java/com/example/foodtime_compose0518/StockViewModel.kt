@@ -201,11 +201,7 @@ class StockViewModel(val dao: StockDao) : ViewModel() {
         var expiryDate = note.expiryDate //到期日期
         var currentDate = System.currentTimeMillis() // 現在日期
         val daysDifference = (expiryDate - loginDate) / (1000 * 60 * 60 * 24)
-        var n = when {
-            daysDifference <= 30 -> 2.75 // 30天以內
-            daysDifference in 30..180  -> 2.5 // 30到180天之間
-            else -> 2.3 // 超過180天
-        }
+        var n = 2.5
         var passedtime = (currentDate-loginDate).toDouble()
         var totaltime = (expiryDate-loginDate).toDouble()
 
