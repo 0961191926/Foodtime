@@ -131,6 +131,7 @@ private fun createNotificationChannel(context: Context) {
 }
 
 val imageMapping = mapOf(
+    "棒腿" to R.drawable.ingredients_chicken,
     "絲瓜" to R.drawable.ingredients_loofah,
     "青花椒" to R.drawable.ingredinets_sichuan_peppercorn,
     "荔枝" to R.drawable.ingredients_lychee,
