@@ -42,8 +42,7 @@ class StockViewModel(val dao: StockDao, val settingDao: SettingDao) : ViewModel(
 
     private val _UnexpiredList = MutableStateFlow<List<StockTable>>(emptyList())
     val UnexpiredList: StateFlow<List<StockTable>> get() = _UnexpiredList
-    private val _adjustmentDays = MutableLiveData<Int>()
-    val adjustmentDays: LiveData<Int> get() = _adjustmentDays
+
 
     // 根據設定名稱查詢設定天數
     suspend fun loadAdjustmentDays(settingName: String): Int {
