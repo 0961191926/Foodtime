@@ -36,6 +36,7 @@ class StockViewModel(val dao: StockDao) : ViewModel() {
     private val freshrange=0.5
     private val unfreshrange=0.2
     private val database = Firebase.database.reference.child("a")
+    private val nodeRef2=Firebase.database.reference.child("b")
     private val _stockItem = MutableStateFlow<StockTable>(StockTable())
     val stockItem: Flow<StockTable> get() = _stockItem
 
@@ -55,6 +56,50 @@ class StockViewModel(val dao: StockDao) : ViewModel() {
     val dataFlow: StateFlow<List<StockTable>> get() = _dataFlow
 
     init {
+        nodeRef2.addValueEventListener(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                viewModelScope.launch {
+                    withContext(Dispatchers.IO) {
+                        val dataList = mutableListOf<StockTable>()
+                        for (dataSnapshot in snapshot.children) {
+                            try {
+                                val dataModel = dataSnapshot.getValue(StockTable::class.java)
+                                dataModel?.let {
+                                    val existingItem = dao.getItemByUUID(it.uuid)
+                                    if (existingItem == null) {
+                                        // 將 expiryDate + 3 天
+
+                                        val adjustedExpiryDate = it.loginDate+3 * 24 * 60 * 60 * 1000L
+                                        val dataEntity = StockTable(
+                                            it.stockitemId ?: 0,
+                                            it.stockitemName ?: "",
+                                            it.number,
+                                            it.loginDate,
+                                            adjustedExpiryDate,  // 使用調整後的日期
+                                            it.uuid
+                                        )
+                                        dataList.add(dataEntity)
+                                        dataSnapshot.ref.child("isWritten").setValue(true)
+                                    }
+                                }
+                            } catch (e: DatabaseException) {
+                                // 處理轉換失敗的情況
+                                Log.e("DataConversionhaha", "Error converting data: ${e.message}")
+                            }
+                        }
+                        if (dataList.isNotEmpty()) {
+                            dao.insert(dataList)
+                            Log.d("StockViewModel", "Inserted data list: $dataList")
+                            _dataFlow.value = dataList
+                        }
+                    }
+                }
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                Log.e("DatabaseError", "Error: ${error.message}")
+            }
+        })
 
 
         database.addValueEventListener(object : ValueEventListener {
@@ -202,7 +247,8 @@ class StockViewModel(val dao: StockDao) : ViewModel() {
         var expiryDate = note.expiryDate //到期日期
         var currentDate = System.currentTimeMillis() // 現在日期
         val daysDifference = (expiryDate - loginDate) / (1000 * 60 * 60 * 24)
-        var n = when {
+        var n =
+           when {
             daysDifference <= 30 -> 2.75 // 30天以內
             daysDifference in 30..180  -> 2.5 // 30到180天之間
             else -> 2.3 // 超過180天
@@ -217,7 +263,7 @@ class StockViewModel(val dao: StockDao) : ViewModel() {
         return when {
             freshness in 0.5..1.0 -> R.drawable.greenlight // Fresh
             freshness in 0.2..0.5 -> R.drawable.yellowlight
-            freshness in 0.1..0.2 -> R.drawable.redlight
+            freshness in 0.000001..0.2 -> R.drawable.redlight
             else -> R.drawable.skull // Not fresh
         }
     }

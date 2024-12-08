@@ -10,7 +10,6 @@
         </shape>
     </item>
 
-    <!-- Content -->
-    <item android:drawable="@drawable/broccoli_1" />
+
 
 </layer-list>

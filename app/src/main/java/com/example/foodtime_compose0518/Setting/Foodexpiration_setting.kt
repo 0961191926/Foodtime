@@ -44,21 +44,21 @@ fun FoodExpirationScreen(
 ) {
     val items = remember {
         mutableStateListOf(
-            ListItem(R.drawable.apple, "蘋果", 3),
-            ListItem(R.drawable.broccoli_1, "花椰菜", 5),
+            ListItem(R.drawable.ingredients_apple, "蘋果", 3),
+            ListItem(R.drawable.ingredients_broccoli, "花椰菜", 5),
             ListItem(R.drawable.meat, "肉", 7),
-            ListItem(R.drawable.salmon,"鮭魚", 10),
-            ListItem(R.drawable.carrot,"紅蘿蔔", 10),
-            ListItem(R.drawable.garbage,"豆腐", 5),
-            ListItem(R.drawable.cabbage,"高麗菜", 5),
-            ListItem(R.drawable.radish,"蘿蔔", 7),
-            ListItem(R.drawable.eggplant,"茄子", 7),
-            ListItem(R.drawable.tomato,"番茄", 8),
-            ListItem(R.drawable.fish,"魚", 5),
-            ListItem(R.drawable.sprout,"豆芽菜", 5),
-            ListItem(R.drawable.shellfish,"蛤利", 5),
-            ListItem(R.drawable.egg,"蛋", 5),
-            ListItem(R.drawable.sausage,"豬肉", 4)
+            ListItem(R.drawable.ingredients_salmon,"鮭魚", 10),
+            ListItem(R.drawable.ingredients_carrot,"紅蘿蔔", 10),
+            ListItem(R.drawable.ingredients_tofu,"豆腐", 5),
+            ListItem(R.drawable.ingredients_cabbage,"高麗菜", 5),
+            ListItem(R.drawable.ingredients_radish,"蘿蔔", 7),
+            ListItem(R.drawable.ingredients_eggplant,"茄子", 7),
+            ListItem(R.drawable.ingredients_tomato,"番茄", 8),
+            ListItem(R.drawable.ingredients_fish,"魚", 5),
+            ListItem(R.drawable.ingredients_sprout,"豆芽菜", 5),
+            ListItem(R.drawable.ingredients_shellfish,"蛤利", 5),
+            ListItem(R.drawable.ingredients_egg,"蛋", 5),
+            ListItem(R.drawable.ingredients_sausage,"豬肉", 4)
         )
     }
 
