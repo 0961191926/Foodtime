@@ -92,7 +92,7 @@ class MainActivity : ComponentActivity() {
         )
     }
     private val stockViewModel: StockViewModel by viewModels {
-        StockViewModelFactory(FoodDatabase.getInstance(application).stockDao)
+        StockViewModelFactory(FoodDatabase.getInstance(application).stockDao,FoodDatabase.getInstance(application).settingDao)
     }
     private val normalViewModel: NormalViewModel by viewModels {
         NormalViewModelFactory(FoodDatabase.getInstance(application).normalDao)

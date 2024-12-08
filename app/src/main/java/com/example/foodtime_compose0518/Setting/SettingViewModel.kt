@@ -1,12 +1,16 @@
 package com.example.foodtime_compose0518
 
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.withContext
 
 class SettingViewModel(val dao: SettingDao) : ViewModel() {
     var newSettingName = ""
@@ -19,6 +23,7 @@ class SettingViewModel(val dao: SettingDao) : ViewModel() {
         started = SharingStarted.WhileSubscribed(5000),
         initialValue = emptyList()
     )
+
 
     fun setSettingName(name: String) {
         newSettingName = name
@@ -110,5 +115,6 @@ class SettingViewModel(val dao: SettingDao) : ViewModel() {
             dao.update(SettingTable(settingName = "YellowLightEnabled", settingNotify = false, settingDay = 5)) // 保留 day 的值
         }
     }
+
 
 }

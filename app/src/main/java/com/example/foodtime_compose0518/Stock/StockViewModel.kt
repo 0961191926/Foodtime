@@ -1,6 +1,8 @@
 package com.example.foodtime_compose0518
 
 import android.util.Log
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.room.Room
@@ -27,7 +29,7 @@ import kotlin.math.ln
 import kotlin.math.pow
 
 
-class StockViewModel(val dao: StockDao) : ViewModel() {
+class StockViewModel(val dao: StockDao, val settingDao: SettingDao) : ViewModel() {
     var newStockName = ""
     var newNumber = 0
     var newLoginDate: Long = 0L
@@ -35,12 +37,21 @@ class StockViewModel(val dao: StockDao) : ViewModel() {
     var newuuid = ""
     private val freshrange=0.5
     private val unfreshrange=0.2
-    private val database = Firebase.database.reference.child("a")
+    private val nodeRef1 = Firebase.database.reference.child("a")
+    private val nodeRef2 = Firebase.database.reference.child("b")
     private val _stockItem = MutableStateFlow<StockTable>(StockTable())
     val stockItem: Flow<StockTable> get() = _stockItem
 
     private val _UnexpiredList = MutableStateFlow<List<StockTable>>(emptyList())
     val UnexpiredList: StateFlow<List<StockTable>> get() = _UnexpiredList
+    private val _adjustmentDays = MutableLiveData<Int>()
+    val adjustmentDays: LiveData<Int> get() = _adjustmentDays
+
+    // 根據設定名稱查詢設定天數
+    suspend fun loadAdjustmentDays(settingName: String): Int {
+        // 获取设置的天数
+        return settingDao.getAdjustmentDaysByName(settingName)
+    }
 
     init {
         viewModelScope.launch {
@@ -55,36 +66,58 @@ class StockViewModel(val dao: StockDao) : ViewModel() {
     val dataFlow: StateFlow<List<StockTable>> get() = _dataFlow
 
     init {
-
-
-        database.addValueEventListener(object : ValueEventListener {
+        val combinedListener = object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 viewModelScope.launch {
                     withContext(Dispatchers.IO) {
                         val dataList = mutableListOf<StockTable>()
                         for (dataSnapshot in snapshot.children) {
-                            try {
-                                val dataModel = dataSnapshot.getValue(StockTable::class.java)
-                                dataModel?.let {
-                                    val existingItem = dao.getItemByUUID(it.uuid)
-                                    if (existingItem == null) {
-                                        val dataEntity = StockTable(
-                                            it.stockitemId ?: 0,
-                                            it.stockitemName ?: "",
-                                            it.number,
-                                            it.loginDate,
-                                            it.expiryDate,
-                                            it.uuid
-                                        )
-                                        dataList.add(dataEntity)
-                                        dataSnapshot.ref.child("isWritten").setValue(true)
+                            // 检查该项是否已经标记为已写入
+                            val isWritten = dataSnapshot.child("isWritten").getValue(Boolean::class.java) ?: false
+
+                            if (!isWritten) {
+                                try {
+                                    val dataModel = dataSnapshot.getValue(StockTable::class.java)
+                                    dataModel?.let {
+                                        val existingItem = dao.getItemByUUID(it.uuid)
+                                        if (existingItem == null) {
+                                            // 获取 stockitemName 来查询调整天数
+                                            val settingName = it.stockitemName ?: ""  // 获取 stockitemName
+                                            loadAdjustmentDays(settingName)  // 根据 stockitemName 查询设置的天数
+                                            val adjustmentDays = loadAdjustmentDays(settingName)
+                                            // 在主线程处理 adjustmentDays
+
+                                                // 确保 adjustmentDays 不为 null
+
+                                                    // 计算调整后的过期日期
+                                                    val adjustedExpiryDate = it.loginDate + (adjustmentDays * 24 * 60 * 60 * 1000L)
+
+                                                    // 创建新的 StockTable 实体
+                                                    val dataEntity = StockTable(
+                                                        it.stockitemId ?: 0,
+                                                        it.stockitemName ?: "",
+                                                        it.number,
+                                                        it.loginDate,
+                                                        adjustedExpiryDate,  // 使用调整后的过期日期
+                                                        it.uuid
+                                                    )
+
+                                                    // 添加到数据列表
+                                                    dataList.add(dataEntity)
+
+                                                    // 标记为已写入，防止未来的重复
+                                                    dataSnapshot.ref.child("isWritten").setValue(true)
+
+
+                                        }
                                     }
+                                } catch (e: DatabaseException) {
+                                    Log.e("DataConversionhaha", "Error converting data: ${e.message}")
                                 }
-                            } catch (e: DatabaseException) {
-                                // 處理轉換失敗的情況
-                                Log.e("DataConversionhaha", "Error converting data: ${e.message}")
                             }
                         }
+
+                        // 如果有数据，则插入到本地数据库并更新数据流
                         if (dataList.isNotEmpty()) {
                             dao.insert(dataList)
                             Log.d("StockViewModel", "Inserted data list: $dataList")
@@ -95,11 +128,20 @@ class StockViewModel(val dao: StockDao) : ViewModel() {
             }
 
             override fun onCancelled(error: DatabaseError) {
-                // Handle database error
                 Log.e("DatabaseError", "Error: ${error.message}")
             }
-        })
+        }
+
+        // 添加监听器到 Firebase 数据库
+        nodeRef2.addValueEventListener(combinedListener)
+        nodeRef1.addValueEventListener(combinedListener)
     }
+
+
+
+
+
+
 
     val expiredList: Flow<List<StockTable>> = dao.getExpiredStockItems().stateIn(
         scope = viewModelScope,
