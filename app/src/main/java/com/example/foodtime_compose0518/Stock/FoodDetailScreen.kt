@@ -199,7 +199,7 @@ fun DetailFragment(navController: NavController,stockitemId:Int,stockViewModel: 
                     onClick = {val dataEntity = StockTable(
                         stockitemId = stockitemId,
                         stockitemName = stockname,
-                        number = 10,
+                        number = quantity,
                         loginDate = loginDate,
                         expiryDate = expirationDate,
                         uuid = ""
