@@ -1,7 +1,10 @@
 package com.example.foodtime_compose0518
 
 import android.util.Log
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.liveData
 import androidx.lifecycle.viewModelScope
 import androidx.room.Room
 import com.google.firebase.database.DataSnapshot
@@ -10,6 +13,7 @@ import com.google.firebase.database.DatabaseException
 import com.google.firebase.database.ValueEventListener
 import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.flow.Flow
@@ -33,12 +37,25 @@ class StockViewModel(val dao: StockDao, val settingDao: SettingDao) : ViewModel(
     var newLoginDate: Long = 0L
     var newExpiryDate: Long = 0L
     var newuuid = ""
-    private val freshrange=0.5
-    private val unfreshrange=0.2
+
     private val nodeRef1 = Firebase.database.reference.child("a")
     private val nodeRef2 = Firebase.database.reference.child("b")
     private val _stockItem = MutableStateFlow<StockTable>(StockTable())
     val stockItem: Flow<StockTable> get() = _stockItem
+
+    var redLightDays: Int = 0
+        private set
+
+    var yellowLightDays: Int = 0
+        private set
+
+    init {
+        viewModelScope.launch(Dispatchers.IO) {
+            redLightDays = settingDao.getAdjustmentDaysByName("RedLightEnabled")
+            yellowLightDays = settingDao.getAdjustmentDaysByName("YellowLightEnabled")
+        }
+    }
+
 
     private val _UnexpiredList = MutableStateFlow<List<StockTable>>(emptyList())
     val UnexpiredList: StateFlow<List<StockTable>> get() = _UnexpiredList
@@ -50,26 +67,29 @@ class StockViewModel(val dao: StockDao, val settingDao: SettingDao) : ViewModel(
         return settingDao.getAdjustmentDaysByName(settingName)?: 0
     }
 
+    private val _dataFlow = MutableStateFlow<List<StockTable>>(emptyList())
+    val dataFlow: StateFlow<List<StockTable>> get() = _dataFlow
+
     init {
+
+        Log.d("FirebaseDebug", "NodeRef1 path: ${nodeRef1.path}")
+        Log.d("FirebaseDebug", "NodeRef2 path: ${nodeRef2.path}")
+
         viewModelScope.launch {
             dao.getUnexpiredStockItems()
                 .collect { items ->
                     _UnexpiredList.value = items
                 }
         }
-    }
 
-    private val _dataFlow = MutableStateFlow<List<StockTable>>(emptyList())
-    val dataFlow: StateFlow<List<StockTable>> get() = _dataFlow
-
-    init {
-        val combinedListener = object : ValueEventListener {
+        // Listener for nodeRef1
+        val nodeRef1Listener = object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
+                Log.d("FirebaseDebug", "NodeRef1 Snapshot: ${snapshot.value}")
                 viewModelScope.launch {
                     withContext(Dispatchers.IO) {
                         val dataList = mutableListOf<StockTable>()
                         for (dataSnapshot in snapshot.children) {
-                            // 检查该项是否已经标记为已写入
                             val isWritten = dataSnapshot.child("isWritten").getValue(Boolean::class.java) ?: false
 
                             if (!isWritten) {
@@ -78,57 +98,27 @@ class StockViewModel(val dao: StockDao, val settingDao: SettingDao) : ViewModel(
                                     dataModel?.let {
                                         val existingItem = dao.getItemByUUID(it.uuid)
                                         if (existingItem == null) {
-                                            // 获取 stockitemName 来查询调整天数
-                                            val settingName = it.stockitemName ?: ""  // 获取 stockitemName
-
-                                            // 判断当前节点是 nodeRef1 还是 nodeRef2
-                                            if (dataSnapshot.ref == nodeRef1) {
-                                                // 节点1：直接写入
-                                                val dataEntity = StockTable(
-                                                    it.stockitemId ?: 0,
-                                                    it.stockitemName ?: "",
-                                                    it.number,
-                                                    it.loginDate,
-                                                    it.loginDate, // 直接使用 loginDate
-                                                    it.uuid
-                                                )
-                                                // 添加到数据列表
-                                                dataList.add(dataEntity)
-
-                                            } else if (dataSnapshot.ref == nodeRef2) {
-                                                // 节点2：需要调整日期
-                                                val adjustmentDays = loadAdjustmentDays(settingName)  // 根据 stockitemName 查询设置的天数
-
-                                                // 计算调整后的过期日期
-                                                val adjustedExpiryDate = it.loginDate + (adjustmentDays * 24 * 60 * 60 * 1000L)
-
-                                                // 创建新的 StockTable 实体
-                                                val dataEntity = StockTable(
-                                                    it.stockitemId ?: 0,
-                                                    it.stockitemName ?: "",
-                                                    it.number,
-                                                    it.loginDate,
-                                                    adjustedExpiryDate,  // 使用调整后的过期日期
-                                                    it.uuid
-                                                )
-                                                // 添加到数据列表
-                                                dataList.add(dataEntity)
-                                            }
-
-                                            // 标记为已写入，防止未来的重复
+                                            val dataEntity = StockTable(
+                                                it.stockitemId ?: 0,
+                                                it.stockitemName ?: "",
+                                                it.number,
+                                                it.loginDate,
+                                                it.loginDate, // Directly use loginDate
+                                                it.uuid
+                                            )
+                                            dataList.add(dataEntity)
                                             dataSnapshot.ref.child("isWritten").setValue(true)
                                         }
                                     }
                                 } catch (e: DatabaseException) {
-                                    Log.e("DataConversionhaha", "Error converting data: ${e.message}")
+                                    Log.e("DataConversion", "Error converting data: ${e.message}")
                                 }
                             }
                         }
 
-                        // 如果有数据，则插入到本地数据库并更新数据流
                         if (dataList.isNotEmpty()) {
                             dao.insert(dataList)
-                            Log.d("StockViewModel", "Inserted data list: $dataList")
+                            Log.d("StockViewModel", "Inserted data list from nodeRef1: $dataList")
                             _dataFlow.value = dataList
                         }
                     }
@@ -136,13 +126,70 @@ class StockViewModel(val dao: StockDao, val settingDao: SettingDao) : ViewModel(
             }
 
             override fun onCancelled(error: DatabaseError) {
-                Log.e("DatabaseError", "Error: ${error.message}")
+                Log.e("DatabaseError", "NodeRef1 Error: ${error.message}")
             }
         }
 
-        // 添加监听器到 Firebase 数据库
-        nodeRef2.addValueEventListener(combinedListener)  // 监听 nodeRef2，进行日期调整
-        nodeRef1.addValueEventListener(combinedListener)  // 监听 nodeRef1，直接写入
+        // Listener for nodeRef2
+        val nodeRef2Listener = object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                Log.d("FirebaseDebug", "NodeRef2 Snapshot: ${snapshot.value}")
+                viewModelScope.launch {
+                    withContext(Dispatchers.IO) {
+                        val dataList = mutableListOf<StockTable>()
+                        for (dataSnapshot in snapshot.children) {
+                            val isWritten = dataSnapshot.child("isWritten").getValue(Boolean::class.java) ?: false
+
+                            if (!isWritten) {
+                                try {
+                                    val dataModel = dataSnapshot.getValue(StockTable::class.java)
+                                    dataModel?.let {
+                                        val existingItem = dao.getItemByUUID(it.uuid)
+                                        if (existingItem == null) {
+                                            val settingName = it.stockitemName ?: ""
+                                            Log.d("FirebaseDebug", "NodeRef2 $settingName")
+                                            val adjustmentDays = loadAdjustmentDays(settingName)?: 0
+                                            Log.d("FirebaseDebug", "NodeRef23 $adjustmentDays ")
+                                            val adjustedExpiryDate = it.loginDate + (adjustmentDays * 24 * 60 * 60 * 1000L)
+                                            Log.d("FirebaseDebug", "NodeRef24 ")
+                                            val dataEntity = StockTable(
+                                                it.stockitemId ?: 0,
+                                                it.stockitemName ?: "",
+                                                it.number,
+                                                it.loginDate,
+                                                adjustedExpiryDate, // Use adjusted expiry date
+                                                it.uuid
+                                            )
+                                            dataList.add(dataEntity)
+                                            dataSnapshot.ref.child("isWritten").setValue(true)
+                                        }
+                                    }
+                                } catch (e: DatabaseException) {
+                                    Log.e("DataConversion", "Error converting data: ${e.message}")
+                                }
+                            }
+                        }
+
+                        if (dataList.isNotEmpty()) {
+                            dao.insert(dataList)
+                            Log.d("StockViewModel", "Inserted data list from nodeRef2: $dataList")
+                            _dataFlow.value = dataList
+                        }
+                    }
+                }
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                Log.e("DatabaseError", "NodeRef2 Error: ${error.message}")
+            }
+        }
+
+        // Attach listeners to Firebase database references
+        nodeRef1.addValueEventListener(nodeRef1Listener)
+        Log.d("FirebaseDebug", "NodeRef1 listener attached")
+
+        nodeRef2.addValueEventListener(nodeRef2Listener)
+        Log.d("FirebaseDebug", "NodeRef2 listener attached")
     }
 
 
@@ -245,6 +292,14 @@ class StockViewModel(val dao: StockDao, val settingDao: SettingDao) : ViewModel(
             _UnexpiredList.value = dao.getUnexpiredStockItems().first()
         }
     }
+    fun getLightDays(LightName:String): Int {
+        var LightDays = 0
+        CoroutineScope(Dispatchers.IO).launch {
+            LightDays = settingDao.getAdjustmentDaysByName(LightName)
+
+        }
+        return LightDays
+    }
 
     fun freshness(note: StockTable): Double {
         var loginDate = note.loginDate //登入日期
@@ -263,13 +318,19 @@ class StockViewModel(val dao: StockDao, val settingDao: SettingDao) : ViewModel(
         var result = exp(ln(0.01) * (passedtime/totaltime).pow(n))
         return result
     }
-    fun lightSignal(freshness: Double): Int {
+  fun lightSignal(freshness: Double): Int {
+
+        val redlight = redLightDays/100.0
+        val yellowlight = yellowLightDays/100.0
+        Log.e("lightSignalkk","redLightDays$redLightDays yellowLightDays$yellowLightDays")
         return when {
-            freshness in 0.5..1.0 -> R.drawable.greenlight // Fresh
-            freshness in 0.2..0.5 -> R.drawable.yellowlight
-            freshness in 0.000001..0.2 -> R.drawable.redlight
+            freshness in yellowlight..1.0 -> R.drawable.greenlight // Fresh
+            freshness in redlight..yellowlight -> R.drawable.yellowlight
+            freshness in 0.000001..redlight -> R.drawable.redlight
             else -> R.drawable.skull // Not fresh
         }
+
+
     }
 
 }

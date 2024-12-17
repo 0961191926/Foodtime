@@ -67,11 +67,12 @@ fun Signal_Notification(navController: NavController, settingViewModel: SettingV
             .fillMaxSize()
             .padding(16.dp)
     ) {
+        val settings = settingViewModel.settingList.collectAsState(initial = emptyList())
         val notificationEnabled = remember { mutableStateOf(true) }
         val redLightNotification = remember { mutableStateOf(true) }
         val yellowLightNotification = remember { mutableStateOf(true) }
-        val redLightDays = remember { mutableStateOf(3) }
-        val yellowLightDays = remember { mutableStateOf(5) }
+        val redLightDays = remember {mutableStateOf(settings.value.find { it.settingName == "RedLightEnabled" }?.settingDay ?: 20)}
+        val yellowLightDays = remember {mutableStateOf(settings.value.find { it.settingName == "YellowLightEnabled" }?.settingDay ?: 50)}
 
         NotificationSetting(
             isEnabled = notificationEnabled.value,
@@ -95,6 +96,7 @@ fun Signal_Notification(navController: NavController, settingViewModel: SettingV
             name = "紅燈",
             expirationDays = redLightDays,
             isNotificationEnabled = notificationEnabled.value && redLightNotification.value,
+            range = 5..20,
             onNotificationToggle = {
                 if (notificationEnabled.value) {
                     redLightNotification.value = it
@@ -114,6 +116,7 @@ fun Signal_Notification(navController: NavController, settingViewModel: SettingV
             name = "黃燈",
             expirationDays = yellowLightDays,
             isNotificationEnabled = notificationEnabled.value && yellowLightNotification.value,
+            range = 30..50,
             onNotificationToggle = {
                 if (notificationEnabled.value) {
                     yellowLightNotification.value = it
@@ -176,9 +179,9 @@ fun ListItem(
             )
         }
         TextField(
-            value = "${expirationDays.value}天",
+            value = "${expirationDays.value}%",
             onValueChange = { newValue ->
-                val number = newValue.replace("天", "").toIntOrNull()
+                val number = newValue.replace("%", "").toIntOrNull()
                 if (number != null && number >= 0) {
                     expirationDays.value = number
                 } else if (newValue.isEmpty()) {
@@ -223,6 +226,7 @@ fun ListItem2(
     name: String,
     expirationDays: MutableState<Int>,
     isNotificationEnabled: Boolean,
+    range: IntRange,
     onNotificationToggle: (Boolean) -> Unit,
     settingViewModel: SettingViewModel,
     onDayChange: (Int) -> Unit
@@ -247,11 +251,9 @@ fun ListItem2(
             fontFamily = displayFontFamily
         )
         IconButton(onClick = {
-            if (settingList.value[1].settingDay > 0) {
-                expirationDays.value--
+            if (expirationDays.value > range.first) { // 檢查是否超過最小值
+                expirationDays.value -= 1
                 onDayChange(expirationDays.value)
-                //val notificationSetting = SettingTable(settingId = , settingName = "NotificationEnabled", settingNotify = true, settingDay =0)
-                //settingViewModel.insertSetting(notificationSetting)
             }
         },
             modifier = Modifier.size(40.dp)  // 調整 IconButton 的大小
@@ -261,15 +263,12 @@ fun ListItem2(
             )// 調整 Icon 的大小)
         }
         TextField(
-            value = "${expirationDays.value}天",
+            value = "${expirationDays.value}%",
             onValueChange = { newValue ->
-                val number = newValue.replace("天", "").toIntOrNull()
-                if (number != null && number >= 0) {
+                val number = newValue.replace("%", "").toIntOrNull()
+                if (number != null && number in range) {
                     expirationDays.value = number
                     onDayChange(number)
-                } else if (newValue.isEmpty()) {
-                    expirationDays.value = 0
-                    onDayChange(0)
                 }
             },
             singleLine = true,
@@ -291,10 +290,12 @@ fun ListItem2(
             )
         )
         IconButton(onClick = {
-            expirationDays.value++
-            onDayChange(expirationDays.value)
+            if (expirationDays.value < range.last) { // 檢查是否超過最大值
+                expirationDays.value += 1
+                onDayChange(expirationDays.value)
+            }
         }) {
-            Icon(Icons.Default.KeyboardArrowUp, contentDescription = "增加天数")
+            Icon(Icons.Default.KeyboardArrowUp, contentDescription = "增加天數")
         }
         Switch(
             checked = isNotificationEnabled,

@@ -53,7 +53,7 @@ fun ExpiredNoteList(navController: NavController,stockViewModel: StockViewModel)
                 NoteItem(
                     note = note,
                     cover1 = ImageMapper.getImageResourceByName(note.stockitemName),
-                    cover2 = stockViewModel.lightSignal(stockViewModel.freshness(note)),
+                    cover2 = R.drawable.skull,
                     stockViewModel = stockViewModel,
                     onClick = { navController.navigate("FoodDetail/${note.stockitemId}",) },
                     onRemove ={ stockViewModel.deleteStockItem(note)

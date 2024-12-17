@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<selector xmlns:android="http://schemas.android.com/apk/res/android">
-    <item>
-        <shape android:shape="oval">
-            <stroke android:width="3dp" android:color="@color/black"/> // 边框宽度为 3dp，边框颜色为黑色
-            <solid android:color="@color/lightblue" />
-        </shape>
-    </item>
-</selector>

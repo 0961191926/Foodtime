@@ -100,8 +100,8 @@ class SettingViewModel(val dao: SettingDao) : ViewModel() {
             val existingSettings = dao.getAllUsers().firstOrNull() // 取得目前的設定資料
             if (existingSettings.isNullOrEmpty()) {
                 // 初始化三筆資料
-                dao.insert(SettingTable(settingName = "RedLightEnabled", settingNotify = true, settingDay = 3))
-                dao.insert(SettingTable(settingName = "YellowLightEnabled", settingNotify = true, settingDay = 5))
+                dao.insert(SettingTable(settingName = "RedLightEnabled", settingNotify = true, settingDay = 20))
+                dao.insert(SettingTable(settingName = "YellowLightEnabled", settingNotify = true, settingDay = 50))
                 dao.insert(SettingTable(settingName = "NotificationEnabled", settingNotify = true, settingDay = 0))
             }
         }
